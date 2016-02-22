@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 
+import AllJoynPy
 from AllJoynPy import AllJoyn, Constants, QStatus
+from callbacks import *
 import ctypes as C
-import signal
+import signal, time
 import sys
+from ctypes import POINTER
+
+
+if sys.platform == 'win32':
+    CallbackType = C.WINFUNCTYPE
+else:
+    CallbackType = C.CFUNCTYPE
 
 
 INTERFACE_NAME = "net.allplay.MediaPlayer";
 OBJECT_NAME = "net.allplay.MediaPlayer.i51e73778-31f3-4dc8-a33d-9237295005ae.rVeY693N7";
 OBJECT_PATH = "/net/allplay/MediaPlayer";
-
-ROUTER = True
 
 #static const alljoyn_sessionport SERVICE_PORT = 25;
 
@@ -25,6 +32,68 @@ ROUTER = True
 
 
 status = QStatus.ER_OK;
+
+#/* FoundAdvertisedName callback */
+#void AJ_CALL found_advertised_name(const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix)
+
+
+def found_advertised_name(context, name, transport, name_prefix):
+    print "AwesomeSauce", context, name, transport, name_prefix
+
+
+
+#/* NameOwnerChanged callback */
+#void AJ_CALL name_owner_changed(const void* context, const char* busName, const char* previousOwner, const char* newOwner)
+
+def name_owner_changed(context, bus_name, previous_owner, new_owner):
+    print "AwesomeSauce", context, bus_name, previous_owner, new_owner
+
+
+
+
+
+
+def BusListenerRegisteredFunc(context, bus):
+    pass
+
+def BusListenerUnRegisteredFunc(context):
+    pass
+
+#BusListenerFoundAdvertisedNameFunc(context, name, transport, namePrefix
+
+def BusListenerLostAdvertisedNameFunc(context, name, transport, namePrefix):
+    pass
+
+#BusListenerNameOwnerChangedFunc(context, busName, previousOwner, newOwner
+
+def BusListenerBusStoppingFunc(context):
+    pass
+
+def BusListenerBusDisconnectedFunc(context):
+    pass
+    
+def BusListenerBusPropertyChangedFunc(context, prop_name, prop_value):
+    pass
+     
+     
+callbacks = AllJoynPy.BusListenerCallbacks()
+callbacks.BusListenerFoundAdvertisedNameFuncType = AllJoynPy.BusListenerFoundAdvertisedNameFuncType(found_advertised_name)
+callbacks.BusListenerNameOwnerChangedFuncType = AllJoynPy.BusListenerNameOwnerChangedFuncType(name_owner_changed)
+
+
+
+
+#callbacks = BusListenerCallbacks(
+#                                    BusListenerRegisteredFuncType(BusListenerRegisteredFunc),
+#                                    BusListenerUnRegisteredFuncType(BusListenerUnRegisteredFunc),
+#                                    BusListenerFoundAdvertisedNameFuncType(found_advertised_name),
+#                                    BusListenerLostAdvertisedNameFuncType(BusListenerLostAdvertisedNameFunc),
+#                                    BusListenerNameOwnerChangedFuncType(name_owner_changed),
+#                                    BusListenerBusStoppingFuncType(BusListenerBusStoppingFunc),
+#                                    BusListenerBusDisconnectedFuncType(BusListenerBusDisconnectedFunc),
+#                                    BusListenerBusPropertyChangedFuncType(BusListenerBusPropertyChangedFunc)
+#                                )
+
 
 #    char* connectArgs = NULL;
 #    alljoyn_interfacedescription testIntf = NULL;
@@ -57,13 +126,8 @@ def signal_handler(signal, frame):
 
 alljoyn = AllJoyn('alljoyn_c')
 
-print alljoyn.Init()
 
-if ROUTER:
-    if alljoyn.Routerinit() != ER_OK:
-        alljoyn.Shutdown();
-        sys.exit(1)
-   
+print alljoyn.Init()
 
 print "AllJoyn Library version:", alljoyn.GetVersion()
 print "AllJoyn Library build info:", alljoyn.GetBuildInfo()
@@ -118,11 +182,44 @@ if status == QStatus.ER_OK:
         else:
             print "alljoyn_busattachment connected to \"%s\"" % (alljoyn.BusattachmentGetconnectspec(s_msgBus),)
         
-  
+        
+    if status == QStatus.ER_OK:
+        s_busListener = alljoyn.BusListenerCreate(C.byref(callbacks), None)        
+        print s_busListener
+        
+    if status == QStatus.ER_OK:
+        alljoyn.BusattachmentRegisterbuslistener(s_msgBus, s_busListener)
+        print "alljoyn_buslistener Registered."
+        
+    # Begin discovery on the well-known name of the service to be called 
+    if status == QStatus.ER_OK:
+        status = alljoyn.BusattachmentFindadvertisedname(s_msgBus, OBJECT_NAME)
+        if status != QStatus.ER_OK:
+            print "alljoyn_busattachment_findadvertisedname failed (%s))" % (alljoyn.QccStatustext(status),);
     
+        
+    # Wait for join session to complete 
+    t=0
+    while t < 10:
+        time.sleep(0.5)
+        t+=0.5
+        
+    print "Done"
 """
     
 
+
+
+
+    /* Wait for join session to complete */
+    while ((status == ER_OK) && (s_joinComplete == QCC_FALSE) && (s_interrupt == QCC_FALSE) && (timeMs < timeoutMstimeoutMs)) {
+#ifdef _WIN32
+        Sleep(10);
+#else
+        usleep(10 * 1000);
+#endif
+        timeMs += 10;
+    }
 
    
 """

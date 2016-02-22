@@ -5,6 +5,7 @@ import ctypes as C
 import os, sys
 from types import IntType
 from constants import *
+from ctypes import POINTER
 
 from sys import platform as _platform
 
@@ -29,6 +30,81 @@ DWORD   = C.c_ulong
 LONG    = C.c_long
 
 
+
+#typedef void (AJ_CALL * alljoyn_buslistener_listener_registered_ptr)(const void* context, alljoyn_busattachment bus);
+#typedef void (AJ_CALL * alljoyn_buslistener_listener_unregistered_ptr)(const void* context);
+#typedef void (AJ_CALL * alljoyn_buslistener_found_advertised_name_ptr)(const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix);
+#typedef void (AJ_CALL * alljoyn_buslistener_lost_advertised_name_ptr)(const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix);
+#typedef void (AJ_CALL * alljoyn_buslistener_name_owner_changed_ptr)(const void* context, const char* busName, const char* previousOwner, const char* newOwner);
+#typedef void (AJ_CALL * alljoyn_buslistener_bus_stopping_ptr)(const void* context);
+#typedef void (AJ_CALL * alljoyn_buslistener_bus_disconnected_ptr)(const void* context);
+#typedef void (AJ_CALL * alljoyn_buslistener_bus_prop_changed_ptr)(const void* context, const char* prop_name, alljoyn_msgarg prop_value);
+
+
+
+
+
+#class BusListenerCallbacks(C.Structure):
+    #_fields_ = [("BusListenerRegistered",
+                    #CallbackType(None, C.c_void_p, C.c_void_p)),                 # const void* context, alljoyn_busattachment bus
+                #("BusListenerUnRegistered",
+                    #CallbackType(None, C.c_void_p)),                             # const void* context
+                #("BusListenerFoundAdvertisedName", 
+                    #CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p)), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                #("BusListenerLostAdvertisedName", 
+                    #CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p)), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                #("BusListenerNameOwnerChanged", 
+                    #CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p)), # const void* context, const char* busName, const char* previousOwner, const char* newOwner
+                #("BusListenerBusStopping", 
+                    #CallbackType(None, C.c_void_p)),                                     # const void* context
+                #("BusListenerBusDisconnected", 
+                    #CallbackType(None, C.c_void_p)),                                     # const void* context
+                #("BusListenerBusPropertyChanged", 
+                    #CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p))             # const void* context, const char* prop_name, alljoyn_msgarg prop_value
+               #]
+
+
+#class BusListenerCallbacks(C.Structure):
+    #_fields_ = [("BusListenerRegistered",
+                    #POINTER(CallbackType(None, C.c_void_p, C.c_void_p))),                 # const void* context, alljoyn_busattachment bus
+                #("BusListenerUnRegistered",
+                    #POINTER(CallbackType(None, C.c_void_p))),                             # const void* context
+                #("BusListenerFoundAdvertisedName", 
+                    #POINTER(CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p))), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                #("BusListenerLostAdvertisedName", 
+                    #POINTER(CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p))), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                #("BusListenerNameOwnerChanged", 
+                    #POINTER(CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p))), # const void* context, const char* busName, const char* previousOwner, const char* newOwner
+                #("BusListenerBusStopping", 
+                    #POINTER(CallbackType(None, C.c_void_p))),                                     # const void* context
+                #("BusListenerBusDisconnected", 
+                    #POINTER(CallbackType(None, C.c_void_p))),                                     # const void* context
+                #("BusListenerBusPropertyChanged", 
+                    #POINTER(CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p)))             # const void* context, const char* prop_name, alljoyn_msgarg prop_value
+               #]
+
+
+
+#typedef struct {
+#    
+#    
+#    alljoyn_buslistener_listener_registered_ptr listener_registered;
+#
+#    alljoyn_buslistener_listener_unregistered_ptr listener_unregistered;
+#
+#    alljoyn_buslistener_found_advertised_name_ptr found_advertised_name;
+#
+#    alljoyn_buslistener_lost_advertised_name_ptr lost_advertised_name;
+#
+#    alljoyn_buslistener_name_owner_changed_ptr name_owner_changed;
+#
+#    alljoyn_buslistener_bus_stopping_ptr bus_stopping;
+#
+#    alljoyn_buslistener_bus_disconnected_ptr bus_disconnected;
+#
+#    alljoyn_buslistener_bus_prop_changed_ptr property_changed;
+#    
+#} alljoyn_buslistener_callbacks;
 
 
 
@@ -172,24 +248,7 @@ typedef struct {
 } alljoyn_pinglistener_callback;
 
 
-typedef struct {
-    
-    alljoyn_buslistener_listener_registered_ptr listener_registered;
 
-    alljoyn_buslistener_listener_unregistered_ptr listener_unregistered;
-
-    alljoyn_buslistener_found_advertised_name_ptr found_advertised_name;
-
-    alljoyn_buslistener_lost_advertised_name_ptr lost_advertised_name;
-
-    alljoyn_buslistener_name_owner_changed_ptr name_owner_changed;
-
-    alljoyn_buslistener_bus_stopping_ptr bus_stopping;
-
-    alljoyn_buslistener_bus_disconnected_ptr bus_disconnected;
-
-    alljoyn_buslistener_bus_prop_changed_ptr property_changed;
-} alljoyn_buslistener_callbacks;
 
 typedef struct {
 
@@ -279,13 +338,13 @@ typedef struct {
 
 
 
-class AllJoynCallbacks:
-
-
-    # alljoyn_sessionlistener_create  returns  alljoyn_sessionlistener
-    def SessionListenerCreate(callbacks, context)  # const alljoyn_sessionlistener_callbacks* callbacks ,const void* context
-        self.__lib.alljoyn_message_parseargs.restype = C.c_uint
-        self.__lib.alljoyn_message_parseargs.argtypes = [POINTER(SessionListenerCallbacks), C.c_char_p]
-        return alljoyn_sessionlistener_create(callbacks, context)
+#class AllJoynCallbacks:
+#
+#
+#    # alljoyn_sessionlistener_create  returns  alljoyn_sessionlistener
+#    def SessionListenerCreate(callbacks, context)  # const alljoyn_sessionlistener_callbacks* callbacks ,const void* context
+#        self.__lib.alljoyn_message_parseargs.restype = C.c_uint
+#        self.__lib.alljoyn_message_parseargs.argtypes = [POINTER(SessionListenerCallbacks), C.c_char_p]
+#        return alljoyn_sessionlistener_create(callbacks, context)
         
     

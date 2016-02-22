@@ -540,6 +540,50 @@ class Constants(object):
     ALLJOYN_PROXIMITY_NETWORK   = 0x02 
 
 
+
+
+###### Callback Types ###################
+
+if sys.platform == 'win32':
+    CallbackType = C.WINFUNCTYPE
+else:
+    CallbackType = C.CFUNCTYPE
+
+BusListenerRegisteredFuncType = CallbackType(None, C.c_void_p, C.c_void_p)                 # const void* context, alljoyn_busattachment bus
+BusListenerUnRegisteredFuncType = CallbackType(None, C.c_void_p)                             # const void* context
+BusListenerFoundAdvertisedNameFuncType = CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p) # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+BusListenerLostAdvertisedNameFuncType = CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p) # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+BusListenerNameOwnerChangedFuncType = CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p, C.c_void_p) # const void* context, const char* busName, const char* previousOwner, const char* newOwner
+BusListenerBusStoppingFuncType = CallbackType(None, C.c_void_p)                                     # const void* context
+BusListenerBusDisconnectedFuncType = CallbackType(None, C.c_void_p)                                     # const void* context
+BusListenerBusPropertyChangedFuncType = CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p)             # const void* context, const char* prop_name, alljoyn_msgarg prop_value
+     
+#######################################
+
+
+######  Structures ####################
+
+class BusListenerCallbacks(C.Structure):
+    _fields_ = [("BusListenerRegistered",
+                    POINTER(BusListenerRegisteredFuncType)),                 # const void* context, alljoyn_busattachment bus
+                ("BusListenerUnRegistered",
+                    POINTER(BusListenerUnRegisteredFuncType)),                             # const void* context
+                ("BusListenerFoundAdvertisedName", 
+                    POINTER(BusListenerFoundAdvertisedNameFuncType)), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                ("BusListenerLostAdvertisedName", 
+                    POINTER(BusListenerLostAdvertisedNameFuncType)), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                ("BusListenerNameOwnerChanged", 
+                    POINTER(BusListenerNameOwnerChangedFuncType)), # const void* context, const char* busName, const char* previousOwner, const char* newOwner
+                ("BusListenerBusStopping", 
+                    POINTER(BusListenerBusStoppingFuncType)),                                     # const void* context
+                ("BusListenerBusDisconnected", 
+                    POINTER(BusListenerBusDisconnectedFuncType)),                                     # const void* context
+                ("BusListenerBusPropertyChanged", 
+                    POINTER(BusListenerBusPropertyChangedFuncType))             # const void* context, const char* prop_name, alljoyn_msgarg prop_value
+               ]
+               
+
+
 class AllJoyn(object):
     
     def __init__(self, libraryName=None):
@@ -558,14 +602,21 @@ class AllJoyn(object):
         self.initCalled = 0
         self.__lib = library.internlLibrary(libraryName)
 
-    #def Init(self):
-    #    return self.__lib.alljoyn_init()
 
-    #def RouterInit(self):
-    #    return self.__lib.alljoyn_routerinit()
+    ################ Attach callback functions #########################
+    
+    # wrapper for alljoyn_buslistener_create returns alljoyn_buslistener
+    def BusListenerCreate(self, callbacks, context):
+        self.__lib.alljoyn_buslistener_create.restype = C.c_void_p
+        self.__lib.alljoyn_buslistener_create.argtypes = [POINTER(BusListenerCallbacks), C.c_void_p]
+        return C.c_void_p(self.__lib.alljoyn_buslistener_create(callbacks, context))
+            
+    
+    
+    ##########################################
 
-    #def Shutdown(self):
-    #    return self.__lib.alljoyn_shutdown()
+
+    
     
     def GetVersion(self):
         self.__lib.alljoyn_getversion.restype = C.c_char_p
@@ -574,6 +625,12 @@ class AllJoyn(object):
     def GetBuildInfo(self):
         self.__lib.alljoyn_getbuildinfo.restype = C.c_char_p
         return self.__lib.alljoyn_getbuildinfo()
+
+
+
+
+
+
 
     #############################################
     
