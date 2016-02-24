@@ -127,8 +127,8 @@ CallbackPtrTpPythonNameMap = {}
 def underscore_to_camelcase(value):
     return ''.join([x.capitalize() for x in value.lower().split('_')])
     
-def pass_function_name(func):
-    name_parts = func['name'].split('_')
+def pass_function_name(name):
+    name_parts = name.split('_')
     name_end = []
     
     if 'DEPRECATED' in name_parts:
@@ -162,9 +162,9 @@ def process_function_pointer_typedef(typedefs):
             
             
             for func in parsed.functions:  
-                #print "name", func['name']
+                print "name", func['name']
                 try:
-                    python_name_start, python_name_end = pass_function_name(func)
+                    python_name_start, python_name_end = pass_function_name(func['name'])
                     print python_name_start, python_name_end
                 except:
                     continue
@@ -180,13 +180,41 @@ def process_function_pointer_typedef(typedefs):
                     parameter_ctypes.append(type_map[param['type'].replace(' ', '').replace('const', '')])
                 
                 callbackName = python_name_start + python_name_end
-                CallbackPtrTpPythonNameMap[callbackName] = callbackName.replace('Ptr', 'FuncType')
-                print CallbackPtrTpPythonNameMap[callbackName]  + " = CallbackType(None, " + ', '.join(parameter_ctypes) + ') # ' + ' '.join(parameter_names)
+                CallbackPtrTpPythonNameMap[func['name']] = callbackName.replace('Ptr', 'FuncType')
+                print CallbackPtrTpPythonNameMap[func['name']]  + " = CallbackType(None, " + ', '.join(parameter_ctypes) + ') # ' + ' '.join(parameter_names)
    
             
-        
+import pprint
    
-def process_structures(typedefs):
+def process_structures(cpp_header):
+        
+    pp = pprint.PrettyPrinter(depth=6)
+    #print  pp.pprint(cpp_header)
+        
+    for cls_name, cls in cpp_header.classes.items():
+        
+        #print "hmm", cls
+        
+        python_name_start, python_name_end = pass_function_name(cls['name'])
+        CallbackClassName = python_name_start + python_name_end
+        print "class " + CallbackClassName + "(C.Structure):"
+  
+  
+        print cls['properties']
+  
+  
+  #      for prop in cls.properties:
+  #          print prop
+  
+        #print underscore_to_camelcase(cls['name'])
+  
+        #print CallbackPtrTpPythonNameMap
+        
+ #   class AboutListenerCallback(C.Structure):
+ #   _fields_ = [("AboutListenerAnnounced",
+ #                   POINTER(AboutListenerAnnouncedFuncType))
+ #              ]
+               
         
         #class BusListenerCallbacks(C.Structure):
     #_fields_ = [("BusListenerRegistered",
@@ -236,31 +264,17 @@ def create_python_file(header, cpp_header):
             print "value", value 
             print "\n\n"
     
+    
+    process_structures(cpp_header)
+    
     # build class
     for func in cpp_header.functions:
-        python_name_start, python_name_end = pass_function_name(func)
+        python_name_start, python_name_end = pass_function_name(func['name'])
         
-        name_parts = func['name'].split('_')
-        name_end = []
-        
-        if 'DEPRECATED' in name_parts:
+  
+        if 'DEPRECATED' in func['name']:
             continue
 
-        try:
-            if len(name_parts) == 2:
-                python_name = name_map[name_parts[0]]
-                name_end = name_parts[1:]
-            elif len(name_parts) >= 3:
-                python_name = name_map[name_parts[1]]
-                name_end = name_parts[2:]
-        except KeyError as ex:
-            print str(ex)
-            print header
-            print name_parts
-            raise
-        
-        
-        
         
         #print "# wrapper for", original_name, "returns", func['rtnType']
     #method_text = "def " + new_name + '(self, ' + ', '.join(parameter_names) + '):  # ' + ', '.join(parameter_types) + '\n'
@@ -279,7 +293,7 @@ def create_python_file(header, cpp_header):
             print python_name + python_name_end + " = CallbackType(None, " + ', '.join(parameter_types) + ') #' + ''.join(parameter_names)
             #return
 
-        print func, "\n\n\n"
+       # print func, "\n\n\n"
         continue
         
         
