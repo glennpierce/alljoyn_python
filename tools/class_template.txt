@@ -2,6 +2,8 @@ class __NAME__(AllJoynObject):
     
     __metaclass__ = AllJoynMeta
     
+    __methods = __METHODS__
+    
     #def __init__(self, defaultLanguage, arg=None):
     #    if not arg:
     #        self.handle = self.AboutdataCreate(defaultLanguage)

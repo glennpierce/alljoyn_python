@@ -282,20 +282,24 @@ def create_python_file(header, cpp_header):
     
         parameter_types = []
         parameter_names = []
-    
+        parameter_ctypes = []
+        
         for param in func['parameters']:
             parameter_names.append(param['name'])
             parameter_types.append(param['type'])
+            parameter_ctypes.append(type_map[param['type'].replace(' ', '').replace('const', '')])
         
-        if func.has_key('pointer') and func['pointer'] == 1:  # Build callback types
-            python_name_end = underscore_to_camelcase(name_end)
-            print python_name + python_name_end + " = CallbackType(None, " + ', '.join(parameter_types) + ') #' + ''.join(parameter_names)
+            
+            #[(name, return, ( (arg_type, ctpe_type, name), ...   ),)]
+            
+            #python_name_end = underscore_to_camelcase(name_end)
+            #print python_name + python_name_end + " = CallbackType(None, " + ', '.join(parameter_types) + ') #' + ''.join(parameter_names)
             #return
 
        # print func, "\n\n\n"
         #continue
         
-        
+        #__METHODS__
         
         
         class_template_replaced = class_template.replace('__NAME__', python_name_start)
