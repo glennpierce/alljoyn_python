@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import types
 import ctypes as C
 from ctypes import POINTER
 import os, os.path, tempfile, sys, time, StringIO
@@ -373,7 +374,19 @@ class QStatus(Enum):
     ER_INVALID_SIGNAL_EMISSION_TYPE = 0x913f # Attempt to send a signal with the wrong type. */
 
 
+class QStatusException(Exception):
+    def __init__(self, qstatus):
+        self.QStatus = qstatus
 
+        # Call the base class constructor with the parameters it needs
+        super(QStatusException, self).__init__(self.__QccStatustext(self.QStatus))
+
+    # wrapper for QCC_StatusText returns const char *
+    def __QccStatustext(self, status):  # QStatus
+        self.__lib.QCC_StatusText.restype = C.c_char_p
+        self.__lib.QCC_StatusText.argtypes = [C.c_uint32]
+        return self.__lib.QCC_StatusText(status) 
+        
 #@unique
 #class AllJoynEnum(Enum):
 #    @staticmethod
@@ -558,6 +571,10 @@ BusListenerBusStoppingFuncType = CallbackType(None, C.c_void_p)                 
 BusListenerBusDisconnectedFuncType = CallbackType(None, C.c_void_p)                                     # const void* context
 BusListenerBusPropertyChangedFuncType = CallbackType(None, C.c_void_p, C.c_void_p, C.c_void_p)             # const void* context, const char* prop_name, alljoyn_msgarg prop_value
      
+     
+AboutListenerAnnouncedFuncType = CallbackType(None, C.c_char_p, C.c_void_p, C.c_uint16, C.c_uint16, C.c_void_p) # const void* context ,const char* busName ,uint16_t version ,alljoyn_sessionport port ,const alljoyn_msgarg objectDescriptionArg ,const alljoyn_msgarg aboutDataArg
+
+     
 #######################################
 
 
@@ -584,75 +601,74 @@ class BusListenerCallbacks(C.Structure):
                
 
 
-class AllJoyn(object):
+class AboutListenerCallback(C.Structure):
+    _fields_ = [("AboutListenerAnnounced",
+                    POINTER(AboutListenerAnnouncedFuncType))
+               ]
+               
+               
+
+
+
+#      DBusStdDefines.h    
+#    MessageReceiver.h 
+#  ProxyBusObject.h 
+# TransportMask.h
+#AboutDataListener.h 
+# AutoPinger.h    
+# Init.h              
+#                               Session.h  
+#            version.h
+#   
+#InterfaceDescription.h  
+#Observer.h         
+#                SessionListener.h
+# BusListener.h  
+#  KeyStoreListener.h   
+#   PasswordManager.h      
+#            SessionPortListener.h
+#AboutIconProxy.h     AjAPI.h                   BusObject.h      .              PermissionConfigurationListener.h  Status.h
+
+
+
+
+class AllJoynMeta(type):
+   def __new__(cls, name, bases, attrs):
+      for attr_name, attr_value in attrs.iteritems():
+         if isinstance(attr_value, types.FunctionType):
+            attrs[attr_name] = cls.QStatusToException(attr_value)
+
+      return super(DecoMeta, cls).__new__(cls, name, bases, attrs)
+
+   @classmethod
+   def QStatusToException(cls, func):
+      def wrapper(*args, **kwargs):
+         result = func(*args, **kwargs)
+         if isinstance(result, QStatus):
+            if result != QStatus.ER_OK:
+                raise QStatusException(result)
+         return result
+      return wrapper
+      
+
+
+
+class AboutData(object):
     
-    def __init__(self, libraryName=None):
-        """
-        Init method for the class
-        
-        @param libraryName: library path, otherwise I'll look for it into the
-                            standard path
-        @type libraryName: string
-        """
-        
-        # Used for test
-        self.__num = 0
-        # Used for test
-        
-        self.initCalled = 0
-        self.__lib = library.internlLibrary(libraryName)
-
-
-    ################ Attach callback functions #########################
+    __metaclass__ = AllJoynMeta
     
-    # wrapper for alljoyn_buslistener_create returns alljoyn_buslistener
-    def BusListenerCreate(self, callbacks, context):
-        self.__lib.alljoyn_buslistener_create.restype = C.c_void_p
-        self.__lib.alljoyn_buslistener_create.argtypes = [POINTER(BusListenerCallbacks), C.c_void_p]
-        return C.c_void_p(self.__lib.alljoyn_buslistener_create(callbacks, context))
-            
+    def __init__(self, defaultLanguage, arg=None):
+        if not arg:
+            self.handle = self.AboutdataCreate(defaultLanguage)
+        else:
+            self.handle = self.AboutdataCreateFull(arg, defaultLanguage)
     
+    def __del__(self):
+        self.AboutdataDestroy(self.handle)
     
-    ##########################################
-
-
+    def GetFields(self, fields, num_fields):
+        self.AboutdataGetfields(self.handle, data, fields, num_fields)
     
-    
-    def GetVersion(self):
-        self.__lib.alljoyn_getversion.restype = C.c_char_p
-        return self.__lib.alljoyn_getversion()
-
-    def GetBuildInfo(self):
-        self.__lib.alljoyn_getbuildinfo.restype = C.c_char_p
-        return self.__lib.alljoyn_getbuildinfo()
-
-
-
-
-
-
-
-    #############################################
-    
-    #QStatus  alljoyn_interfacedescription_addmember(alljoyn_interfacedescription iface, alljoyn_messagetype type ,const char* name, const char* inputSig, const char* outSig ,const char* argNames, uint8_t annotation);
-
-
-    # wrapper for alljoyn_interfacedescription_addmember returns QStatus
-    def InterfaceDescriptionAddMember(self, iface, type, name, inputSig, outSig, argNames, annotation):  # alljoyn_interfacedescription, alljoyn_messagetype, const char* name, const char* inputSig, const char* outSig ,const char* argNames, uint8_t annotation
-        self.__lib.alljoyn_interfacedescription_addmember.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_addmember.argtypes = [C.c_void_p, C.c_uint32, C.c_char_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_uint8]
-        return QStatus(self.__lib.alljoyn_interfacedescription_addmember(iface, type, name, inputSig, outSig, argNames, annotation))
-
-    #############################################
-
-
-
-
-
-
-
-
-
     # wrapper for alljoyn_aboutdata_create returns alljoyn_aboutdata
     def AboutdataCreate(self, defaultLanguage):  # const char *
         self.__lib.alljoyn_aboutdata_create.restype = C.c_void_p
@@ -939,91 +955,61 @@ class AllJoyn(object):
         return self.__lib.alljoyn_aboutdata_getfieldsignature(data, fieldName) 
 
 
-    # wrapper for alljoyn_abouticon_destroy returns void
-    def AbouticonDestroy(self, icon):  # alljoyn_abouticon
-        self.__lib.alljoyn_abouticon_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_abouticon_destroy(icon) 
+
+class AboutObj(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    
+    # wrapper for alljoyn_aboutobj_destroy returns void
+    def AboutobjDestroy(self, obj):  # alljoyn_aboutobj
+        self.__lib.alljoyn_aboutobj_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_aboutobj_destroy(obj) 
 
 
-    # wrapper for alljoyn_abouticon_getcontent returns void
-    def AbouticonGetcontent(self, icon, data, size):  # alljoyn_abouticon, const uint8_t * *, size_t *
-        self.__lib.alljoyn_abouticon_getcontent.argtypes = [C.c_void_p, POINTER(C.c_uint8), POINTER(C.csize_t)]
-        self.__lib.alljoyn_abouticon_getcontent(icon, data, size) 
+    # wrapper for alljoyn_aboutobj_announce returns QStatus
+    def AboutobjAnnounce(self, obj, sessionPort, aboutData):  # alljoyn_aboutobj, alljoyn_sessionport, alljoyn_aboutdata
+        self.__lib.alljoyn_aboutobj_announce.restype = C.c_uint
+        self.__lib.alljoyn_aboutobj_announce.argtypes = [C.c_void_p, C.c_uint16, C.c_void_p]
+        return QStatus(self.__lib.alljoyn_aboutobj_announce(obj, sessionPort, aboutData)) 
 
 
-    # wrapper for alljoyn_abouticon_setcontent returns QStatus
-    def AbouticonSetcontent(self, icon, type, data, csize, ownsData):  # alljoyn_abouticon, const char *, uint8_t *, size_t, bool
-        self.__lib.alljoyn_abouticon_setcontent.restype = C.c_uint
-        self.__lib.alljoyn_abouticon_setcontent.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_uint8_t), C.csize_t, C.c_uint8]
-        return QStatus(self.__lib.alljoyn_abouticon_setcontent(icon, type, data, csize, ownsData)) 
-
-
-    # wrapper for alljoyn_abouticon_geturl returns void
-    def AbouticonGeturl(self, icon, type, url):  # alljoyn_abouticon, const char * *, const char * *
-        self.__lib.alljoyn_abouticon_geturl.argtypes = [C.c_void_p, POINTER(C.c_char_p), POINTER(C.c_char_p)]
-        self.__lib.alljoyn_abouticon_geturl(icon, type, url) 
-
-
-    # wrapper for alljoyn_abouticon_seturl returns QStatus
-    def AbouticonSeturl(self, icon, type, url):  # alljoyn_abouticon, const char *, const char *
-        self.__lib.alljoyn_abouticon_seturl.restype = C.c_uint
-        self.__lib.alljoyn_abouticon_seturl.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_abouticon_seturl(icon, type, url)) 
-
-
-    # wrapper for alljoyn_abouticon_clear returns void
-    def AbouticonClear(self, icon):  # alljoyn_abouticon
-        self.__lib.alljoyn_abouticon_clear.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_abouticon_clear(icon) 
-
-
-    # wrapper for alljoyn_abouticon_setcontent_frommsgarg returns QStatus
-    def AbouticonSetcontentFrommsgarg(self, icon, arg):  # alljoyn_abouticon, const alljoyn_msgarg
-        self.__lib.alljoyn_abouticon_setcontent_frommsgarg.restype = C.c_uint
-        self.__lib.alljoyn_abouticon_setcontent_frommsgarg.argtypes = [C.c_void_p, C.c_void_p]
-        return QStatus(self.__lib.alljoyn_abouticon_setcontent_frommsgarg(icon, arg)) 
-
-
-    # wrapper for alljoyn_abouticonobj_create returns alljoyn_abouticonobj
-    def AbouticonobjCreate(self, bus, icon):  # alljoyn_busattachment, alljoyn_abouticon
-        self.__lib.alljoyn_abouticonobj_create.restype = C.c_void_p
-        self.__lib.alljoyn_abouticonobj_create.argtypes = [C.c_void_p, C.c_void_p]
-        return self.__lib.alljoyn_abouticonobj_create(bus, icon) 
-
-
-    # wrapper for alljoyn_abouticonproxy_create returns alljoyn_abouticonproxy
-    def AbouticonproxyCreate(self, bus, busName, sessionId):  # alljoyn_busattachment, const char *, alljoyn_sessionid
-        self.__lib.alljoyn_abouticonproxy_create.restype = C.c_void_p
-        self.__lib.alljoyn_abouticonproxy_create.argtypes = [C.c_void_p, C.c_char_p, C.c_uint32]
-        return self.__lib.alljoyn_abouticonproxy_create(bus, busName, sessionId) 
-
-
-    # wrapper for alljoyn_abouticonproxy_destroy returns void
-    def AbouticonproxyDestroy(self, proxy):  # alljoyn_abouticonproxy
-        self.__lib.alljoyn_abouticonproxy_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_abouticonproxy_destroy(proxy) 
-
-
-    # wrapper for alljoyn_abouticonproxy_geticon returns QStatus
-    def AbouticonproxyGeticon(self, proxy, icon):  # alljoyn_abouticonproxy, alljoyn_abouticon
-        self.__lib.alljoyn_abouticonproxy_geticon.restype = C.c_uint
-        self.__lib.alljoyn_abouticonproxy_geticon.argtypes = [C.c_void_p, C.c_void_p]
-        return QStatus(self.__lib.alljoyn_abouticonproxy_geticon(proxy, icon)) 
-
-
-    # wrapper for alljoyn_abouticonproxy_getversion returns QStatus
-    def AbouticonproxyGetversion(self, proxy, version):  # alljoyn_abouticonproxy, uint16_t *
-        self.__lib.alljoyn_abouticonproxy_getversion.restype = C.c_uint
-        self.__lib.alljoyn_abouticonproxy_getversion.argtypes = [C.c_void_p, POINTER(C.c_uint16)]
-        return QStatus(self.__lib.alljoyn_abouticonproxy_getversion(proxy, version)) 
-
-
-    # wrapper for alljoyn_aboutlistener_destroy returns void
-    def AboutlistenerDestroy(self, listener):  # alljoyn_aboutlistener
-        self.__lib.alljoyn_aboutlistener_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_aboutlistener_destroy(listener) 
-
-
+    # wrapper for alljoyn_aboutobj_unannounce returns QStatus
+    def AboutobjUnannounce(self, obj):  # alljoyn_aboutobj
+        self.__lib.alljoyn_aboutobj_unannounce.restype = C.c_uint
+        self.__lib.alljoyn_aboutobj_unannounce.argtypes = [C.c_void_p]
+        return QStatus(self.__lib.alljoyn_aboutobj_unannounce(obj)) 
+    
+    
+class AboutObjectDescription(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    def __init__(self, alljoyn_msgarg):
+        self.handle = self.AboutobjectdescriptionCreate(alljoyn_msgarg)
+    
+    def __del__(self):
+        self.AboutobjectdescriptionDestroy(self.handle)
+    
+    def CreateFromMsgArg(self, description, arg):
+        return self.AboutobjectdescriptionCreatefrommsgarg(description, arg)
+            
+    def Getpaths(self, paths, numPaths):
+        return self.AboutobjectdescriptionGetpaths(self.handle, paths, numPaths)
+            
+    def GetInterfaces(self, path, interfaces, numInterfaces):
+        return self.AboutobjectdescriptionGetinterfaces(self.handle, path, interfaces, numInterfaces)
+            
+                  
+            
+            
+            
+    # wrapper for alljoyn_aboutobjectdescription_create returns alljoyn_aboutobjectdescription
+    def AboutobjectdescriptionCreate(self, alljoyn_msgarg):  # const alljoyn_msgarg
+        self.__lib.alljoyn_aboutobjectdescription_create.restype = C.c_void_p
+        self.__lib.alljoyn_aboutobjectdescription_create.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_aboutobjectdescription_create(alljoyn_msgarg) 
+    
     # wrapper for alljoyn_aboutobjectdescription_create_full returns alljoyn_aboutobjectdescription
     def AboutobjectdescriptionCreateFull(self, arg):  # const alljoyn_msgarg
         self.__lib.alljoyn_aboutobjectdescription_create_full.restype = C.c_void_p
@@ -1097,29 +1083,15 @@ class AllJoyn(object):
         self.__lib.alljoyn_aboutobjectdescription_getmsgarg.restype = C.c_uint
         self.__lib.alljoyn_aboutobjectdescription_getmsgarg.argtypes = [C.c_void_p, C.c_void_p]
         return QStatus(self.__lib.alljoyn_aboutobjectdescription_getmsgarg(description, msgArg)) 
+    
 
 
-    # wrapper for alljoyn_aboutobj_destroy returns void
-    def AboutobjDestroy(self, obj):  # alljoyn_aboutobj
-        self.__lib.alljoyn_aboutobj_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_aboutobj_destroy(obj) 
-
-
-    # wrapper for alljoyn_aboutobj_announce returns QStatus
-    def AboutobjAnnounce(self, obj, sessionPort, aboutData):  # alljoyn_aboutobj, alljoyn_sessionport, alljoyn_aboutdata
-        self.__lib.alljoyn_aboutobj_announce.restype = C.c_uint
-        self.__lib.alljoyn_aboutobj_announce.argtypes = [C.c_void_p, C.c_uint16, C.c_void_p]
-        return QStatus(self.__lib.alljoyn_aboutobj_announce(obj, sessionPort, aboutData)) 
-
-
-    # wrapper for alljoyn_aboutobj_unannounce returns QStatus
-    def AboutobjUnannounce(self, obj):  # alljoyn_aboutobj
-        self.__lib.alljoyn_aboutobj_unannounce.restype = C.c_uint
-        self.__lib.alljoyn_aboutobj_unannounce.argtypes = [C.c_void_p]
-        return QStatus(self.__lib.alljoyn_aboutobj_unannounce(obj)) 
-
-
-    # wrapper for alljoyn_aboutproxy_create returns alljoyn_aboutproxy
+class AboutProxy(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    
+        # wrapper for alljoyn_aboutproxy_create returns alljoyn_aboutproxy
     def AboutproxyCreate(self, bus, busName, sessionId):  # alljoyn_busattachment, const char *, alljoyn_sessionid
         self.__lib.alljoyn_aboutproxy_create.restype = C.c_void_p
         self.__lib.alljoyn_aboutproxy_create.argtypes = [C.c_void_p, C.c_char_p, C.c_uint32]
@@ -1153,199 +1125,115 @@ class AllJoyn(object):
         return QStatus(self.__lib.alljoyn_aboutproxy_getversion(proxy, version)) 
 
 
-    # wrapper for alljoyn_unity_set_deferred_callback_mainthread_only returns void
-    def UnitySetDeferredCallbackMainthreadOnly(self, mainthread_only):  # QCC_BOOL
-        self.__lib.alljoyn_unity_set_deferred_callback_mainthread_only.argtypes = [C.c_uint8]
-        self.__lib.alljoyn_unity_set_deferred_callback_mainthread_only(mainthread_only) 
+class AboutIcon(object):
+        # wrapper for alljoyn_abouticon_destroy returns void
+    def AbouticonDestroy(self, icon):  # alljoyn_abouticon
+        self.__lib.alljoyn_abouticon_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_abouticon_destroy(icon) 
 
 
-    # wrapper for alljoyn_authlistener_requestcredentialsresponse returns QStatus
-    def AuthlistenerRequestcredentialsresponse(self, listener, authContext, accept, credentials):  # alljoyn_authlistener, void *, QCC_BOOL, alljoyn_credentials
-        self.__lib.alljoyn_authlistener_requestcredentialsresponse.restype = C.c_uint
-        self.__lib.alljoyn_authlistener_requestcredentialsresponse.argtypes = [C.c_void_p, C.c_void_p, C.c_uint8, C.c_void_p]
-        return QStatus(self.__lib.alljoyn_authlistener_requestcredentialsresponse(listener, authContext, accept, credentials)) 
+    # wrapper for alljoyn_abouticon_getcontent returns void
+    def AbouticonGetcontent(self, icon, data, size):  # alljoyn_abouticon, const uint8_t * *, size_t *
+        self.__lib.alljoyn_abouticon_getcontent.argtypes = [C.c_void_p, POINTER(C.c_uint8), POINTER(C.csize_t)]
+        self.__lib.alljoyn_abouticon_getcontent(icon, data, size) 
 
 
-    # wrapper for alljoyn_authlistener_verifycredentialsresponse returns QStatus
-    def AuthlistenerVerifycredentialsresponse(self, listener, authContext, accept):  # alljoyn_authlistener, void *, QCC_BOOL
-        self.__lib.alljoyn_authlistener_verifycredentialsresponse.restype = C.c_uint
-        self.__lib.alljoyn_authlistener_verifycredentialsresponse.argtypes = [C.c_void_p, C.c_void_p, C.c_uint8]
-        return QStatus(self.__lib.alljoyn_authlistener_verifycredentialsresponse(listener, authContext, accept)) 
+    # wrapper for alljoyn_abouticon_setcontent returns QStatus
+    def AbouticonSetcontent(self, icon, type, data, csize, ownsData):  # alljoyn_abouticon, const char *, uint8_t *, size_t, bool
+        self.__lib.alljoyn_abouticon_setcontent.restype = C.c_uint
+        self.__lib.alljoyn_abouticon_setcontent.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_uint8_t), C.csize_t, C.c_uint8]
+        return QStatus(self.__lib.alljoyn_abouticon_setcontent(icon, type, data, csize, ownsData)) 
 
 
-    # wrapper for alljoyn_authlistener_destroy returns void
-    def AuthlistenerDestroy(self, listener):  # alljoyn_authlistener
-        self.__lib.alljoyn_authlistener_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_authlistener_destroy(listener) 
+    # wrapper for alljoyn_abouticon_geturl returns void
+    def AbouticonGeturl(self, icon, type, url):  # alljoyn_abouticon, const char * *, const char * *
+        self.__lib.alljoyn_abouticon_geturl.argtypes = [C.c_void_p, POINTER(C.c_char_p), POINTER(C.c_char_p)]
+        self.__lib.alljoyn_abouticon_geturl(icon, type, url) 
 
 
-    # wrapper for alljoyn_authlistenerasync_destroy returns void
-    def AuthlistenerasyncDestroy(self, listener):  # alljoyn_authlistener
-        self.__lib.alljoyn_authlistenerasync_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_authlistenerasync_destroy(listener) 
+    # wrapper for alljoyn_abouticon_seturl returns QStatus
+    def AbouticonSeturl(self, icon, type, url):  # alljoyn_abouticon, const char *, const char *
+        self.__lib.alljoyn_abouticon_seturl.restype = C.c_uint
+        self.__lib.alljoyn_abouticon_seturl.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_abouticon_seturl(icon, type, url)) 
 
 
-    # wrapper for alljoyn_credentials_destroy returns void
-    def CredentialsDestroy(self, cred):  # alljoyn_credentials
-        self.__lib.alljoyn_credentials_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_credentials_destroy(cred) 
+    # wrapper for alljoyn_abouticon_clear returns void
+    def AbouticonClear(self, icon):  # alljoyn_abouticon
+        self.__lib.alljoyn_abouticon_clear.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_abouticon_clear(icon) 
 
 
-    # wrapper for alljoyn_credentials_isset returns QCC_BOOL
-    def CredentialsIsset(self, cred, creds):  # const alljoyn_credentials, uint16_t
-        self.__lib.alljoyn_credentials_isset.restype = C.c_uint
-        self.__lib.alljoyn_credentials_isset.argtypes = [C.c_void_p, C.c_uint16]
-        return self.__lib.alljoyn_credentials_isset(cred, creds) 
+    # wrapper for alljoyn_abouticon_setcontent_frommsgarg returns QStatus
+    def AbouticonSetcontentFrommsgarg(self, icon, arg):  # alljoyn_abouticon, const alljoyn_msgarg
+        self.__lib.alljoyn_abouticon_setcontent_frommsgarg.restype = C.c_uint
+        self.__lib.alljoyn_abouticon_setcontent_frommsgarg.argtypes = [C.c_void_p, C.c_void_p]
+        return QStatus(self.__lib.alljoyn_abouticon_setcontent_frommsgarg(icon, arg)) 
 
 
-    # wrapper for alljoyn_credentials_setpassword returns void
-    def CredentialsSetpassword(self, cred, pwd):  # alljoyn_credentials, const char *
-        self.__lib.alljoyn_credentials_setpassword.argtypes = [C.c_void_p, C.c_char_p]
-        self.__lib.alljoyn_credentials_setpassword(cred, pwd) 
+
+class AboutIconObj(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    # wrapper for alljoyn_abouticonobj_create returns alljoyn_abouticonobj
+    def AbouticonobjCreate(self, bus, icon):  # alljoyn_busattachment, alljoyn_abouticon
+        self.__lib.alljoyn_abouticonobj_create.restype = C.c_void_p
+        self.__lib.alljoyn_abouticonobj_create.argtypes = [C.c_void_p, C.c_void_p]
+        return self.__lib.alljoyn_abouticonobj_create(bus, icon) 
+        
+        
+class AboutIconProxy(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+        # wrapper for alljoyn_abouticonproxy_create returns alljoyn_abouticonproxy
+    def AbouticonproxyCreate(self, bus, busName, sessionId):  # alljoyn_busattachment, const char *, alljoyn_sessionid
+        self.__lib.alljoyn_abouticonproxy_create.restype = C.c_void_p
+        self.__lib.alljoyn_abouticonproxy_create.argtypes = [C.c_void_p, C.c_char_p, C.c_uint32]
+        return self.__lib.alljoyn_abouticonproxy_create(bus, busName, sessionId) 
 
 
-    # wrapper for alljoyn_credentials_setusername returns void
-    def CredentialsSetusername(self, cred, userName):  # alljoyn_credentials, const char *
-        self.__lib.alljoyn_credentials_setusername.argtypes = [C.c_void_p, C.c_char_p]
-        self.__lib.alljoyn_credentials_setusername(cred, userName) 
+    # wrapper for alljoyn_abouticonproxy_destroy returns void
+    def AbouticonproxyDestroy(self, proxy):  # alljoyn_abouticonproxy
+        self.__lib.alljoyn_abouticonproxy_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_abouticonproxy_destroy(proxy) 
 
 
-    # wrapper for alljoyn_credentials_setcertchain returns void
-    def CredentialsSetcertchain(self, cred, certChain):  # alljoyn_credentials, const char *
-        self.__lib.alljoyn_credentials_setcertchain.argtypes = [C.c_void_p, C.c_char_p]
-        self.__lib.alljoyn_credentials_setcertchain(cred, certChain) 
+    # wrapper for alljoyn_abouticonproxy_geticon returns QStatus
+    def AbouticonproxyGeticon(self, proxy, icon):  # alljoyn_abouticonproxy, alljoyn_abouticon
+        self.__lib.alljoyn_abouticonproxy_geticon.restype = C.c_uint
+        self.__lib.alljoyn_abouticonproxy_geticon.argtypes = [C.c_void_p, C.c_void_p]
+        return QStatus(self.__lib.alljoyn_abouticonproxy_geticon(proxy, icon)) 
 
 
-    # wrapper for alljoyn_credentials_setprivatekey returns void
-    def CredentialsSetprivatekey(self, cred, pk):  # alljoyn_credentials, const char *
-        self.__lib.alljoyn_credentials_setprivatekey.argtypes = [C.c_void_p, C.c_char_p]
-        self.__lib.alljoyn_credentials_setprivatekey(cred, pk) 
+    # wrapper for alljoyn_abouticonproxy_getversion returns QStatus
+    def AbouticonproxyGetversion(self, proxy, version):  # alljoyn_abouticonproxy, uint16_t *
+        self.__lib.alljoyn_abouticonproxy_getversion.restype = C.c_uint
+        self.__lib.alljoyn_abouticonproxy_getversion.argtypes = [C.c_void_p, POINTER(C.c_uint16)]
+        return QStatus(self.__lib.alljoyn_abouticonproxy_getversion(proxy, version)) 
 
+   
 
-    # wrapper for alljoyn_credentials_setlogonentry returns void
-    def CredentialsSetlogonentry(self, cred, logonEntry):  # alljoyn_credentials, const char *
-        self.__lib.alljoyn_credentials_setlogonentry.argtypes = [C.c_void_p, C.c_char_p]
-        self.__lib.alljoyn_credentials_setlogonentry(cred, logonEntry) 
-
-
-    # wrapper for alljoyn_credentials_setexpiration returns void
-    def CredentialsSetexpiration(self, cred, expiration):  # alljoyn_credentials, uint32_t
-        self.__lib.alljoyn_credentials_setexpiration.argtypes = [C.c_void_p, C.uint32_t]
-        self.__lib.alljoyn_credentials_setexpiration(cred, expiration) 
-
-
-    # wrapper for alljoyn_credentials_getpassword returns const char *
-    def CredentialsGetpassword(self, cred):  # const alljoyn_credentials
-        self.__lib.alljoyn_credentials_getpassword.restype = C.c_char_p
-        self.__lib.alljoyn_credentials_getpassword.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_credentials_getpassword(cred) 
-
-
-    # wrapper for alljoyn_credentials_getusername returns const char *
-    def CredentialsGetusername(self, cred):  # const alljoyn_credentials
-        self.__lib.alljoyn_credentials_getusername.restype = C.c_char_p
-        self.__lib.alljoyn_credentials_getusername.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_credentials_getusername(cred) 
-
-
-    # wrapper for alljoyn_credentials_getcertchain returns const char *
-    def CredentialsGetcertchain(self, cred):  # const alljoyn_credentials
-        self.__lib.alljoyn_credentials_getcertchain.restype = C.c_char_p
-        self.__lib.alljoyn_credentials_getcertchain.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_credentials_getcertchain(cred) 
-
-
-    # wrapper for alljoyn_credentials_getprivateKey returns const char *
-    def CredentialsGetprivatekey(self, cred):  # const alljoyn_credentials
-        self.__lib.alljoyn_credentials_getprivateKey.restype = C.c_char_p
-        self.__lib.alljoyn_credentials_getprivateKey.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_credentials_getprivateKey(cred) 
-
-
-    # wrapper for alljoyn_credentials_getlogonentry returns const char *
-    def CredentialsGetlogonentry(self, cred):  # const alljoyn_credentials
-        self.__lib.alljoyn_credentials_getlogonentry.restype = C.c_char_p
-        self.__lib.alljoyn_credentials_getlogonentry.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_credentials_getlogonentry(cred) 
-
-
-    # wrapper for alljoyn_credentials_getexpiration returns uint32_t
-    def CredentialsGetexpiration(self, cred):  # const alljoyn_credentials
-        self.__lib.alljoyn_credentials_getexpiration.restype = C.c_uint32
-        self.__lib.alljoyn_credentials_getexpiration.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_credentials_getexpiration(cred) 
-
-
-    # wrapper for alljoyn_credentials_clear returns void
-    def CredentialsClear(self, cred):  # alljoyn_credentials
-        self.__lib.alljoyn_credentials_clear.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_credentials_clear(cred) 
-
-
-    # wrapper for alljoyn_pinglistener_destroy returns void
-    def PinglistenerDestroy(self, listener):  # alljoyn_pinglistener
-        self.__lib.alljoyn_pinglistener_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_pinglistener_destroy(listener) 
-
-
-    # wrapper for alljoyn_autopinger_create returns alljoyn_autopinger
-    def AutopingerCreate(self, bus):  # alljoyn_busattachment
-        self.__lib.alljoyn_autopinger_create.restype = C.c_int32
-        self.__lib.alljoyn_autopinger_create.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_autopinger_create(bus) 
-
-
-    # wrapper for alljoyn_autopinger_destroy returns void
-    def AutopingerDestroy(self, autopinger):  # alljoyn_autopinger
-        self.__lib.alljoyn_autopinger_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_autopinger_destroy(autopinger) 
-
-
-    # wrapper for alljoyn_autopinger_pause returns void
-    def AutopingerPause(self, autopinger):  # alljoyn_autopinger
-        self.__lib.alljoyn_autopinger_pause.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_autopinger_pause(autopinger) 
-
-
-    # wrapper for alljoyn_autopinger_resume returns void
-    def AutopingerResume(self, autopinger):  # alljoyn_autopinger
-        self.__lib.alljoyn_autopinger_resume.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_autopinger_resume(autopinger) 
-
-
-    # wrapper for alljoyn_autopinger_addpinggroup returns void
-    def AutopingerAddpinggroup(self, autopinger, group, listener, pinginterval):  # alljoyn_autopinger, const char *, alljoyn_pinglistener, uint32_t
-        self.__lib.alljoyn_autopinger_addpinggroup.argtypes = [C.c_void_p, C.c_char_p, C.c_void_p, C.uint32_t]
-        self.__lib.alljoyn_autopinger_addpinggroup(autopinger, group, listener, pinginterval) 
-
-
-    # wrapper for alljoyn_autopinger_removepinggroup returns void
-    def AutopingerRemovepinggroup(self, autopinger, group):  # alljoyn_autopinger, const char *
-        self.__lib.alljoyn_autopinger_removepinggroup.argtypes = [C.c_void_p, C.c_char_p]
-        self.__lib.alljoyn_autopinger_removepinggroup(autopinger, group) 
-
-
-    # wrapper for alljoyn_autopinger_setpinginterval returns QStatus
-    def AutopingerSetpinginterval(self, autopinger, group, pinginterval):  # alljoyn_autopinger, const char *, uint32_t
-        self.__lib.alljoyn_autopinger_setpinginterval.restype = C.c_uint
-        self.__lib.alljoyn_autopinger_setpinginterval.argtypes = [C.c_void_p, C.c_char_p, C.uint32_t]
-        return QStatus(self.__lib.alljoyn_autopinger_setpinginterval(autopinger, group, pinginterval)) 
-
-
-    # wrapper for alljoyn_autopinger_adddestination returns QStatus
-    def AutopingerAdddestination(self, autopinger, group, destination):  # alljoyn_autopinger, const char *, const char *
-        self.__lib.alljoyn_autopinger_adddestination.restype = C.c_uint
-        self.__lib.alljoyn_autopinger_adddestination.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_autopinger_adddestination(autopinger, group, destination)) 
-
-
-    # wrapper for alljoyn_autopinger_removedestination returns QStatus
-    def AutopingerRemovedestination(self, autopinger, group, destination, removeall):  # alljoyn_autopinger, const char *, const char *, QCC_BOOL
-        self.__lib.alljoyn_autopinger_removedestination.restype = C.c_uint
-        self.__lib.alljoyn_autopinger_removedestination.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_uint8]
-        return QStatus(self.__lib.alljoyn_autopinger_removedestination(autopinger, group, destination, removeall)) 
-
-
+class BusAttachment(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    def __init__(self, application_name, allow_remote_mesages=Constants.QCC_TRUE):
+        self.handle = self.BusattachmentCreate(application_name, allow_remote_mesages)
+    
+    def __del__(self):
+        self.BusattachmentDestroy(self.handle)
+        
+    def Start(self):
+        return self.BusattachmentStart(self.handle)
+    
+    def Connect(connectSpec):
+        self.BusattachmentConnect(self.handle, connectSpec)
+    
+    def GetUniqueName():
+        self.BusattachmentGetuniquename(self.handle)
+    
     # wrapper for alljoyn_busattachment_create returns alljoyn_busattachment
     def BusattachmentCreate(self, applicationName, allowRemoteMessages):  # const char *, QCC_BOOL
         self.__lib.alljoyn_busattachment_create.restype = C.c_void_p
@@ -1415,7 +1303,7 @@ class AllJoyn(object):
 
 
     # wrapper for alljoyn_busattachment_connect returns QStatus
-    def BusattachmentConnect(self, bus, connectSpec):  # alljoyn_busattachment, const char *
+    def BusattachmentConnect(self, bus, connectSpec):  # alljoyn_busattachment_connect, const char *
         self.__lib.alljoyn_busattachment_connect.restype = C.c_uint
         self.__lib.alljoyn_busattachment_connect.argtypes = [C.c_void_p, C.c_char_p]
         return QStatus(self.__lib.alljoyn_busattachment_connect(bus, connectSpec)) 
@@ -1799,324 +1687,41 @@ class AllJoyn(object):
         return QStatus(self.__lib.alljoyn_busattachment_cancelwhoimplements_interface(bus, implementsInterface)) 
 
 
-    # wrapper for alljoyn_buslistener_destroy returns void
-    def BuslistenerDestroy(self, listener):  # alljoyn_buslistener
-        self.__lib.alljoyn_buslistener_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_buslistener_destroy(listener) 
-
-
-    # wrapper for alljoyn_busobject_destroy returns void
-    def BusobjectDestroy(self, bus):  # alljoyn_busobject
-        self.__lib.alljoyn_busobject_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_busobject_destroy(bus) 
-
-
-    # wrapper for alljoyn_busobject_getpath returns const char *
-    def BusobjectGetpath(self, bus):  # alljoyn_busobject
-        self.__lib.alljoyn_busobject_getpath.restype = C.c_char_p
-        self.__lib.alljoyn_busobject_getpath.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_busobject_getpath(bus) 
-
-
-    # wrapper for alljoyn_busobject_emitpropertychanged returns void
-    def BusobjectEmitpropertychanged(self, bus, ifcName, propName, val, id):  # alljoyn_busobject, const char *, const char *, alljoyn_msgarg, alljoyn_sessionid
-        self.__lib.alljoyn_busobject_emitpropertychanged.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_void_p, C.c_uint32]
-        self.__lib.alljoyn_busobject_emitpropertychanged(bus, ifcName, propName, val, id) 
-
-
-    # wrapper for alljoyn_busobject_emitpropertieschanged returns void
-    def BusobjectEmitpropertieschanged(self, bus, ifcName, propNames, numProps, id):  # alljoyn_busobject, const char *, const char * *, size_t, alljoyn_sessionid
-        self.__lib.alljoyn_busobject_emitpropertieschanged.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_char_p), C.csize_t, C.c_uint32]
-        self.__lib.alljoyn_busobject_emitpropertieschanged(bus, ifcName, propNames, numProps, id) 
-
-
-    # wrapper for alljoyn_busobject_getname returns size_t
-    def BusobjectGetname(self, bus, buffer, bufferSz):  # alljoyn_busobject, char *, size_t
-        self.__lib.alljoyn_busobject_getname.restype = C.c_size_t
-        self.__lib.alljoyn_busobject_getname.argtypes = [C.c_void_p, C.c_char_p, C.csize_t]
-        return self.__lib.alljoyn_busobject_getname(bus, buffer, bufferSz) 
-
-
-    # wrapper for alljoyn_busobject_addinterface returns QStatus
-    def BusobjectAddinterface(self, bus, iface):  # alljoyn_busobject, const alljoyn_interfacedescription
-        self.__lib.alljoyn_busobject_addinterface.restype = C.c_uint
-        self.__lib.alljoyn_busobject_addinterface.argtypes = [C.c_void_p, C.c_void_p]
-        return QStatus(self.__lib.alljoyn_busobject_addinterface(bus, iface)) 
-
-
-    # wrapper for alljoyn_busobject_methodreply_args returns QStatus
-    def BusobjectMethodreplyArgs(self, bus, msg, args, numArgs):  # alljoyn_busobject, alljoyn_message, const alljoyn_msgarg, size_t
-        self.__lib.alljoyn_busobject_methodreply_args.restype = C.c_uint
-        self.__lib.alljoyn_busobject_methodreply_args.argtypes = [C.c_void_p, C.c_void_p, C.c_void_p, C.csize_t]
-        return QStatus(self.__lib.alljoyn_busobject_methodreply_args(bus, msg, args, numArgs)) 
-
-
-    # wrapper for alljoyn_busobject_methodreply_err returns QStatus
-    def BusobjectMethodreplyErr(self, bus, msg, error, errorMessage):  # alljoyn_busobject, alljoyn_message, const char *, const char *
-        self.__lib.alljoyn_busobject_methodreply_err.restype = C.c_uint
-        self.__lib.alljoyn_busobject_methodreply_err.argtypes = [C.c_void_p, C.c_void_p, C.c_char_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_busobject_methodreply_err(bus, msg, error, errorMessage)) 
-
-
-    # wrapper for alljoyn_busobject_methodreply_status returns QStatus
-    def BusobjectMethodreplyStatus(self, bus, msg, status):  # alljoyn_busobject, alljoyn_message, QStatus
-        self.__lib.alljoyn_busobject_methodreply_status.restype = C.c_uint
-        self.__lib.alljoyn_busobject_methodreply_status.argtypes = [C.c_void_p, C.c_void_p, C.c_uint32]
-        return QStatus(self.__lib.alljoyn_busobject_methodreply_status(bus, msg, status)) 
-
-
-    # wrapper for alljoyn_busobject_getbusattachment returns const alljoyn_busattachment
-    def BusobjectGetbusattachment(self, bus):  # alljoyn_busobject
-        self.__lib.alljoyn_busobject_getbusattachment.restype = C.c_void_p
-        self.__lib.alljoyn_busobject_getbusattachment.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_busobject_getbusattachment(bus) 
-
-
-    # wrapper for alljoyn_busobject_signal returns QStatus
-    def BusobjectSignal(self, bus, destination, sessionId, signal, args, numArgs, timeToLive, flags, msg):  # alljoyn_busobject, const char *, alljoyn_sessionid, const alljoyn_interfacedescription_member, const alljoyn_msgarg, size_t, uint16_t, uint8_t, alljoyn_message
-        self.__lib.alljoyn_busobject_signal.restype = C.c_uint
-        self.__lib.alljoyn_busobject_signal.argtypes = [C.c_void_p, C.c_char_p, C.c_uint32, C.c_void_p, C.c_void_p, C.csize_t, C.c_uint16, C.c_uint8, C.c_void_p]
-        return QStatus(self.__lib.alljoyn_busobject_signal(bus, destination, sessionId, signal, args, numArgs, timeToLive, flags, msg)) 
-
-
-    # wrapper for alljoyn_busobject_cancelsessionlessmessage_serial returns QStatus
-    def BusobjectCancelsessionlessmessageSerial(self, bus, serialNumber):  # alljoyn_busobject, uint32_t
-        self.__lib.alljoyn_busobject_cancelsessionlessmessage_serial.restype = C.c_uint
-        self.__lib.alljoyn_busobject_cancelsessionlessmessage_serial.argtypes = [C.c_void_p, C.uint32_t]
-        return QStatus(self.__lib.alljoyn_busobject_cancelsessionlessmessage_serial(bus, serialNumber)) 
-
-
-    # wrapper for alljoyn_busobject_issecure returns QCC_BOOL
-    def BusobjectIssecure(self, bus):  # alljoyn_busobject
-        self.__lib.alljoyn_busobject_issecure.restype = C.c_uint
-        self.__lib.alljoyn_busobject_issecure.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_busobject_issecure(bus) 
-
-
-    # wrapper for alljoyn_busobject_getannouncedinterfacenames returns size_t
-    def BusobjectGetannouncedinterfacenames(self, bus, interfaces, numInterfaces):  # alljoyn_busobject, const char * *, size_t
-        self.__lib.alljoyn_busobject_getannouncedinterfacenames.restype = C.c_size_t
-        self.__lib.alljoyn_busobject_getannouncedinterfacenames.argtypes = [C.c_void_p, POINTER(C.c_char_p), C.csize_t]
-        return self.__lib.alljoyn_busobject_getannouncedinterfacenames(bus, interfaces, numInterfaces) 
-
-
-    # wrapper for alljoyn_busobject_addinterface_announced returns QStatus
-    def BusobjectAddinterfaceAnnounced(self, bus, iface):  # alljoyn_busobject, const alljoyn_interfacedescription
-        self.__lib.alljoyn_busobject_addinterface_announced.restype = C.c_uint
-        self.__lib.alljoyn_busobject_addinterface_announced.argtypes = [C.c_void_p, C.c_void_p]
-        return QStatus(self.__lib.alljoyn_busobject_addinterface_announced(bus, iface)) 
-
-
-    # wrapper for alljoyn_init returns QStatus
-    def Init(self):  # void
-        self.__lib.alljoyn_init.restype = C.c_uint
-        return QStatus(self.__lib.alljoyn_init()) 
-
-
-    # wrapper for alljoyn_shutdown returns QStatus
-    def Shutdown(self):  # void
-        self.__lib.alljoyn_shutdown.restype = C.c_uint
-        return QStatus(self.__lib.alljoyn_shutdown()) 
-
-
-    # wrapper for alljoyn_routerinit returns QStatus
-    def Routerinit(self):  # void
-        self.__lib.alljoyn_routerinit.restype = C.c_uint
-        return QStatus(self.__lib.alljoyn_routerinit()) 
-
-
-    # wrapper for alljoyn_routershutdown returns QStatus
-    def Routershutdown(self):  # void
-        self.__lib.alljoyn_routershutdown.restype = C.c_uint
-        return QStatus(self.__lib.alljoyn_routershutdown()) 
-
-    # wrapper for alljoyn_interfacedescription_activate returns void
-    def InterfacedescriptionActivate(self, iface):  # alljoyn_interfacedescription
-        self.__lib.alljoyn_interfacedescription_activate.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_interfacedescription_activate(iface) 
-
-
-    # wrapper for alljoyn_interfacedescription_addannotation returns QStatus
-    def InterfacedescriptionAddannotation(self, iface, name, value):  # alljoyn_interfacedescription, const char *, const char *
-        self.__lib.alljoyn_interfacedescription_addannotation.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_addannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_interfacedescription_addannotation(iface, name, value)) 
-
-
-    # wrapper for alljoyn_interfacedescription_getannotation returns QCC_BOOL
-    def InterfacedescriptionGetannotation(self, iface, name, value, value_size):  # alljoyn_interfacedescription, const char *, char *, size_t *
-        self.__lib.alljoyn_interfacedescription_getannotation.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_getannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, POINTER(C.csize_t)]
-        return self.__lib.alljoyn_interfacedescription_getannotation(iface, name, value, value_size) 
-
-
-    # wrapper for alljoyn_interfacedescription_getannotationscount returns size_t
-    def InterfacedescriptionGetannotationscount(self, iface):  # alljoyn_interfacedescription
-        self.__lib.alljoyn_interfacedescription_getannotationscount.restype = C.c_size_t
-        self.__lib.alljoyn_interfacedescription_getannotationscount.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_interfacedescription_getannotationscount(iface) 
-
-
-    # wrapper for alljoyn_interfacedescription_getannotationatindex returns void
-    def InterfacedescriptionGetannotationatindex(self, iface, index, name, name_size, value, value_size):  # alljoyn_interfacedescription, size_t, char *, size_t *, char *, size_t *
-        self.__lib.alljoyn_interfacedescription_getannotationatindex.argtypes = [C.c_void_p, C.csize_t, C.c_char_p, POINTER(C.csize_t), C.c_char_p, POINTER(C.csize_t)]
-        self.__lib.alljoyn_interfacedescription_getannotationatindex(iface, index, name, name_size, value, value_size) 
-
-
-    # wrapper for alljoyn_interfacedescription_getmember returns QCC_BOOL
-    def InterfacedescriptionGetmember(self, iface, name, member):  # const alljoyn_interfacedescription, const char *, alljoyn_interfacedescription_member *
-        self.__lib.alljoyn_interfacedescription_getmember.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_getmember.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_void_p)]
-        return self.__lib.alljoyn_interfacedescription_getmember(iface, name, member) 
-
-
-    # wrapper for alljoyn_interfacedescription_addmemberannotation returns QStatus
-    def InterfacedescriptionAddmemberannotation(self, iface, member, name, value):  # alljoyn_interfacedescription, const char *, const char *, const char *
-        self.__lib.alljoyn_interfacedescription_addmemberannotation.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_addmemberannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_interfacedescription_addmemberannotation(iface, member, name, value)) 
-
-
-    # wrapper for alljoyn_interfacedescription_getmembers returns size_t
-    def InterfacedescriptionGetmembers(self, iface, members, numMembers):  # const alljoyn_interfacedescription, alljoyn_interfacedescription_member *, size_t
-        self.__lib.alljoyn_interfacedescription_getmembers.restype = C.c_size_t
-        self.__lib.alljoyn_interfacedescription_getmembers.argtypes = [C.c_void_p, POINTER(C.c_void_p), C.csize_t]
-        return self.__lib.alljoyn_interfacedescription_getmembers(iface, members, numMembers) 
-
-
-    # wrapper for alljoyn_interfacedescription_hasmember returns QCC_BOOL
-    def InterfacedescriptionHasmember(self, iface, name, inSig, outSig):  # alljoyn_interfacedescription, const char *, const char *, const char *
-        self.__lib.alljoyn_interfacedescription_hasmember.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_hasmember.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p]
-        return self.__lib.alljoyn_interfacedescription_hasmember(iface, name, inSig, outSig) 
-
-
-    # wrapper for alljoyn_interfacedescription_addmethod returns QStatus
-    def InterfacedescriptionAddmethod(self, iface, name, inputSig, outSig, argNames, annotation, accessPerms):  # alljoyn_interfacedescription, const char *, const char *, const char *, const char *, uint8_t, const char *
-        self.__lib.alljoyn_interfacedescription_addmethod.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_addmethod.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_uint8, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_interfacedescription_addmethod(iface, name, inputSig, outSig, argNames, annotation, accessPerms)) 
-
-
-    # wrapper for alljoyn_interfacedescription_getmethod returns QCC_BOOL
-    def InterfacedescriptionGetmethod(self, iface, name, member):  # alljoyn_interfacedescription, const char *, alljoyn_interfacedescription_member *
-        self.__lib.alljoyn_interfacedescription_getmethod.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_getmethod.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_void_p)]
-        return self.__lib.alljoyn_interfacedescription_getmethod(iface, name, member) 
-
-
-    # wrapper for alljoyn_interfacedescription_addsignal returns QStatus
-    def InterfacedescriptionAddsignal(self, iface, name, sig, argNames, annotation, accessPerms):  # alljoyn_interfacedescription, const char *, const char *, const char *, uint8_t, const char *
-        self.__lib.alljoyn_interfacedescription_addsignal.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_addsignal.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_uint8, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_interfacedescription_addsignal(iface, name, sig, argNames, annotation, accessPerms)) 
-
-
-    # wrapper for alljoyn_interfacedescription_getsignal returns QCC_BOOL
-    def InterfacedescriptionGetsignal(self, iface, name, member):  # alljoyn_interfacedescription, const char *, alljoyn_interfacedescription_member *
-        self.__lib.alljoyn_interfacedescription_getsignal.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_getsignal.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_void_p)]
-        return self.__lib.alljoyn_interfacedescription_getsignal(iface, name, member) 
-
-
-    # wrapper for alljoyn_interfacedescription_addproperty returns QStatus
-    def InterfacedescriptionAddproperty(self, iface, name, signature, access):  # alljoyn_interfacedescription, const char *, const char *, uint8_t
-        self.__lib.alljoyn_interfacedescription_addproperty.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_addproperty.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_uint8]
-        return QStatus(self.__lib.alljoyn_interfacedescription_addproperty(iface, name, signature, access)) 
-
-
-    # wrapper for alljoyn_interfacedescription_addpropertyannotation returns QStatus
-    def InterfacedescriptionAddpropertyannotation(self, iface, property, name, value):  # alljoyn_interfacedescription, const char *, const char *, const char *
-        self.__lib.alljoyn_interfacedescription_addpropertyannotation.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_addpropertyannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_interfacedescription_addpropertyannotation(iface, property, name, value)) 
-
-
-    # wrapper for alljoyn_interfacedescription_getpropertyannotation returns QCC_BOOL
-    def InterfacedescriptionGetpropertyannotation(self, iface, property, name, value, str_size):  # alljoyn_interfacedescription, const char *, const char *, char *, size_t *
-        self.__lib.alljoyn_interfacedescription_getpropertyannotation.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_getpropertyannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p, POINTER(C.csize_t)]
-        return self.__lib.alljoyn_interfacedescription_getpropertyannotation(iface, property, name, value, str_size) 
-
-
-    # wrapper for alljoyn_interfacedescription_hasproperty returns QCC_BOOL
-    def InterfacedescriptionHasproperty(self, iface, name):  # const alljoyn_interfacedescription, const char *
-        self.__lib.alljoyn_interfacedescription_hasproperty.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_hasproperty.argtypes = [C.c_void_p, C.c_char_p]
-        return self.__lib.alljoyn_interfacedescription_hasproperty(iface, name) 
-
-
-    # wrapper for alljoyn_interfacedescription_hasproperties returns QCC_BOOL
-    def InterfacedescriptionHasproperties(self, iface):  # const alljoyn_interfacedescription
-        self.__lib.alljoyn_interfacedescription_hasproperties.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_hasproperties.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_interfacedescription_hasproperties(iface) 
-
-
-    # wrapper for alljoyn_interfacedescription_getname returns const char *
-    def InterfacedescriptionGetname(self, iface):  # const alljoyn_interfacedescription
-        self.__lib.alljoyn_interfacedescription_getname.restype = C.c_char_p
-        self.__lib.alljoyn_interfacedescription_getname.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_interfacedescription_getname(iface) 
-
-
-    # wrapper for alljoyn_interfacedescription_introspect returns size_t
-    def InterfacedescriptionIntrospect(self, iface, str, buf, indent):  # const alljoyn_interfacedescription, char *, size_t, size_t
-        self.__lib.alljoyn_interfacedescription_introspect.restype = C.c_size_t
-        self.__lib.alljoyn_interfacedescription_introspect.argtypes = [C.c_void_p, C.c_char_p, C.csize_t, C.csize_t]
-        return self.__lib.alljoyn_interfacedescription_introspect(iface, str, buf, indent) 
-
-
-    # wrapper for alljoyn_interfacedescription_issecure returns QCC_BOOL
-    def InterfacedescriptionIssecure(self, iface):  # const alljoyn_interfacedescription
-        self.__lib.alljoyn_interfacedescription_issecure.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_issecure.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_interfacedescription_issecure(iface) 
-
-
-    # wrapper for alljoyn_interfacedescription_getsecuritypolicy returns alljoyn_interfacedescription_securitypolicy
-    def InterfacedescriptionGetsecuritypolicy(self, iface):  # const alljoyn_interfacedescription
-        self.__lib.alljoyn_interfacedescription_getsecuritypolicy.restype = C.c_int32
-        self.__lib.alljoyn_interfacedescription_getsecuritypolicy.argtypes = [C.c_void_p]
-        return self.__lib.alljoyn_interfacedescription_getsecuritypolicy(iface) 
-
-
-    # wrapper for alljoyn_interfacedescription_eql returns QCC_BOOL
-    def InterfacedescriptionEql(self, one, other):  # const alljoyn_interfacedescription, const alljoyn_interfacedescription
-        self.__lib.alljoyn_interfacedescription_eql.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_eql.argtypes = [C.c_void_p, C.c_void_p]
-        return self.__lib.alljoyn_interfacedescription_eql(one, other) 
-
-
-    # wrapper for alljoyn_interfacedescription_member_eql returns QCC_BOOL
-    def InterfacedescriptionMemberEql(self, one, other):  # const alljoyn_interfacedescription_member, const alljoyn_interfacedescription_member
-        self.__lib.alljoyn_interfacedescription_member_eql.restype = C.c_uint
-        self.__lib.alljoyn_interfacedescription_member_eql.argtypes = [C.c_void_p, C.c_void_p]
-        return self.__lib.alljoyn_interfacedescription_member_eql(one, other) 
-
-
-    # wrapper for alljoyn_keystorelistener_destroy returns void
-    def KeystorelistenerDestroy(self, listener):  # alljoyn_keystorelistener
-        self.__lib.alljoyn_keystorelistener_destroy.argtypes = [C.c_void_p]
-        self.__lib.alljoyn_keystorelistener_destroy(listener) 
-
-
-    # wrapper for alljoyn_keystorelistener_putkeys returns QStatus
-    def KeystorelistenerPutkeys(self, listener, keyStore, source, password):  # alljoyn_keystorelistener, alljoyn_keystore, const char *, const char *
-        self.__lib.alljoyn_keystorelistener_putkeys.restype = C.c_uint
-        self.__lib.alljoyn_keystorelistener_putkeys.argtypes = [C.c_void_p, C.c_void_p, C.c_char_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_keystorelistener_putkeys(listener, keyStore, source, password)) 
-
-
-    # wrapper for alljoyn_keystorelistener_getkeys returns QStatus
-    def KeystorelistenerGetkeys(self, listener, keyStore, sink, sink_sz):  # alljoyn_keystorelistener, alljoyn_keystore, char *, size_t *
-        self.__lib.alljoyn_keystorelistener_getkeys.restype = C.c_uint
-        self.__lib.alljoyn_keystorelistener_getkeys.argtypes = [C.c_void_p, C.c_void_p, C.c_char_p, POINTER(C.csize_t)]
-        return QStatus(self.__lib.alljoyn_keystorelistener_getkeys(listener, keyStore, sink, sink_sz)) 
-
-
-    # wrapper for alljoyn_message_create returns alljoyn_message
+class AuthListener(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    def __init__(self, callbacks, context):
+        self.handle = self.AboutlistenerCreate(callbacks, context)
+    
+    def __del__(self):
+        self.AboutlistenerDestroy(self.handle)
+        
+    # wrapper for alljoyn_aboutlistener_create returns alljoyn_aboutlistener
+    def AboutlistenerCreate(self, callbacks, context): 
+        self.__lib.alljoyn_aboutlistener_create.restype = C.c_void_p
+        self.__lib.alljoyn_aboutlistener_create.argtypes = [POINTER(AboutListenerCallback), C.c_void_p]  # const alljoyn_aboutlistener_callback* callback ,const void* context
+        return self.__lib.alljoyn_aboutlistener_create(callbacks, context) 
+        
+    alljoyn_aboutlistener  alljoyn_aboutlistener_create();
+    
+    # wrapper for alljoyn_aboutlistener_destroy returns void
+    def AboutlistenerDestroy(self, listener):  # alljoyn_aboutlistener
+        self.__lib.alljoyn_aboutlistener_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_aboutlistener_destroy(listener) 
+
+
+class Message(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    def __init__(self, bus):
+        self.handle = self.MessageCreate(bus)
+    
+    def __del__(self):
+        self.MessageDestroy(self.handle)
+        
+        # wrapper for alljoyn_message_create returns alljoyn_message
     def MessageCreate(self, bus):  # alljoyn_busattachment
         self.__lib.alljoyn_message_create.restype = C.c_void_p
         self.__lib.alljoyn_message_create.argtypes = [C.c_void_p]
@@ -2303,6 +1908,28 @@ class AllJoyn(object):
         self.__lib.alljoyn_message_setendianess(endian) 
 
 
+
+class MsgArg(object):
+    
+    __metaclass__ = AllJoynMeta
+    
+    def __init__(self, bus):
+        self.handle = self.MessageCreate(bus)
+    
+    def __del__(self):
+        self.MessageDestroy(self.handle)
+        
+    def Signature(self, str_buf, buf):
+        return self.MsgargSignature(self.handle, str_buf, buf)
+        
+    def GetString(self, s):
+        return self.MsgargGetString(self.handle, s)
+        
+    # wrapper for alljoyn_msgarg_create returns C.c_void_p
+    def MsgArgCreate(self):  # alljoyn_msgarg_create
+        self.__lib.alljoyn_interfacedescription_addmember.restype = C.c_void_p
+        return C.c_type_p(self.__lib.alljoyn_msgarg_create()
+
     # wrapper for alljoyn_msgarg_create_and_set returns alljoyn_msgarg
     def MsgargCreateAndSet(self, signature):  # const char *
         self.__lib.alljoyn_msgarg_create_and_set.restype = C.c_void_p
@@ -2330,18 +1957,20 @@ class AllJoyn(object):
         return self.__lib.alljoyn_msgarg_array_element(arg, index) 
 
 
-    # wrapper for alljoyn_msgarg_set returns QStatus
-    def MsgargSet(self, arg, signature):  # alljoyn_msgarg, const char *
-        self.__lib.alljoyn_msgarg_set.restype = C.c_uint
-        self.__lib.alljoyn_msgarg_set.argtypes = [C.c_void_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_msgarg_set(arg, signature)) 
+    # vaargs not supported by ctypes
+    ## wrapper for alljoyn_msgarg_set returns QStatus
+    #def MsgargSet(self, arg, signature):  # alljoyn_msgarg, const char *
+    #    self.__lib.alljoyn_msgarg_set.restype = C.c_uint
+    #    self.__lib.alljoyn_msgarg_set.argtypes = [C.c_void_p, C.c_char_p]
+    #    return QStatus(self.__lib.alljoyn_msgarg_set(arg, signature)) 
 
 
+    # vaargs not supported by ctypes
     # wrapper for alljoyn_msgarg_get returns QStatus
-    def MsgargGet(self, arg, signature):  # alljoyn_msgarg, const char *
-        self.__lib.alljoyn_msgarg_get.restype = C.c_uint
-        self.__lib.alljoyn_msgarg_get.argtypes = [C.c_void_p, C.c_char_p]
-        return QStatus(self.__lib.alljoyn_msgarg_get(arg, signature)) 
+    #def MsgargGet(self, arg, signature):  # alljoyn_msgarg, const char *
+    #    self.__lib.alljoyn_msgarg_get.restype = C.c_uint
+    #    self.__lib.alljoyn_msgarg_get.argtypes = [C.c_void_p, C.c_char_p]
+    #    return QStatus(self.__lib.alljoyn_msgarg_get(arg, signature)) 
 
 
     # wrapper for alljoyn_msgarg_copy returns alljoyn_msgarg
@@ -2393,17 +2022,17 @@ class AllJoyn(object):
 
 
     # wrapper for alljoyn_msgarg_signature returns size_t
-    def MsgargSignature(self, arg, str, buf):  # alljoyn_msgarg, char *, size_t
+    def MsgargSignature(self, arg, str_buf, buf):  # alljoyn_msgarg, char *, size_t
         self.__lib.alljoyn_msgarg_signature.restype = C.c_size_t
         self.__lib.alljoyn_msgarg_signature.argtypes = [C.c_void_p, C.c_char_p, C.csize_t]
-        return self.__lib.alljoyn_msgarg_signature(arg, str, buf) 
+        return self.__lib.alljoyn_msgarg_signature(arg, str_buf, buf) 
 
 
     # wrapper for alljoyn_msgarg_array_signature returns size_t
-    def MsgargArraySignature(self, values, numValues, str, buf):  # alljoyn_msgarg, size_t, char *, size_t
+    def MsgargArraySignature(self, values, numValues, str_buf, buf):  # alljoyn_msgarg, size_t, char *, size_t
         self.__lib.alljoyn_msgarg_array_signature.restype = C.c_size_t
         self.__lib.alljoyn_msgarg_array_signature.argtypes = [C.c_void_p, C.csize_t, C.c_char_p, C.csize_t]
-        return self.__lib.alljoyn_msgarg_array_signature(values, numValues, str, buf) 
+        return self.__lib.alljoyn_msgarg_array_signature(values, numValues, str_buf, buf) 
 
 
     # wrapper for alljoyn_msgarg_hassignature returns QCC_BOOL
@@ -2831,6 +2460,625 @@ class AllJoyn(object):
         return self.__lib.alljoyn_msgarg_getmember(arg, index) 
 
 
+class AllJoyn(object):
+    
+    def __init__(self, libraryName=None):
+        """
+        Init method for the class
+        
+        @param libraryName: library path, otherwise I'll look for it into the
+                            standard path
+        @type libraryName: string
+        """
+        
+        # Used for test
+        self.__num = 0
+        # Used for test
+        
+        self.initCalled = 0
+        self.__lib = library.internlLibrary(libraryName)
+
+
+    ################ Attach callback functions #########################
+    
+    # wrapper for alljoyn_buslistener_create returns alljoyn_buslistener
+    def BusListenerCreate(self, callbacks, context):
+        self.__lib.alljoyn_buslistener_create.restype = C.c_void_p
+        self.__lib.alljoyn_buslistener_create.argtypes = [POINTER(BusListenerCallbacks), C.c_void_p]
+        return C.c_void_p(self.__lib.alljoyn_buslistener_create(callbacks, context))
+            
+    
+    
+    ##########################################
+
+
+    
+    
+    def GetVersion(self):
+        self.__lib.alljoyn_getversion.restype = C.c_char_p
+        return self.__lib.alljoyn_getversion()
+
+    def GetBuildInfo(self):
+        self.__lib.alljoyn_getbuildinfo.restype = C.c_char_p
+        return self.__lib.alljoyn_getbuildinfo()
+
+
+
+
+
+
+
+    #############################################
+    
+    #QStatus  alljoyn_interfacedescription_addmember(alljoyn_interfacedescription iface, alljoyn_messagetype type ,const char* name, const char* inputSig, const char* outSig ,const char* argNames, uint8_t annotation);
+
+
+    # wrapper for alljoyn_interfacedescription_addmember returns QStatus
+    def InterfaceDescriptionAddMember(self, iface, type, name, inputSig, outSig, argNames, annotation):  # alljoyn_interfacedescription, alljoyn_messagetype, const char* name, const char* inputSig, const char* outSig ,const char* argNames, uint8_t annotation
+        self.__lib.alljoyn_interfacedescription_addmember.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_addmember.argtypes = [C.c_void_p, C.c_uint32, C.c_char_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_uint8]
+        return QStatus(self.__lib.alljoyn_interfacedescription_addmember(iface, type, name, inputSig, outSig, argNames, annotation))
+
+
+
+
+    
+
+
+   
+
+    #############################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+    # wrapper for alljoyn_unity_set_deferred_callback_mainthread_only returns void
+    def UnitySetDeferredCallbackMainthreadOnly(self, mainthread_only):  # QCC_BOOL
+        self.__lib.alljoyn_unity_set_deferred_callback_mainthread_only.argtypes = [C.c_uint8]
+        self.__lib.alljoyn_unity_set_deferred_callback_mainthread_only(mainthread_only) 
+
+
+    # wrapper for alljoyn_authlistener_requestcredentialsresponse returns QStatus
+    def AuthlistenerRequestcredentialsresponse(self, listener, authContext, accept, credentials):  # alljoyn_authlistener, void *, QCC_BOOL, alljoyn_credentials
+        self.__lib.alljoyn_authlistener_requestcredentialsresponse.restype = C.c_uint
+        self.__lib.alljoyn_authlistener_requestcredentialsresponse.argtypes = [C.c_void_p, C.c_void_p, C.c_uint8, C.c_void_p]
+        return QStatus(self.__lib.alljoyn_authlistener_requestcredentialsresponse(listener, authContext, accept, credentials)) 
+
+
+    # wrapper for alljoyn_authlistener_verifycredentialsresponse returns QStatus
+    def AuthlistenerVerifycredentialsresponse(self, listener, authContext, accept):  # alljoyn_authlistener, void *, QCC_BOOL
+        self.__lib.alljoyn_authlistener_verifycredentialsresponse.restype = C.c_uint
+        self.__lib.alljoyn_authlistener_verifycredentialsresponse.argtypes = [C.c_void_p, C.c_void_p, C.c_uint8]
+        return QStatus(self.__lib.alljoyn_authlistener_verifycredentialsresponse(listener, authContext, accept)) 
+
+
+    # wrapper for alljoyn_authlistener_destroy returns void
+    def AuthlistenerDestroy(self, listener):  # alljoyn_authlistener
+        self.__lib.alljoyn_authlistener_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_authlistener_destroy(listener) 
+
+
+    # wrapper for alljoyn_authlistenerasync_destroy returns void
+    def AuthlistenerasyncDestroy(self, listener):  # alljoyn_authlistener
+        self.__lib.alljoyn_authlistenerasync_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_authlistenerasync_destroy(listener) 
+
+
+    # wrapper for alljoyn_credentials_destroy returns void
+    def CredentialsDestroy(self, cred):  # alljoyn_credentials
+        self.__lib.alljoyn_credentials_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_credentials_destroy(cred) 
+
+
+    # wrapper for alljoyn_credentials_isset returns QCC_BOOL
+    def CredentialsIsset(self, cred, creds):  # const alljoyn_credentials, uint16_t
+        self.__lib.alljoyn_credentials_isset.restype = C.c_uint
+        self.__lib.alljoyn_credentials_isset.argtypes = [C.c_void_p, C.c_uint16]
+        return self.__lib.alljoyn_credentials_isset(cred, creds) 
+
+
+    # wrapper for alljoyn_credentials_setpassword returns void
+    def CredentialsSetpassword(self, cred, pwd):  # alljoyn_credentials, const char *
+        self.__lib.alljoyn_credentials_setpassword.argtypes = [C.c_void_p, C.c_char_p]
+        self.__lib.alljoyn_credentials_setpassword(cred, pwd) 
+
+
+    # wrapper for alljoyn_credentials_setusername returns void
+    def CredentialsSetusername(self, cred, userName):  # alljoyn_credentials, const char *
+        self.__lib.alljoyn_credentials_setusername.argtypes = [C.c_void_p, C.c_char_p]
+        self.__lib.alljoyn_credentials_setusername(cred, userName) 
+
+
+    # wrapper for alljoyn_credentials_setcertchain returns void
+    def CredentialsSetcertchain(self, cred, certChain):  # alljoyn_credentials, const char *
+        self.__lib.alljoyn_credentials_setcertchain.argtypes = [C.c_void_p, C.c_char_p]
+        self.__lib.alljoyn_credentials_setcertchain(cred, certChain) 
+
+
+    # wrapper for alljoyn_credentials_setprivatekey returns void
+    def CredentialsSetprivatekey(self, cred, pk):  # alljoyn_credentials, const char *
+        self.__lib.alljoyn_credentials_setprivatekey.argtypes = [C.c_void_p, C.c_char_p]
+        self.__lib.alljoyn_credentials_setprivatekey(cred, pk) 
+
+
+    # wrapper for alljoyn_credentials_setlogonentry returns void
+    def CredentialsSetlogonentry(self, cred, logonEntry):  # alljoyn_credentials, const char *
+        self.__lib.alljoyn_credentials_setlogonentry.argtypes = [C.c_void_p, C.c_char_p]
+        self.__lib.alljoyn_credentials_setlogonentry(cred, logonEntry) 
+
+
+    # wrapper for alljoyn_credentials_setexpiration returns void
+    def CredentialsSetexpiration(self, cred, expiration):  # alljoyn_credentials, uint32_t
+        self.__lib.alljoyn_credentials_setexpiration.argtypes = [C.c_void_p, C.uint32_t]
+        self.__lib.alljoyn_credentials_setexpiration(cred, expiration) 
+
+
+    # wrapper for alljoyn_credentials_getpassword returns const char *
+    def CredentialsGetpassword(self, cred):  # const alljoyn_credentials
+        self.__lib.alljoyn_credentials_getpassword.restype = C.c_char_p
+        self.__lib.alljoyn_credentials_getpassword.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_credentials_getpassword(cred) 
+
+
+    # wrapper for alljoyn_credentials_getusername returns const char *
+    def CredentialsGetusername(self, cred):  # const alljoyn_credentials
+        self.__lib.alljoyn_credentials_getusername.restype = C.c_char_p
+        self.__lib.alljoyn_credentials_getusername.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_credentials_getusername(cred) 
+
+
+    # wrapper for alljoyn_credentials_getcertchain returns const char *
+    def CredentialsGetcertchain(self, cred):  # const alljoyn_credentials
+        self.__lib.alljoyn_credentials_getcertchain.restype = C.c_char_p
+        self.__lib.alljoyn_credentials_getcertchain.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_credentials_getcertchain(cred) 
+
+
+    # wrapper for alljoyn_credentials_getprivateKey returns const char *
+    def CredentialsGetprivatekey(self, cred):  # const alljoyn_credentials
+        self.__lib.alljoyn_credentials_getprivateKey.restype = C.c_char_p
+        self.__lib.alljoyn_credentials_getprivateKey.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_credentials_getprivateKey(cred) 
+
+
+    # wrapper for alljoyn_credentials_getlogonentry returns const char *
+    def CredentialsGetlogonentry(self, cred):  # const alljoyn_credentials
+        self.__lib.alljoyn_credentials_getlogonentry.restype = C.c_char_p
+        self.__lib.alljoyn_credentials_getlogonentry.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_credentials_getlogonentry(cred) 
+
+
+    # wrapper for alljoyn_credentials_getexpiration returns uint32_t
+    def CredentialsGetexpiration(self, cred):  # const alljoyn_credentials
+        self.__lib.alljoyn_credentials_getexpiration.restype = C.c_uint32
+        self.__lib.alljoyn_credentials_getexpiration.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_credentials_getexpiration(cred) 
+
+
+    # wrapper for alljoyn_credentials_clear returns void
+    def CredentialsClear(self, cred):  # alljoyn_credentials
+        self.__lib.alljoyn_credentials_clear.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_credentials_clear(cred) 
+
+
+    # wrapper for alljoyn_pinglistener_destroy returns void
+    def PinglistenerDestroy(self, listener):  # alljoyn_pinglistener
+        self.__lib.alljoyn_pinglistener_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_pinglistener_destroy(listener) 
+
+
+    # wrapper for alljoyn_autopinger_create returns alljoyn_autopinger
+    def AutopingerCreate(self, bus):  # alljoyn_busattachment
+        self.__lib.alljoyn_autopinger_create.restype = C.c_int32
+        self.__lib.alljoyn_autopinger_create.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_autopinger_create(bus) 
+
+
+    # wrapper for alljoyn_autopinger_destroy returns void
+    def AutopingerDestroy(self, autopinger):  # alljoyn_autopinger
+        self.__lib.alljoyn_autopinger_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_autopinger_destroy(autopinger) 
+
+
+    # wrapper for alljoyn_autopinger_pause returns void
+    def AutopingerPause(self, autopinger):  # alljoyn_autopinger
+        self.__lib.alljoyn_autopinger_pause.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_autopinger_pause(autopinger) 
+
+
+    # wrapper for alljoyn_autopinger_resume returns void
+    def AutopingerResume(self, autopinger):  # alljoyn_autopinger
+        self.__lib.alljoyn_autopinger_resume.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_autopinger_resume(autopinger) 
+
+
+    # wrapper for alljoyn_autopinger_addpinggroup returns void
+    def AutopingerAddpinggroup(self, autopinger, group, listener, pinginterval):  # alljoyn_autopinger, const char *, alljoyn_pinglistener, uint32_t
+        self.__lib.alljoyn_autopinger_addpinggroup.argtypes = [C.c_void_p, C.c_char_p, C.c_void_p, C.uint32_t]
+        self.__lib.alljoyn_autopinger_addpinggroup(autopinger, group, listener, pinginterval) 
+
+
+    # wrapper for alljoyn_autopinger_removepinggroup returns void
+    def AutopingerRemovepinggroup(self, autopinger, group):  # alljoyn_autopinger, const char *
+        self.__lib.alljoyn_autopinger_removepinggroup.argtypes = [C.c_void_p, C.c_char_p]
+        self.__lib.alljoyn_autopinger_removepinggroup(autopinger, group) 
+
+
+    # wrapper for alljoyn_autopinger_setpinginterval returns QStatus
+    def AutopingerSetpinginterval(self, autopinger, group, pinginterval):  # alljoyn_autopinger, const char *, uint32_t
+        self.__lib.alljoyn_autopinger_setpinginterval.restype = C.c_uint
+        self.__lib.alljoyn_autopinger_setpinginterval.argtypes = [C.c_void_p, C.c_char_p, C.uint32_t]
+        return QStatus(self.__lib.alljoyn_autopinger_setpinginterval(autopinger, group, pinginterval)) 
+
+
+    # wrapper for alljoyn_autopinger_adddestination returns QStatus
+    def AutopingerAdddestination(self, autopinger, group, destination):  # alljoyn_autopinger, const char *, const char *
+        self.__lib.alljoyn_autopinger_adddestination.restype = C.c_uint
+        self.__lib.alljoyn_autopinger_adddestination.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_autopinger_adddestination(autopinger, group, destination)) 
+
+
+    # wrapper for alljoyn_autopinger_removedestination returns QStatus
+    def AutopingerRemovedestination(self, autopinger, group, destination, removeall):  # alljoyn_autopinger, const char *, const char *, QCC_BOOL
+        self.__lib.alljoyn_autopinger_removedestination.restype = C.c_uint
+        self.__lib.alljoyn_autopinger_removedestination.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_uint8]
+        return QStatus(self.__lib.alljoyn_autopinger_removedestination(autopinger, group, destination, removeall)) 
+
+
+
+
+
+    # wrapper for alljoyn_buslistener_destroy returns void
+    def BuslistenerDestroy(self, listener):  # alljoyn_buslistener
+        self.__lib.alljoyn_buslistener_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_buslistener_destroy(listener) 
+
+
+    # wrapper for alljoyn_busobject_destroy returns void
+    def BusobjectDestroy(self, bus):  # alljoyn_busobject
+        self.__lib.alljoyn_busobject_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_busobject_destroy(bus) 
+
+
+    # wrapper for alljoyn_busobject_getpath returns const char *
+    def BusobjectGetpath(self, bus):  # alljoyn_busobject
+        self.__lib.alljoyn_busobject_getpath.restype = C.c_char_p
+        self.__lib.alljoyn_busobject_getpath.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_busobject_getpath(bus) 
+
+
+    # wrapper for alljoyn_busobject_emitpropertychanged returns void
+    def BusobjectEmitpropertychanged(self, bus, ifcName, propName, val, id):  # alljoyn_busobject, const char *, const char *, alljoyn_msgarg, alljoyn_sessionid
+        self.__lib.alljoyn_busobject_emitpropertychanged.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_void_p, C.c_uint32]
+        self.__lib.alljoyn_busobject_emitpropertychanged(bus, ifcName, propName, val, id) 
+
+
+    # wrapper for alljoyn_busobject_emitpropertieschanged returns void
+    def BusobjectEmitpropertieschanged(self, bus, ifcName, propNames, numProps, id):  # alljoyn_busobject, const char *, const char * *, size_t, alljoyn_sessionid
+        self.__lib.alljoyn_busobject_emitpropertieschanged.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_char_p), C.csize_t, C.c_uint32]
+        self.__lib.alljoyn_busobject_emitpropertieschanged(bus, ifcName, propNames, numProps, id) 
+
+
+    # wrapper for alljoyn_busobject_getname returns size_t
+    def BusobjectGetname(self, bus, buffer, bufferSz):  # alljoyn_busobject, char *, size_t
+        self.__lib.alljoyn_busobject_getname.restype = C.c_size_t
+        self.__lib.alljoyn_busobject_getname.argtypes = [C.c_void_p, C.c_char_p, C.csize_t]
+        return self.__lib.alljoyn_busobject_getname(bus, buffer, bufferSz) 
+
+
+    # wrapper for alljoyn_busobject_addinterface returns QStatus
+    def BusobjectAddinterface(self, bus, iface):  # alljoyn_busobject, const alljoyn_interfacedescription
+        self.__lib.alljoyn_busobject_addinterface.restype = C.c_uint
+        self.__lib.alljoyn_busobject_addinterface.argtypes = [C.c_void_p, C.c_void_p]
+        return QStatus(self.__lib.alljoyn_busobject_addinterface(bus, iface)) 
+
+
+    # wrapper for alljoyn_busobject_methodreply_args returns QStatus
+    def BusobjectMethodreplyArgs(self, bus, msg, args, numArgs):  # alljoyn_busobject, alljoyn_message, const alljoyn_msgarg, size_t
+        self.__lib.alljoyn_busobject_methodreply_args.restype = C.c_uint
+        self.__lib.alljoyn_busobject_methodreply_args.argtypes = [C.c_void_p, C.c_void_p, C.c_void_p, C.csize_t]
+        return QStatus(self.__lib.alljoyn_busobject_methodreply_args(bus, msg, args, numArgs)) 
+
+
+    # wrapper for alljoyn_busobject_methodreply_err returns QStatus
+    def BusobjectMethodreplyErr(self, bus, msg, error, errorMessage):  # alljoyn_busobject, alljoyn_message, const char *, const char *
+        self.__lib.alljoyn_busobject_methodreply_err.restype = C.c_uint
+        self.__lib.alljoyn_busobject_methodreply_err.argtypes = [C.c_void_p, C.c_void_p, C.c_char_p, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_busobject_methodreply_err(bus, msg, error, errorMessage)) 
+
+
+    # wrapper for alljoyn_busobject_methodreply_status returns QStatus
+    def BusobjectMethodreplyStatus(self, bus, msg, status):  # alljoyn_busobject, alljoyn_message, QStatus
+        self.__lib.alljoyn_busobject_methodreply_status.restype = C.c_uint
+        self.__lib.alljoyn_busobject_methodreply_status.argtypes = [C.c_void_p, C.c_void_p, C.c_uint32]
+        return QStatus(self.__lib.alljoyn_busobject_methodreply_status(bus, msg, status)) 
+
+
+    # wrapper for alljoyn_busobject_getbusattachment returns const alljoyn_busattachment
+    def BusobjectGetbusattachment(self, bus):  # alljoyn_busobject
+        self.__lib.alljoyn_busobject_getbusattachment.restype = C.c_void_p
+        self.__lib.alljoyn_busobject_getbusattachment.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_busobject_getbusattachment(bus) 
+
+
+    # wrapper for alljoyn_busobject_signal returns QStatus
+    def BusobjectSignal(self, bus, destination, sessionId, signal, args, numArgs, timeToLive, flags, msg):  # alljoyn_busobject, const char *, alljoyn_sessionid, const alljoyn_interfacedescription_member, const alljoyn_msgarg, size_t, uint16_t, uint8_t, alljoyn_message
+        self.__lib.alljoyn_busobject_signal.restype = C.c_uint
+        self.__lib.alljoyn_busobject_signal.argtypes = [C.c_void_p, C.c_char_p, C.c_uint32, C.c_void_p, C.c_void_p, C.csize_t, C.c_uint16, C.c_uint8, C.c_void_p]
+        return QStatus(self.__lib.alljoyn_busobject_signal(bus, destination, sessionId, signal, args, numArgs, timeToLive, flags, msg)) 
+
+
+    # wrapper for alljoyn_busobject_cancelsessionlessmessage_serial returns QStatus
+    def BusobjectCancelsessionlessmessageSerial(self, bus, serialNumber):  # alljoyn_busobject, uint32_t
+        self.__lib.alljoyn_busobject_cancelsessionlessmessage_serial.restype = C.c_uint
+        self.__lib.alljoyn_busobject_cancelsessionlessmessage_serial.argtypes = [C.c_void_p, C.uint32_t]
+        return QStatus(self.__lib.alljoyn_busobject_cancelsessionlessmessage_serial(bus, serialNumber)) 
+
+
+    # wrapper for alljoyn_busobject_issecure returns QCC_BOOL
+    def BusobjectIssecure(self, bus):  # alljoyn_busobject
+        self.__lib.alljoyn_busobject_issecure.restype = C.c_uint
+        self.__lib.alljoyn_busobject_issecure.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_busobject_issecure(bus) 
+
+
+    # wrapper for alljoyn_busobject_getannouncedinterfacenames returns size_t
+    def BusobjectGetannouncedinterfacenames(self, bus, interfaces, numInterfaces):  # alljoyn_busobject, const char * *, size_t
+        self.__lib.alljoyn_busobject_getannouncedinterfacenames.restype = C.c_size_t
+        self.__lib.alljoyn_busobject_getannouncedinterfacenames.argtypes = [C.c_void_p, POINTER(C.c_char_p), C.csize_t]
+        return self.__lib.alljoyn_busobject_getannouncedinterfacenames(bus, interfaces, numInterfaces) 
+
+
+    # wrapper for alljoyn_busobject_addinterface_announced returns QStatus
+    def BusobjectAddinterfaceAnnounced(self, bus, iface):  # alljoyn_busobject, const alljoyn_interfacedescription
+        self.__lib.alljoyn_busobject_addinterface_announced.restype = C.c_uint
+        self.__lib.alljoyn_busobject_addinterface_announced.argtypes = [C.c_void_p, C.c_void_p]
+        return QStatus(self.__lib.alljoyn_busobject_addinterface_announced(bus, iface)) 
+
+
+    # wrapper for alljoyn_init returns QStatus
+    def Init(self):  # void
+        self.__lib.alljoyn_init.restype = C.c_uint
+        return QStatus(self.__lib.alljoyn_init()) 
+
+
+    # wrapper for alljoyn_shutdown returns QStatus
+    def Shutdown(self):  # void
+        self.__lib.alljoyn_shutdown.restype = C.c_uint
+        return QStatus(self.__lib.alljoyn_shutdown()) 
+
+
+    # wrapper for alljoyn_routerinit returns QStatus
+    def Routerinit(self):  # void
+        self.__lib.alljoyn_routerinit.restype = C.c_uint
+        return QStatus(self.__lib.alljoyn_routerinit()) 
+
+
+    # wrapper for alljoyn_routershutdown returns QStatus
+    def Routershutdown(self):  # void
+        self.__lib.alljoyn_routershutdown.restype = C.c_uint
+        return QStatus(self.__lib.alljoyn_routershutdown()) 
+
+    # wrapper for alljoyn_interfacedescription_activate returns void
+    def InterfacedescriptionActivate(self, iface):  # alljoyn_interfacedescription
+        self.__lib.alljoyn_interfacedescription_activate.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_interfacedescription_activate(iface) 
+
+
+    # wrapper for alljoyn_interfacedescription_addannotation returns QStatus
+    def InterfacedescriptionAddannotation(self, iface, name, value):  # alljoyn_interfacedescription, const char *, const char *
+        self.__lib.alljoyn_interfacedescription_addannotation.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_addannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_interfacedescription_addannotation(iface, name, value)) 
+
+
+    # wrapper for alljoyn_interfacedescription_getannotation returns QCC_BOOL
+    def InterfacedescriptionGetannotation(self, iface, name, value, value_size):  # alljoyn_interfacedescription, const char *, char *, size_t *
+        self.__lib.alljoyn_interfacedescription_getannotation.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_getannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, POINTER(C.csize_t)]
+        return self.__lib.alljoyn_interfacedescription_getannotation(iface, name, value, value_size) 
+
+
+    # wrapper for alljoyn_interfacedescription_getannotationscount returns size_t
+    def InterfacedescriptionGetannotationscount(self, iface):  # alljoyn_interfacedescription
+        self.__lib.alljoyn_interfacedescription_getannotationscount.restype = C.c_size_t
+        self.__lib.alljoyn_interfacedescription_getannotationscount.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_interfacedescription_getannotationscount(iface) 
+
+
+    # wrapper for alljoyn_interfacedescription_getannotationatindex returns void
+    def InterfacedescriptionGetannotationatindex(self, iface, index, name, name_size, value, value_size):  # alljoyn_interfacedescription, size_t, char *, size_t *, char *, size_t *
+        self.__lib.alljoyn_interfacedescription_getannotationatindex.argtypes = [C.c_void_p, C.csize_t, C.c_char_p, POINTER(C.csize_t), C.c_char_p, POINTER(C.csize_t)]
+        self.__lib.alljoyn_interfacedescription_getannotationatindex(iface, index, name, name_size, value, value_size) 
+
+
+    # wrapper for alljoyn_interfacedescription_getmember returns QCC_BOOL
+    def InterfacedescriptionGetmember(self, iface, name, member):  # const alljoyn_interfacedescription, const char *, alljoyn_interfacedescription_member *
+        self.__lib.alljoyn_interfacedescription_getmember.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_getmember.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_void_p)]
+        return self.__lib.alljoyn_interfacedescription_getmember(iface, name, member) 
+
+
+    # wrapper for alljoyn_interfacedescription_addmemberannotation returns QStatus
+    def InterfacedescriptionAddmemberannotation(self, iface, member, name, value):  # alljoyn_interfacedescription, const char *, const char *, const char *
+        self.__lib.alljoyn_interfacedescription_addmemberannotation.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_addmemberannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_interfacedescription_addmemberannotation(iface, member, name, value)) 
+
+
+    # wrapper for alljoyn_interfacedescription_getmembers returns size_t
+    def InterfacedescriptionGetmembers(self, iface, members, numMembers):  # const alljoyn_interfacedescription, alljoyn_interfacedescription_member *, size_t
+        self.__lib.alljoyn_interfacedescription_getmembers.restype = C.c_size_t
+        self.__lib.alljoyn_interfacedescription_getmembers.argtypes = [C.c_void_p, POINTER(C.c_void_p), C.csize_t]
+        return self.__lib.alljoyn_interfacedescription_getmembers(iface, members, numMembers) 
+
+
+    # wrapper for alljoyn_interfacedescription_hasmember returns QCC_BOOL
+    def InterfacedescriptionHasmember(self, iface, name, inSig, outSig):  # alljoyn_interfacedescription, const char *, const char *, const char *
+        self.__lib.alljoyn_interfacedescription_hasmember.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_hasmember.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p]
+        return self.__lib.alljoyn_interfacedescription_hasmember(iface, name, inSig, outSig) 
+
+
+    # wrapper for alljoyn_interfacedescription_addmethod returns QStatus
+    def InterfacedescriptionAddmethod(self, iface, name, inputSig, outSig, argNames, annotation, accessPerms):  # alljoyn_interfacedescription, const char *, const char *, const char *, const char *, uint8_t, const char *
+        self.__lib.alljoyn_interfacedescription_addmethod.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_addmethod.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_uint8, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_interfacedescription_addmethod(iface, name, inputSig, outSig, argNames, annotation, accessPerms)) 
+
+
+    # wrapper for alljoyn_interfacedescription_getmethod returns QCC_BOOL
+    def InterfacedescriptionGetmethod(self, iface, name, member):  # alljoyn_interfacedescription, const char *, alljoyn_interfacedescription_member *
+        self.__lib.alljoyn_interfacedescription_getmethod.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_getmethod.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_void_p)]
+        return self.__lib.alljoyn_interfacedescription_getmethod(iface, name, member) 
+
+
+    # wrapper for alljoyn_interfacedescription_addsignal returns QStatus
+    def InterfacedescriptionAddsignal(self, iface, name, sig, argNames, annotation, accessPerms):  # alljoyn_interfacedescription, const char *, const char *, const char *, uint8_t, const char *
+        self.__lib.alljoyn_interfacedescription_addsignal.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_addsignal.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_uint8, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_interfacedescription_addsignal(iface, name, sig, argNames, annotation, accessPerms)) 
+
+
+    # wrapper for alljoyn_interfacedescription_getsignal returns QCC_BOOL
+    def InterfacedescriptionGetsignal(self, iface, name, member):  # alljoyn_interfacedescription, const char *, alljoyn_interfacedescription_member *
+        self.__lib.alljoyn_interfacedescription_getsignal.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_getsignal.argtypes = [C.c_void_p, C.c_char_p, POINTER(C.c_void_p)]
+        return self.__lib.alljoyn_interfacedescription_getsignal(iface, name, member) 
+
+
+    # wrapper for alljoyn_interfacedescription_addproperty returns QStatus
+    def InterfacedescriptionAddproperty(self, iface, name, signature, access):  # alljoyn_interfacedescription, const char *, const char *, uint8_t
+        self.__lib.alljoyn_interfacedescription_addproperty.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_addproperty.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_uint8]
+        return QStatus(self.__lib.alljoyn_interfacedescription_addproperty(iface, name, signature, access)) 
+
+
+    # wrapper for alljoyn_interfacedescription_addpropertyannotation returns QStatus
+    def InterfacedescriptionAddpropertyannotation(self, iface, property, name, value):  # alljoyn_interfacedescription, const char *, const char *, const char *
+        self.__lib.alljoyn_interfacedescription_addpropertyannotation.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_addpropertyannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_interfacedescription_addpropertyannotation(iface, property, name, value)) 
+
+
+    # wrapper for alljoyn_interfacedescription_getpropertyannotation returns QCC_BOOL
+    def InterfacedescriptionGetpropertyannotation(self, iface, property, name, value, str_size):  # alljoyn_interfacedescription, const char *, const char *, char *, size_t *
+        self.__lib.alljoyn_interfacedescription_getpropertyannotation.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_getpropertyannotation.argtypes = [C.c_void_p, C.c_char_p, C.c_char_p, C.c_char_p, POINTER(C.csize_t)]
+        return self.__lib.alljoyn_interfacedescription_getpropertyannotation(iface, property, name, value, str_size) 
+
+
+    # wrapper for alljoyn_interfacedescription_hasproperty returns QCC_BOOL
+    def InterfacedescriptionHasproperty(self, iface, name):  # const alljoyn_interfacedescription, const char *
+        self.__lib.alljoyn_interfacedescription_hasproperty.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_hasproperty.argtypes = [C.c_void_p, C.c_char_p]
+        return self.__lib.alljoyn_interfacedescription_hasproperty(iface, name) 
+
+
+    # wrapper for alljoyn_interfacedescription_hasproperties returns QCC_BOOL
+    def InterfacedescriptionHasproperties(self, iface):  # const alljoyn_interfacedescription
+        self.__lib.alljoyn_interfacedescription_hasproperties.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_hasproperties.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_interfacedescription_hasproperties(iface) 
+
+
+    # wrapper for alljoyn_interfacedescription_getname returns const char *
+    def InterfacedescriptionGetname(self, iface):  # const alljoyn_interfacedescription
+        self.__lib.alljoyn_interfacedescription_getname.restype = C.c_char_p
+        self.__lib.alljoyn_interfacedescription_getname.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_interfacedescription_getname(iface) 
+
+
+    # wrapper for alljoyn_interfacedescription_introspect returns size_t
+    def InterfacedescriptionIntrospect(self, iface, str, buf, indent):  # const alljoyn_interfacedescription, char *, size_t, size_t
+        self.__lib.alljoyn_interfacedescription_introspect.restype = C.c_size_t
+        self.__lib.alljoyn_interfacedescription_introspect.argtypes = [C.c_void_p, C.c_char_p, C.csize_t, C.csize_t]
+        return self.__lib.alljoyn_interfacedescription_introspect(iface, str, buf, indent) 
+
+
+    # wrapper for alljoyn_interfacedescription_issecure returns QCC_BOOL
+    def InterfacedescriptionIssecure(self, iface):  # const alljoyn_interfacedescription
+        self.__lib.alljoyn_interfacedescription_issecure.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_issecure.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_interfacedescription_issecure(iface) 
+
+
+    # wrapper for alljoyn_interfacedescription_getsecuritypolicy returns alljoyn_interfacedescription_securitypolicy
+    def InterfacedescriptionGetsecuritypolicy(self, iface):  # const alljoyn_interfacedescription
+        self.__lib.alljoyn_interfacedescription_getsecuritypolicy.restype = C.c_int32
+        self.__lib.alljoyn_interfacedescription_getsecuritypolicy.argtypes = [C.c_void_p]
+        return self.__lib.alljoyn_interfacedescription_getsecuritypolicy(iface) 
+
+
+    # wrapper for alljoyn_interfacedescription_eql returns QCC_BOOL
+    def InterfacedescriptionEql(self, one, other):  # const alljoyn_interfacedescription, const alljoyn_interfacedescription
+        self.__lib.alljoyn_interfacedescription_eql.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_eql.argtypes = [C.c_void_p, C.c_void_p]
+        return self.__lib.alljoyn_interfacedescription_eql(one, other) 
+
+
+    # wrapper for alljoyn_interfacedescription_member_eql returns QCC_BOOL
+    def InterfacedescriptionMemberEql(self, one, other):  # const alljoyn_interfacedescription_member, const alljoyn_interfacedescription_member
+        self.__lib.alljoyn_interfacedescription_member_eql.restype = C.c_uint
+        self.__lib.alljoyn_interfacedescription_member_eql.argtypes = [C.c_void_p, C.c_void_p]
+        return self.__lib.alljoyn_interfacedescription_member_eql(one, other) 
+
+
+    # wrapper for alljoyn_keystorelistener_destroy returns void
+    def KeystorelistenerDestroy(self, listener):  # alljoyn_keystorelistener
+        self.__lib.alljoyn_keystorelistener_destroy.argtypes = [C.c_void_p]
+        self.__lib.alljoyn_keystorelistener_destroy(listener) 
+
+
+    # wrapper for alljoyn_keystorelistener_putkeys returns QStatus
+    def KeystorelistenerPutkeys(self, listener, keyStore, source, password):  # alljoyn_keystorelistener, alljoyn_keystore, const char *, const char *
+        self.__lib.alljoyn_keystorelistener_putkeys.restype = C.c_uint
+        self.__lib.alljoyn_keystorelistener_putkeys.argtypes = [C.c_void_p, C.c_void_p, C.c_char_p, C.c_char_p]
+        return QStatus(self.__lib.alljoyn_keystorelistener_putkeys(listener, keyStore, source, password)) 
+
+
+    # wrapper for alljoyn_keystorelistener_getkeys returns QStatus
+    def KeystorelistenerGetkeys(self, listener, keyStore, sink, sink_sz):  # alljoyn_keystorelistener, alljoyn_keystore, char *, size_t *
+        self.__lib.alljoyn_keystorelistener_getkeys.restype = C.c_uint
+        self.__lib.alljoyn_keystorelistener_getkeys.argtypes = [C.c_void_p, C.c_void_p, C.c_char_p, POINTER(C.csize_t)]
+        return QStatus(self.__lib.alljoyn_keystorelistener_getkeys(listener, keyStore, sink, sink_sz)) 
+
+
+
+
+
+
+
     # wrapper for alljoyn_observerlistener_destroy returns void
     def ObserverlistenerDestroy(self, listener):  # alljoyn_observerlistener
         self.__lib.alljoyn_observerlistener_destroy.argtypes = [C.c_void_p]
@@ -3147,8 +3395,4 @@ class AllJoyn(object):
         self.__lib.alljoyn_sessionlistener_destroy(listener) 
 
 
-    # wrapper for QCC_StatusText returns const char *
-    def QccStatustext(self, status):  # QStatus
-        self.__lib.QCC_StatusText.restype = C.c_char_p
-        self.__lib.QCC_StatusText.argtypes = [C.c_uint32]
-        return self.__lib.QCC_StatusText(status) 
+    
