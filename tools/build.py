@@ -2,6 +2,48 @@ import os, os.path, re
 import CppHeaderParser
 from glob import glob, iglob
 
+name_map = {
+            'authlistener': 'AuthListener',
+            'busobject': 'BusObject',
+            'proxybusobject': 'ProxyBusObject',
+            'observerlistener': 'ObserverListener',
+            'observer_object': 'PbserverObject',
+            'observer': 'Observer',
+            'sessionportlistener': 'SessionPortListener',
+            'aboutdatalistener': 'AboutDataListener',
+            'aboutdata': 'AboutData',
+            'aboutobj': 'AboutObject',
+            'msgarg': 'MsgArg',
+            'aboutobjectdescription': 'AboutObjectDescription',
+            'proxybusobject_listener': 'ProxyBusObjectListener',
+            'proxybusobject': 'ProxyBusObject',
+            'messagereceiver': 'MessageReceiver',
+            'autopinger': 'AutoPinger',
+            'sessionlistener': 'SessionListener',
+            'abouticonobj': 'AboutIconObj',
+            'abouticon': 'AboutIcon',
+            'sessionopts': 'SessionOpts',
+            'passwordmanager': 'PasswordManager',
+            'interfacedescription_member': 'InterfaceDescriptionMember',
+            'interfacedescription_property': 'InterfaceDescriptionProperty',
+            'interfacedescription': 'InterfaceDescription',
+            'abouticonproxy': 'AboutIconProxy',
+            'permissionconfigurationlistener': 'PermissionConfigurationListener',
+            'keystorelistener': 'KeyStoreListener',
+            'busattachment': 'BusAttachment',
+            'buslistener_listener': 'BusListenerListener',
+            'buslistener': 'BusListener',
+            'aboutproxy': 'AboutProxy',
+            'message': 'Message',
+            'aboutlistener': 'AboutListener',
+            'alljoyn': 'AllJoyn',
+            'pinglistener': 'PingListener',
+            'authlistenerasync': 'AuthListenerAsync',
+            'credentials': 'Credentials',
+            'unity': 'Unity',
+            'about': 'About'
+           }
+
 type_map = {'char': 'C.c_int8',
             'char*': 'C.c_char_p',
             'void*': 'C.c_void_p',
@@ -75,44 +117,186 @@ type_map = {'char': 'C.c_int8',
             }
 
 
+f = open('class_template.txt', 'r')
+class_template = f.read()
+f.close()
+    
+    
+CallbackPtrTpPythonNameMap = {}
+    
 def underscore_to_camelcase(value):
     return ''.join([x.capitalize() for x in value.lower().split('_')])
     
+def pass_function_name(func):
+    name_parts = func['name'].split('_')
+    name_end = []
     
-    
-def create_python_file(cpp_header):
-    print "class Constants(object):"
-    for name, value in cpp_header.typedefs.items():
-        print "    #%s=%s" % (name,value)
-    print
+    if 'DEPRECATED' in name_parts:
+        raise
 
-    for d in cpp_header.defines:
-        print '    #', d
+    try:
+        if len(name_parts) == 2:
+            python_name = name_map[name_parts[0]]
+            name_end = name_parts[1:]
+        elif len(name_parts) >= 3:
+            python_name = name_map[name_parts[1]]
+            name_end = name_parts[2:]
+    except KeyError as ex:
+        print str(ex)
+        print header
+        print name_parts
+        raise
     
-    print 
+    return python_name, underscore_to_camelcase('_'.join(name_end))
+    
+def process_function_pointer_typedef(typedefs):
+    for name, value in typedefs.items():
+        
+        if 'AJ_CALL *' in value:  # We have a function pointer typedef defined
+            function_pointer_text = value
+            pre_parsed = function_pointer_text.replace('AJ_CALL *', '') + ');' # play havoc with parser. Also parser leaves of ); on original typedef
+            parts = pre_parsed.split(')')
+            pre_parsed = 'extern ' + parts[0].replace('(','') + ')'.join(parts[1:])  # Nasty removeing () around name of function. Hope its robust enough
+            print pre_parsed
+            parsed = CppHeaderParser.CppHeader(pre_parsed, argType="string")
+            
+            
+            for func in parsed.functions:  
+                #print "name", func['name']
+                try:
+                    python_name_start, python_name_end = pass_function_name(func)
+                    print python_name_start, python_name_end
+                except:
+                    continue
+                
+                parameter_types = []
+                parameter_names = []
+                parameter_ctypes = []
+                
+                #print func
+                for param in func['parameters']:
+                    parameter_names.append(param['name'])
+                    parameter_types.append(param['type'])
+                    parameter_ctypes.append(type_map[param['type'].replace(' ', '').replace('const', '')])
+                
+                callbackName = python_name_start + python_name_end
+                CallbackPtrTpPythonNameMap[callbackName] = callbackName.replace('Ptr', 'FuncType')
+                print CallbackPtrTpPythonNameMap[callbackName]  + " = CallbackType(None, " + ', '.join(parameter_ctypes) + ') # ' + ' '.join(parameter_names)
+   
+            
+        
+   
+def process_structures(typedefs):
+        
+        #class BusListenerCallbacks(C.Structure):
+    #_fields_ = [("BusListenerRegistered",
+                    #POINTER(BusListenerRegisteredFuncType)),                 # const void* context, alljoyn_busattachment bus
+                #("BusListenerUnRegistered",
+                    #POINTER(BusListenerUnRegisteredFuncType)),                             # const void* context
+                #("BusListenerFoundAdvertisedName", 
+                    #POINTER(BusListenerFoundAdvertisedNameFuncType)), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                #("BusListenerLostAdvertisedName", 
+                    #POINTER(BusListenerLostAdvertisedNameFuncType)), # const void* context, const char* name, alljoyn_transportmask transport, const char* namePrefix
+                #("BusListenerNameOwnerChanged", 
+                    #POINTER(BusListenerNameOwnerChangedFuncType)), # const void* context, const char* busName, const char* previousOwner, const char* newOwner
+                #("BusListenerBusStopping", 
+                    #POINTER(BusListenerBusStoppingFuncType)),                                     # const void* context
+                #("BusListenerBusDisconnected", 
+                    #POINTER(BusListenerBusDisconnectedFuncType)),                                     # const void* context
+                #("BusListenerBusPropertyChanged", 
+                    #POINTER(BusListenerBusPropertyChangedFuncType))             # const void* context, const char* prop_name, alljoyn_msgarg prop_value
+               #]
+               
+               
+    
+def create_python_file(header, cpp_header):
+    
+    
+    
+    
+    #print "class Constants(object):"
+    #for name, value in cpp_header.typedefs.items():
+    #    print "    #%s=%s" % (name,value)
+    #print
+
+    #for d in cpp_header.defines:
+    #    print '    #', d
+    
+    
+    #for t in cpp_header.typedefs:
+    #    print '    #', d
+    
+    
+    process_function_pointer_typedef(cpp_header.typedefs)
+    
+    for name, value in cpp_header.typedefs.items():
+        
+        if not 'AJ_CALL *' in value:  # We have a function pointer typedef defined allready dealt with
+            print "name", name
+            print "value", value 
+            print "\n\n"
     
     # build class
-    for func in cppHeader.functions:
-        print "class __NAME__(object):"
+    for func in cpp_header.functions:
+        python_name_start, python_name_end = pass_function_name(func)
         
-        print "    __metaclass__ = AllJoynMeta"
+        name_parts = func['name'].split('_')
+        name_end = []
         
-        def __init__(self, defaultLanguage, arg=None):
-            if not arg:
-                self.handle = self.AboutdataCreate(defaultLanguage)
-            else:
-                self.handle = self.AboutdataCreateFull(arg, defaultLanguage)
+        if 'DEPRECATED' in name_parts:
+            continue
+
+        try:
+            if len(name_parts) == 2:
+                python_name = name_map[name_parts[0]]
+                name_end = name_parts[1:]
+            elif len(name_parts) >= 3:
+                python_name = name_map[name_parts[1]]
+                name_end = name_parts[2:]
+        except KeyError as ex:
+            print str(ex)
+            print header
+            print name_parts
+            raise
         
-        def __del__(self):
-            self.AboutdataDestroy(self.handle)
         
+        
+        
+        #print "# wrapper for", original_name, "returns", func['rtnType']
+    #method_text = "def " + new_name + '(self, ' + ', '.join(parameter_names) + '):  # ' + ', '.join(parameter_types) + '\n'
     
-for header in iglob('/home/glenn/devel/alljoyn-15.09.00a-src/alljoyn_c/inc/alljoyn_c/*.h'):
+        #    BusListenerRegisteredFuncType = CallbackType(None, C.c_void_p, C.c_void_p)                 # const void* context, alljoyn_busattachment bus
+    
+        parameter_types = []
+        parameter_names = []
+    
+        for param in func['parameters']:
+            parameter_names.append(param['name'])
+            parameter_types.append(param['type'])
+        
+        if func.has_key('pointer') and func['pointer'] == 1:  # Build callback types
+            python_name_end = underscore_to_camelcase(name_end)
+            print python_name + python_name_end + " = CallbackType(None, " + ', '.join(parameter_types) + ') #' + ''.join(parameter_names)
+            #return
+
+        print func, "\n\n\n"
+        continue
+        
+        
+        
+        
+        class_template_replaced = class_template.replace('__NAME__', python_name)
+        print class_template_replaced
+        
+
+    
+#for header in iglob('/home/glenn/Devel/alljoyn-15.09.00a-src/alljoyn_c/inc/alljoyn_c/*.h'):
+for header in iglob('*.h'):
 
     try:
         print "processing", header
         cpp_header = CppHeaderParser.CppHeader(header)
-        create_python_file(cpp_header)
+        create_python_file(header, cpp_header)
     except CppHeaderParser.CppParseError as e:
         print(e)
         sys.exit(1)
