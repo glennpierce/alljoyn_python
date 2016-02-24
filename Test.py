@@ -29,7 +29,7 @@ def signal_handler(signal, frame):
     s_interrupt = QCC_TRUE;
 
 
-if __name == "__main__":
+if __name__ == "__main__":
     # Install SIGINT handler so Ctrl + C deallocates memory properly
     alljoyn = AllJoyn('alljoyn_c')
 
@@ -51,8 +51,3 @@ if __name == "__main__":
 
     if status == QStatus.ER_OK:
         print "BusAttachment connect succeeded. BusName", alljoyn.BusattachmentGetuniquename(g_bus)
-      
-
-
-    return 0;
-}
