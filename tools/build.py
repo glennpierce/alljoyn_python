@@ -188,7 +188,7 @@ import pprint
    
 def process_structures(cpp_header):
         
-    pp = pprint.PrettyPrinter(depth=6)
+    #pp = pprint.PrettyPrinter(depth=6)
     #print  pp.pprint(cpp_header)
         
     for cls_name, cls in cpp_header.classes.items():
@@ -198,17 +198,16 @@ def process_structures(cpp_header):
         python_name_start, python_name_end = pass_function_name(cls['name'])
         CallbackClassName = python_name_start + python_name_end
         print "class " + CallbackClassName + "(C.Structure):"
+        print "    _fields_ = ["
   
+        for prop in cls['properties']['public']:
+            print "            (\"%s\", POINTER(%s))," % (underscore_to_camelcase(prop['name']), CallbackPtrTpPythonNameMap[prop['type']])
   
-        print cls['properties']
+        print "              ]"
   
+            #print underscore_to_camelcase(cls['name'])
   
-  #      for prop in cls.properties:
-  #          print prop
-  
-        #print underscore_to_camelcase(cls['name'])
-  
-        #print CallbackPtrTpPythonNameMap
+            #print CallbackPtrTpPythonNameMap[cls['type']]
         
  #   class AboutListenerCallback(C.Structure):
  #   _fields_ = [("AboutListenerAnnounced",
@@ -294,12 +293,12 @@ def create_python_file(header, cpp_header):
             #return
 
        # print func, "\n\n\n"
-        continue
+        #continue
         
         
         
         
-        class_template_replaced = class_template.replace('__NAME__', python_name)
+        class_template_replaced = class_template.replace('__NAME__', python_name_start)
         print class_template_replaced
         
 

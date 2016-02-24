@@ -1,0 +1,12 @@
+class __NAME__(AllJoynObject):
+    
+    __metaclass__ = AllJoynMeta
+    
+    #def __init__(self, defaultLanguage, arg=None):
+    #    if not arg:
+    #        self.handle = self.AboutdataCreate(defaultLanguage)
+    #    else:
+    #        self.handle = self.AboutdataCreateFull(arg, defaultLanguage)
+    
+    def __del__(self):
+        self.__NAME__Destroy(self.handle)
