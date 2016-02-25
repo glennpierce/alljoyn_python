@@ -107,20 +107,7 @@ def retrieve_type(t):
         return retrieve_type(t.get_pointee()) + pointee + ' '.join(qualifiers(t))
     else:
         cursor = t.get_declaration()
-        
-        print "t.kind", t.kind
-        
-        if t.kind == clang.cindex.TypeKind.INT:
-            print "\n\n\n\n-------------------------"
-            print t #.get_tokens().next().spelling
-            print dir(t)
-            
-            print "result", t.get_result()
-            #'data', 'element_count', 'element_type', 'from_result', 'get_align', 'get_array_element_type', 'get_array_size', 'get_canonical', 'get_class_type', 'get_declaration', 'get_offset', 'get_pointee', 'get_ref_qualifier', 'get_result', 'get_size', 'is_const_qualified', 'is_function_variadic', 'is_pod', 'is_restrict_qualified', 'is_volatile_qualified', 'kind', 'spelling', 'translation_unit']
-#result <clang.cindex.Type object at 0x7fe6cae6bf80>
 
-            print "\n\n-----------------------------"
-            
         parents = semantic_parents(cursor)
         if cursor.displayname != "":
             return ' '.join(qualifiers(t)) + " " + "::".join(parents + [cursor.displayname])
@@ -132,9 +119,6 @@ def show_ast(cursor, filter_pred=None, level=Level(), inherited_attributes={}):
     '''pretty print cursor AST'''
     if filter_pred(cursor, level):
 
-        #print "-------------------------"
-        #print vars(cursor)
-        #print "-------------------------"
 
         type = str(cursor.kind).split(".")[-1].strip()
         level1 = level+1

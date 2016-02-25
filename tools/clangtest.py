@@ -8,11 +8,21 @@ def get_ts(source_path):
 
 
 doc = None
-typedefs = []
+typedefs = defaultdict(list)
 enums = defaultdict(list)
-structs = []
-functions = []
+structs = defaultdict(list)
+functions = defaultdict(list)
 
+
+
+def semantic_parents(cursor):
+    import collections
+    p = collections.deque()
+    c = cursor.semantic_parent
+    while c and is_named_scope(c):
+        p.appendleft(c.displayname)
+        c = c.semantic_parent
+    return list(p)
 
 """
 def is_named_scope(cursor):
@@ -72,11 +82,20 @@ def get_parent_with_type(node, type):
 def print_node(node, parent_node):
     node.parent_node = parent_node
     
+    #is_declaration()
+    # CursorKind.PREPROCESSING_DIRECTIVE, CursorKind.MACRO_DEFINITION
+    
+    #print vars(clang.cindex.CursorKind)
     #print node.spelling
 
     #if node.kind == clang.cindex.CursorKind.TRANSLATION_UNIT:
     #    doc = node
     #el
+    
+    CursorKind.TYPE_REF
+struct _alljoyn_sessionlistener_handle <SourceLocation file 'Test.h', line 48, column 16>
+CursorKind.PARM_DECL
+    
     
     if node.kind == clang.cindex.CursorKind.INTEGER_LITERAL:
         
@@ -85,11 +104,26 @@ def print_node(node, parent_node):
             container = enums[typedef_node.spelling]
             container.append(node.parent_node.spelling + " = " + node.get_tokens().next().spelling)
     elif node.kind == clang.cindex.CursorKind.TYPEDEF_DECL:
+        #print node.spelling, node.location
+        pass
+    #elif node.kind == clang.cindex.CursorKind.FUNCTION_DECL:
+        
+    #    print node.spelling
+    #    print node.type
+    else:
+        print node.kind
         print node.spelling, node.location
-        pass
-    elif node.kind == clang.cindex.CursorKind.FUNCTION_DECL:
-        #print node.spelling, node.location,"\n"   
-        pass
+        
+        
+        #cursor = node.type.get_declaration()
+        
+        #parents = semantic_parents(cursor)
+        
+       
+        #print cursor
+        #print node.spelling, node.location
+        #print "here", node.get_tokens().next().spelling
+        #pass
     
         #if parent_node and parent_node.kind == clang.cindex.CursorKind.ENUM_CONSTANT_DECL: # and parent_node.parent_node and parent_node.parent_node.kind == clang.cindex.CursorKind.TYPEDEF_DECL:
         #    print parent_node.spelling, parent_node.location
@@ -105,10 +139,16 @@ def print_node(node, parent_node):
     #        print "here", node.
     #        #enums.append(node)
     #    #print node.type.kind, node.get_tokens().next().spelling
-    elif node.kind == clang.cindex.CursorKind.STRUCT_DECL:
-        #print "what", node, retrieve_type(node.type.get_canonical()), "\n\n"
-        structs.append(node)
-        
+    
+ 
+#working
+#    elif node.kind == clang.cindex.CursorKind.FIELD_DECL:
+#        typedef_node = get_parent_with_type(node, clang.cindex.CursorKind.TYPEDEF_DECL)
+#        if typedef_node:
+#            container = structs[typedef_node.spelling]
+#            container.append((node.get_tokens().next().spelling, node.spelling))
+  
+   
     [print_node(n, node) for n in node.get_children()]
 
 ts = get_ts(sys.argv[1])
@@ -118,6 +158,10 @@ ts = get_ts(sys.argv[1])
 
 
 print enums
+
+print
+
+print structs
 
 #print doc
 #print [(e.spelling, e.location, e.location.column) for e in enums]
