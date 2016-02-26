@@ -28,12 +28,29 @@ def print_node(node, parent_node):
     
     #underlying_typedef_type
     
-    if node.kind == clang.cindex.CursorKind.INTEGER_LITERAL:
+    #if node.kind == clang.cindex.CursorKind.INTEGER_LITERAL:
+        ## Could maybe use enum_value and enum_type. I did not know about it when I wrote below
+        #typedef_node = get_parent_with_type(node, clang.cindex.CursorKind.TYPEDEF_DECL)
+        #if typedef_node:
+            #container = enums[typedef_node.spelling]
+            #container.append({'enum_name' : node.parent_node.spelling,
+                              #'enum_type' : node.semantic_parent.enum_type.spelling,
+                              #'enum_value' : node.enum_value})
+
+    if node.kind == clang.cindex.CursorKind.ENUM_CONSTANT_DECL:
         # Could maybe use enum_value and enum_type. I did not know about it when I wrote below
         typedef_node = get_parent_with_type(node, clang.cindex.CursorKind.TYPEDEF_DECL)
         if typedef_node:
             container = enums[typedef_node.spelling]
-            container.append(node.parent_node.spelling + " = " + node.get_tokens().next().spelling)
+            container.append(node.enum_value)
+
+    #if node.kind == clang.cindex.CursorKind.ENUM_CONSTANT_DECL:
+    #    if node.semantic_parent.kind == clang.cindex.CursorKind.ENUM_DECL:
+    #        container = enums[node.semantic_parent.spelling]
+    #        container.append({'enum_name' : node.parent_node.spelling,
+    #                          'enum_type' : node.semantic_parent.enum_type.spelling,
+    #                          'enum_value' : node.enum_value})
+
 
     elif node.kind == clang.cindex.CursorKind.FIELD_DECL:
         typedef_node = get_parent_with_type(node, clang.cindex.CursorKind.TYPEDEF_DECL)

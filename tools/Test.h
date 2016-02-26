@@ -56,7 +56,7 @@ typedef struct _alljoyn_sessionlistener_handle*             alljoyn_sessionliste
  * @param alljoyn_sessionid     Id of session that was lost.
  * @param reason        The reason for the session being lost
  */
-typedef void (AJ_CALL * alljoyn_sessionlistener_sessionlost_ptr)(const void* context, alljoyn_sessionid sessionId, alljoyn_sessionlostreason reason);
+typedef void ( * alljoyn_sessionlistener_sessionlost_ptr)(const void* context, alljoyn_sessionid sessionId, alljoyn_sessionlostreason reason);
 
 /**
  * Type for the SessionMemberAdded callback.
@@ -67,7 +67,7 @@ typedef void (AJ_CALL * alljoyn_sessionlistener_sessionlost_ptr)(const void* con
  * @param alljoyn_sessionid     Id of session whose member(s) changed.
  * @param uniqueName    Unique name of member who was added.
  */
-typedef void (AJ_CALL * alljoyn_sessionlistener_sessionmemberadded_ptr)(const void* context, alljoyn_sessionid sessionId,
+typedef void ( * alljoyn_sessionlistener_sessionmemberadded_ptr)(const void* context, alljoyn_sessionid sessionId,
                                                                         const char* uniqueName);
 
 /**
@@ -97,7 +97,7 @@ typedef struct {
  *
  * @return Handle to newly allocated alljoyn_sessionlistener.
  */
-extern AJ_API alljoyn_sessionlistener AJ_CALL alljoyn_sessionlistener_create(const alljoyn_sessionlistener_callbacks* callbacks,
+alljoyn_sessionlistener  alljoyn_sessionlistener_create(const alljoyn_sessionlistener_callbacks* callbacks,
                                                                              const void* context);
 
 #ifdef __cplusplus
