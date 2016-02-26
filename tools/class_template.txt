@@ -1,3 +1,15 @@
+__IMPORTS__
+
+__DEFINES__
+
+__VARIABLES__
+
+__ENUMS__
+
+__TYPEDEFS__
+
+__SRUCTS__
+
 class __NAME__(AllJoynObject):
     
     __metaclass__ = AllJoynMeta
