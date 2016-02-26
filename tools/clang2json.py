@@ -40,8 +40,6 @@ def get_return_type(node):
 def print_node(node, parent_node):
     node.parent_node = parent_node
     
-    #underlying_typedef_type
-    #CursorKind.TYPEDEF_DECL
     #CursorKind.TYPE_REF   should have used this for function poiters. oh well
     
     if node.kind == clang.cindex.CursorKind.ENUM_CONSTANT_DECL:
@@ -67,17 +65,14 @@ def print_node(node, parent_node):
  
     elif node.kind == clang.cindex.CursorKind.FUNCTION_DECL:
         container = functions[node.spelling]
-        
-        #print node.type.get_result().spelling
-        #print node.type.get_ref_qualifier
+  
         params = [(arg.type.spelling, arg.spelling) for arg in node.get_arguments()]
         
         variadic = False
         
         if node.type.kind == clang.cindex.TypeKind.FUNCTIONPROTO:
             variadic = node.type.is_function_variadic()
-        
-        #print [n.spelling for n in node.get_tokens()]
+
         container.append({'displayname':node.displayname, 'return_type': get_return_type(node),
                           'params':params, 'is_variadic':variadic})
         
@@ -90,8 +85,8 @@ def print_node(node, parent_node):
     elif node.kind == clang.cindex.CursorKind.TYPEDEF_DECL: 
         typedefs.append((node.underlying_typedef_type.spelling, node.spelling))
     else:
-        print node.kind
-        print node.spelling, node.location
+        #print node.kind
+        #print node.spelling, node.location
         pass
 
     [print_node(n, node) for n in node.get_children()]
