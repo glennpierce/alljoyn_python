@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import shutil
 import clang.cindex
 import sys, os
