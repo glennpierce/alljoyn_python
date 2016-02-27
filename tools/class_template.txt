@@ -8,19 +8,31 @@ __ENUMS__
 
 __TYPEDEFS__
 
-__SRUCTS__
+if sys.platform == 'win32':
+    CallbackType = C.WINFUNCTYPE
+else:
+    CallbackType = C.CFUNCTYPE
+    
+__FUNCTION_POINTER_TYPES__
+
+__STRUCTS__
 
 class __NAME__(AllJoynObject):
     
     __metaclass__ = AllJoynMeta
     
-    __methods = __METHODS__
+    _cmethods = __METHODS__
     
-    #def __init__(self, defaultLanguage, arg=None):
-    #    if not arg:
-    #        self.handle = self.AboutdataCreate(defaultLanguage)
-    #    else:
-    #        self.handle = self.AboutdataCreateFull(arg, defaultLanguage)
-    
+    def __init__(self):
+        pass
+        
     def __del__(self):
-        self.__NAME__Destroy(self.handle)
+        #self.__NAME__Destroy(self.handle)
+        pass
+
+    # Wrapper Methods
+
+    __WRAPPERS__
+
+
+sys.modules[__name__] = __NAME__()  # See https://mail.python.org/pipermail/python-ideas/2012-May/014969.html

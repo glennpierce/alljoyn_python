@@ -2,8 +2,13 @@
 
 import sys, json, re
 from itertools import groupby
+import ctypes as C
+from ctypes import POINTER
+import StringIO
+import pprint
 
 from clang2json import get_json
+
 
 def viterbi_segment(text):
     probs, lasts = [1.0], [0]
@@ -70,93 +75,94 @@ name_map = {
             'about': 'About',
            }
            
-type_map = {'char': 'C.c_int8',
-            'char*': 'C.c_char_p',
-            'void*': 'C.c_void_p',
-            'bool': 'C.c_uint8',                                  
-            'size_t':'C.csize_t',
-            'uint8_t': 'C.c_uint8',    
-            'int16_t': 'C.c_int16',    
-            'uint16_t': 'C.c_uint16',    
-            'int32_t': 'C.c_int32',    
-            'uint32_t': 'C.uint32_t',   
-            'int64_t':'C.c_int64',        
-            'uint64_t':'C.c_uint64',   
+type_map = {'char':'C.c_byte',
+            'char*':'C.c_char_p',
+            'void*':'C.c_void_p',
+            'bool':'C.c_ubyte',                                  
+            'size_t':'C.c_size_t',
+            'int':'C.c_int',
+            'uint8_t':'C.c_ubyte',    
+            'int16_t':'C.c_short',    
+            'uint16_t':'C.c_ushort',    
+            'int32_t':'C.c_int',    
+            'uint32_t':'C.c_uint',   
+            'int64_t':'C.c_longlong',        
+            'uint64_t':'C.c_ulonglong',   
             'double':'C.c_double',           
-            'QCC_BOOL':'C.c_int32',   
-            'QStatus':  'C.c_uint32',    
-            'QCC_BOOL*':'POINTER(C.c_int32)',
-            'uint8_t*':'POINTER(C.c_uint8_t)',          
-            'uint8_t**': 'POINTER(C.c_uint8)',            
-            'int16_t*':'POINTER(C.c_int16)', 
-            'uint16_t*':'POINTER(C.c_uint16)', 
-            'int32_t*':'POINTER(C.c_int32)', 
-            'uint32_t*':'POINTER(C.c_uint32)', 
-            'int64_t*':'POINTER(C.c_int64)', 
-            'uint64_t*':'POINTER(C.c_uint64_t)',     
+            'QCC_BOOL':'C.c_int',   
+            'QStatus':'C.c_uint',    
+            'QCC_BOOL*':'POINTER(C.c_int)',
+            'int*':'POINTER(C.c_int)', 
+            'int**':'POINTER(POINTER(C.c_int))', 
+            'uint8_t*':'POINTER(C.c_ubyte)',          
+            'uint8_t**':'POINTER(C.c_ubyte)',            
+            'int16_t*':'POINTER(C.c_short)', 
+            'uint16_t*':'POINTER(C.c_ushort)', 
+            'int32_t*':'POINTER(C.c_int)', 
+            'uint32_t*':'POINTER(C.c_uint)', 
+            'int64_t*':'POINTER(C.c_longlong)', 
+            'uint64_t*':'POINTER(C.c_ulonglong)',     
             'double*':'POINTER(C.c_double)', 
             'char**':'POINTER(C.c_char_p)', 
-            'size_t*':'POINTER(C.csize_t)', 
-
-            'alljoyn_transportmask': 'C.uint16_t',
-            
-            'alljoyn_proxybusobject': 'C.c_void_p',
-            'alljoyn_proxybusobject*': 'POINTER(C.c_void_p)',
-            'alljoyn_aboutdata': 'C.c_void_p',
-            'alljoyn_aboutdata*': 'POINTER(C.c_void_p)',
-            'alljoyn_abouticon': 'C.c_void_p',
-            'alljoyn_abouticon*': 'POINTER(C.c_void_p)',
-            'alljoyn_abouticonproxy': 'C.c_void_p',
-            'alljoyn_abouticonproxy*': 'POINTER(C.c_void_p)',
-            'alljoyn_aboutobjectdescription': 'C.c_void_p',
-            'alljoyn_aboutobjectdescription*': 'POINTER(C.c_void_p)',
-            'alljoyn_aboutobj': 'C.c_void_p',
-            'alljoyn_aboutobj*': 'POINTER(C.c_void_p)',
-            'alljoyn_busattachment': 'C.c_void_p',
-            'alljoyn_busattachment*': 'POINTER(C.c_void_p)',
-            'alljoyn_authlistener': 'C.c_void_p',
-            'alljoyn_authlistener*': 'POINTER(C.c_void_p)',
-            'alljoyn_credentials': 'C.c_void_p',
-            'alljoyn_credentials*': 'POINTER(C.c_void_p)',
-            'alljoyn_autopinger': 'C.c_void_p',
-            'alljoyn_autopinger*': 'POINTER(C.c_void_p)',
-            'alljoyn_busobject': 'C.c_void_p',
-            'alljoyn_busobject*': 'POINTER(C.c_void_p)',
-            'alljoyn_interfacedescription': 'C.c_void_p',
-            'alljoyn_interfacedescription*': 'POINTER(C.c_void_p)',
-            'alljoyn_message': 'C.c_void_p',
-            'alljoyn_message*': 'POINTER(C.c_void_p)',
-            'alljoyn_msgarg': 'C.c_void_p',
-            'alljoyn_msgarg*': 'POINTER(C.c_void_p)',
-            'const alljoyn_interfacedescription_member': 'C.c_void_p',
-            'alljoyn_interfacedescription_member *': 'POINTER(C.c_void_p)',
-            'const uint8_t *': 'POINTER(C.c_uint8_t)',
-            'uint8_t *': 'POINTER(C.c_uint8_t)',
-            'const alljoyn_msgarg': 'C.c_void_p',
-            'alljoyn_msgarg': 'C.c_void_p',
-            'alljoyn_sessionopts': 'C.c_void_p',
-            'alljoyn_aboutdatalistener': 'C.c_void_p',
-            'alljoyn_msgarg*': 'POINTER(C.c_void_p)',
-            'alljoyn_sessionid': 'C.c_uint32',
-            'alljoyn_buslistener': 'C.c_void_p',
-            'alljoyn_sessionport': 'C.c_uint16',
-            'alljoyn_sessionport *': 'POINTER(C.c_uint16)',
-            'const alljoyn_credentials': 'C.c_void_p',
-            'const alljoyn_interfacedescription': 'C.c_void_p',
-            'alljoyn_aboutlistener': 'C.c_void_p',
-            'alljoyn_aboutproxy': 'C.c_void_p',
-            'alljoyn_interfacedescription *': 'POINTER(C.c_void_p)',
-            'alljoyn_interfacedescription_member': 'C.c_void_p',
-            'alljoyn_interfacedescription_member*': 'POINTER(C.c_void_p)',
-            'alljoyn_pinglistener': 'C.c_void_p',
-            'alljoyn_sessionlistener': 'C.c_void_p',
-            'const alljoyn_sessionopts': 'C.c_void_p',
-            'alljoyn_observer': 'C.c_void_p',
-            'alljoyn_observerlistener': 'C.c_void_p',
-            'alljoyn_keystorelistener': 'C.c_void_p',
-            'void': 'as',  # Python keyword to flag error
-            'const alljoyn_busattachment': 'C.c_void_p',
-            'alljoyn_keystore': 'C.c_void_p',
+            'size_t*':'POINTER(C.c_size_t)', 
+            'alljoyn_transportmask':'C.c_ushort',
+            'alljoyn_proxybusobject':'C.c_void_p',
+            'alljoyn_proxybusobject*':'POINTER(C.c_void_p)',
+            'alljoyn_aboutdata':'C.c_void_p',
+            'alljoyn_aboutdata*':'POINTER(C.c_void_p)',
+            'alljoyn_abouticon':'C.c_void_p',
+            'alljoyn_abouticon*':'POINTER(C.c_void_p)',
+            'alljoyn_abouticonproxy':'C.c_void_p',
+            'alljoyn_abouticonproxy*':'POINTER(C.c_void_p)',
+            'alljoyn_aboutobjectdescription':'C.c_void_p',
+            'alljoyn_aboutobjectdescription*':'POINTER(C.c_void_p)',
+            'alljoyn_aboutobj':'C.c_void_p',
+            'alljoyn_aboutobj*':'POINTER(C.c_void_p)',
+            'alljoyn_busattachment':'C.c_void_p',
+            'alljoyn_busattachment*':'POINTER(C.c_void_p)',
+            'alljoyn_authlistener':'C.c_void_p',
+            'alljoyn_authlistener*':'POINTER(C.c_void_p)',
+            'alljoyn_credentials':'C.c_void_p',
+            'alljoyn_credentials*':'POINTER(C.c_void_p)',
+            'alljoyn_autopinger':'C.c_void_p',
+            'alljoyn_autopinger*':'POINTER(C.c_void_p)',
+            'alljoyn_busobject':'C.c_void_p',
+            'alljoyn_busobject*':'POINTER(C.c_void_p)',
+            'alljoyn_interfacedescription':'C.c_void_p',
+            'alljoyn_interfacedescription*':'POINTER(C.c_void_p)',
+            'alljoyn_message':'C.c_void_p',
+            'alljoyn_message*':'POINTER(C.c_void_p)',
+            'alljoyn_msgarg':'C.c_void_p',
+            'alljoyn_msgarg*':'POINTER(C.c_void_p)',
+            'const alljoyn_interfacedescription_member':'C.c_void_p',
+            'alljoyn_interfacedescription_member *':'POINTER(C.c_void_p)',
+            'const uint8_t *':'POINTER(C.c_ubyte)',
+            'uint8_t *':'POINTER(C.c_ubyte)',
+            'const alljoyn_msgarg':'C.c_void_p',
+            'alljoyn_msgarg':'C.c_void_p',
+            'alljoyn_sessionopts':'C.c_void_p',
+            'alljoyn_aboutdatalistener':'C.c_void_p',
+            'alljoyn_msgarg*':'POINTER(C.c_void_p)',
+            'alljoyn_sessionid':'C.c_uint',
+            'alljoyn_buslistener':'C.c_void_p',
+            'alljoyn_sessionport':'C.c_ushort',
+            'alljoyn_sessionport *':'POINTER(C.c_ushort)',
+            'const alljoyn_credentials':'C.c_void_p',
+            'const alljoyn_interfacedescription':'C.c_void_p',
+            'alljoyn_aboutlistener':'C.c_void_p',
+            'alljoyn_aboutproxy':'C.c_void_p',
+            'alljoyn_interfacedescription *':'POINTER(C.c_void_p)',
+            'alljoyn_interfacedescription_member':'C.c_void_p',
+            'alljoyn_interfacedescription_member*':'POINTER(C.c_void_p)',
+            'alljoyn_pinglistener':'C.c_void_p',
+            'alljoyn_sessionlistener':'C.c_void_p',
+            'const alljoyn_sessionopts':'C.c_void_p',
+            'alljoyn_observer':'C.c_void_p',
+            'alljoyn_observerlistener':'C.c_void_p',
+            'alljoyn_keystorelistener':'C.c_void_p',
+            'void': None,  
+            'const alljoyn_busattachment':'C.c_void_p',
+            'alljoyn_keystore':'C.c_void_p',
             }
             
                        
@@ -166,6 +172,8 @@ file_objects = {'enums':[],
                 'functions': []
                }
            
+CallbackPtrTpPythonNameMap = {}
+
 def underscore_to_camelcase(value):
     return ''.join([x.capitalize() for x in value.lower().split('_')])
     
@@ -189,8 +197,10 @@ def spelling_to_python_name(spelling):
         print name_parts
         raise
     
-
     words = viterbi_segment(name_end)  # splits srings by words
+    
+    #print "word", words
+    
     end = ''.join([x.capitalize() for x in words[0]])
     
     return python_name, end
@@ -204,11 +214,11 @@ def process_file(filepath, of):
     class_template = f.read()
     f.close()
  
-    import_string = "import types\n"
+    import_string = "import sys, types\n"
     import_string += "import ctypes as C\n"
     import_string += "from ctypes import POINTER\n"
     import_string += "from enum import Enum, unique\n"
-    import_string += "from AllJoyn import AllJoynObject\n"
+    import_string += "from . import AllJoynMeta, AllJoynObject\n"
     import_string += "# Wrapper for file %s\n\n" % (file_description['doc'],)
     
     class_template = class_template.replace('__IMPORTS__', import_string)
@@ -240,6 +250,33 @@ def process_file(filepath, of):
         
     class_template = class_template.replace('__TYPEDEFS__', typedef_string)
     
+    
+    function_pointers_string = ""
+    # function_pointers
+    # BusListenerRegisteredFuncType = CallbackType(None, C.c_void_p, C.c_void_p)                 # const void* context, alljoyn_busattachment bus
+    # alljoyn_busattachment_joinsessioncb_ptr
+   
+    
+    for function_pointer_name, function_pointer in file_description['function_pointers'].items():
+            #function_pointer_name = function_pointer_name.replace('ptr', 'functype')
+            python_name_start, python_name_end = spelling_to_python_name(function_pointer_name)
+            callbackName = python_name_start + python_name_end
+            callbackName = callbackName.replace('PTR', 'FuncType')
+            CallbackPtrTpPythonNameMap[function_pointer_name] = callbackName
+            type_map[function_pointer_name.strip()] = 'POINTER(' + callbackName + ')'
+            
+            #print function_pointer_name,  type_map[function_pointer_name.strip()]
+            
+            arg_names = [a[2] for a in function_pointer]
+            arg_types = [a[0] for a in function_pointer]
+            carg_types = [type_map[a.replace('const', '').replace(' ', '')] for a in arg_types]
+            
+            #print "Adding", type_map[a.replace('const', '').replace(' ', ''), CallbackPtrTpPythonNameMap[parsed['name']] 
+            function_pointers_string += callbackName  + " = CallbackType(None, " + ', '.join(carg_types) + ') # ' + ' '.join(arg_names) + '\n'
+           
+    class_template = class_template.replace('__FUNCTION_POINTER_TYPES__', function_pointers_string)
+    
+    
     struct_string = ""
     for struct_name, struct in file_description['structs'].items():
         python_name_start, python_name_end = spelling_to_python_name(cls['name'])
@@ -254,33 +291,27 @@ def process_file(filepath, of):
   
         #of.write( "              ]\n\n")
  
-    class_template = class_template.replace('__STRUCTS__', enum_string)
+    class_template = class_template.replace('__STRUCTS__', struct_string)
     
-    # function_pointers
-    #print func
-            #for param in parsed['parameters']:
-                #parameter_names.append(param['name'])
-                #parameter_types.append(param['type'])
-                #parameter_ctypes.append(type_map[param['type'].replace(' ', '').replace('const', '')])
-            
-            #callbackName = python_name_start + python_name_end
-            #CallbackPtrTpPythonNameMap[parsed['name'].strip()] = callbackName.replace('Ptr', 'FuncType')
-            #type_map[parsed['name'].strip()] = 'POINTER(' + callbackName.replace('Ptr', 'FuncType') + ')'
-            #print "Adding", parsed['name'], CallbackPtrTpPythonNameMap[parsed['name']] 
-            
- 
     
-    methods = []
+            
+    methods = {}
+    
+    done_name = False
     
     # functions
     for function in file_description['functions']:
         functionname = function['name']
-        
-        python_name_start, python_name_end = spelling_to_python_name(functionname)
 
-        if 'DEPRECATED' in functionname:
+        if 'deprecated' in functionname.lower() or 'router' in functionname.lower():
             continue
     
+        python_name_start, python_name_end = spelling_to_python_name(functionname)
+
+        if not done_name:
+            class_template = class_template.replace('__NAME__', python_name_start)
+            done_name = True
+        
         parameter_types = []
         parameter_names = []
         parameter_ctypes = []
@@ -292,19 +323,60 @@ def process_file(filepath, of):
             param_name = param['type'].replace(' ', '').replace('const', '').strip()
 
             try:
-                parameter_ctypes.append(type_map[param_name])
+                param_ctype = None
+                #if '_ptr' in param_name:  # callback pointer. fill will junk and manually correct
+                #    param_ctype = "POINTER(CallbackFuncType)"
+                #else:
+                param_ctype = str(type_map[param_name])
+                parameter_ctypes.append(param_ctype)
             except Exception as ex:
                 print str(ex)
                 raise
- 
-            list_of_params = zip(parameter_types, parameter_ctypes)
+            
+        list_of_params = zip(parameter_types, parameter_ctypes)
 
-            tmp = [func['name'], (function['return_type'], type_map[return_type.replace(' ', '').replace('const', '')]), tuple(list_of_params)]
+        ctype_return_type = type_map[function['return_type'].replace('const', '').replace(' ', '').strip()]
+
+        tmp = [functionname, (function['return_type'], ctype_return_type), 
+               tuple(list_of_params)]
                
-            methods.append(tuple(tmp)) 
+        methods[python_name_end] = (tuple(tmp)) 
     
+    
+    methods_string = pprint.pformat(methods)
  
-    class_template = class_template.replace('__METHODS__', str(methods))
+    class_template = class_template.replace('__METHODS__', str(methods_string))
+    
+    # Wrappers
+    
+    wrapper_string = ""
+    # functions
+    for function in file_description['functions']:
+        functionname = function['name']
+
+        if 'deprecated' in functionname.lower() or 'router' in functionname.lower():
+            continue
+    
+        python_name_start, python_name_end = spelling_to_python_name(functionname)
+        parameter_types = []
+        parameter_names = []
+        
+        for param in function['params']:
+            parameter_names.append(param['name'])
+            parameter_types.append(param['type'])
+        
+        parameter_names = parameter_names[1:]
+        parameter_types = parameter_types[1:]
+        
+        if parameter_names:
+            wrapper_string += "def %s(self, %s):\n    " % (python_name_end, ','.join(parameter_names))
+            wrapper_string += "    return self._" + python_name_end + "(self.handle," + ','.join(parameter_names) + ") # " + ','.join(parameter_types) + '\n\n    '
+        else:
+            wrapper_string += "def %s(self):\n    " % (python_name_end,)
+            wrapper_string += "    return self._" + python_name_end + "(self.handle)\n\n    "
+        
+    
+    class_template = class_template.replace('__WRAPPERS__', wrapper_string)
     
     of.write(class_template)
     

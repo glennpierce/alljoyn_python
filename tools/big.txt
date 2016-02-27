@@ -20957,6 +20957,7 @@ fumigation
 fuming
 fumingly
 fun
+func
 function
 functional
 functionalism

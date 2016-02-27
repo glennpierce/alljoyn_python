@@ -1,27 +1,11 @@
 #!/usr/bin/env python
 
-import AllJoynPy
-from AllJoynPy import AllJoyn, Constants, QStatus
-from callbacks import *
-import ctypes as C
+from AllJoynPy import AllJoyn
 import signal, time
 import sys
-from ctypes import POINTER
 
-
-if sys.platform == 'win32':
-    CallbackType = C.WINFUNCTYPE
-else:
-    CallbackType = C.CFUNCTYPE
-
-
-#Note the removal of almost all Error handling to make the sample code more
-#straight forward to read.  This is only used here for demonstration actual
-#programs should check the return values of all method calls.
- 
 
 INTERFACE_NAME = "com.example.about.feature.interface.sample"
-#INTERFACE_NAME = "net.allplay.MediaPlayer";
 
 
 def signal_handler(signal, frame):
@@ -31,23 +15,19 @@ def signal_handler(signal, frame):
 
 if __name__ == "__main__":
     # Install SIGINT handler so Ctrl + C deallocates memory properly
-    alljoyn = AllJoyn('alljoyn_c')
+    alljoyn = AllJoyn()
 
-    print alljoyn.Init()
-
-    print "AllJoyn Library version:", alljoyn.GetVersion()
-    print "AllJoyn Library build info:", alljoyn.GetBuildInfo()
+    print "AllJoyn Library version:", alljoyn.Version
+    print "AllJoyn Library build info:", alljoyn.BuildInfo
 
     signal.signal(signal.SIGINT, signal_handler)
 
-
     # Create message bus 
-    g_bus = BusAttachment("AboutServiceTest", Constants.QCC_TRUE)
+    g_bus = alljoyn.BusAttachment.BusAttachment("AboutServiceTest", True)
 
     # Start the msg bus 
     g_bus.Start()
     
-    status = gbus.Connect(None)
+    g_bus.Connect(None)
 
-    if status == QStatus.ER_OK:
-        print "BusAttachment connect succeeded. BusName", alljoyn.BusattachmentGetuniquename(g_bus)
+    print g_bus.GetUniqueName()
