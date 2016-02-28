@@ -28,7 +28,7 @@ def signal_handler(signal, frame):
     QCC_UNUSED(sig);
     s_interrupt = QCC_TRUE;
 
-
+"""
 
 # Print out the fields found in the AboutData. Only fields with known signatures
 # are printed out.  All others will be treated as an unknown field.
@@ -43,14 +43,13 @@ def printAboutData(aboutData, language, tabNum:
         }
         print "Key: %s" % (fields[i],)
 
-        tmp = MsgArgCreate()
-        
-        aboutData.GetFields(fields[i], tmp, language)
+        tmp = aboutData.GetField(fields[i], language)
         
         print "\t"
         
+        tmp = 
         signature = C.create_string_buffer(256)  
-        tmp.Signature(signature, 16)
+        tmp.Signature(signature, tmp, 16)
         
         if signature[0] == "s":
             tmp_s = C.create_string_buffer(256)  
@@ -108,18 +107,13 @@ static void alljoyn_sessionlistener_connect_lost_cb(const void* context,
 
 
 
+class MyAboutListener(object):
+    def __init__(self):
+        self.aboutListener = alljoyn.AboutListener(callback, result)
+
 
 
 def my_about_listener create_my_alljoyn_aboutlistener():
-
-
-    my_about_listener* result =
-        (my_about_listener*) malloc(sizeof(my_about_listener));
-
-    alljoyn_aboutlistener_callback* callback =
-        (alljoyn_aboutlistener_callback*)
-        malloc(sizeof(alljoyn_aboutlistener_callback));
-
     callback->about_listener_announced = announced_cb;
 
     result->aboutlistener = alljoyn_aboutlistener_create(callback, result);
@@ -323,40 +317,35 @@ def BusListenerBusPropertyChangedFunc(context, prop_name, prop_value):
 callback = AllJoynPy.AboutListenerCallback()
 callback.AboutListenerAnnouncedFuncType = AllJoynPy.AboutListenerAnnouncedFuncType(announced_cb)
 
-
+"""
 
 aboutlistener = AuthListener(callback, result)
 
 
-
-
-
-
-
 if __name == "__main__":
+
     # Install SIGINT handler so Ctrl + C deallocates memory properly
-    alljoyn = AllJoyn('alljoyn_c')
+    alljoyn = AllJoyn()
 
-    print alljoyn.Init()
-
-    print "AllJoyn Library version:", alljoyn.GetVersion()
-    print "AllJoyn Library build info:", alljoyn.GetBuildInfo()
+    print "AllJoyn Library version:", alljoyn.Version
+    print "AllJoyn Library build info:", alljoyn.BuildInfo
 
     signal.signal(signal.SIGINT, signal_handler)
 
-
     # Create message bus 
-    g_bus = BusAttachment("AboutServiceTest", Constants.QCC_TRUE)
+    g_bus = alljoyn.BusAttachment.BusAttachment("AboutServiceTest", True)
 
     # Start the msg bus 
     g_bus.Start()
     
-    status = gbus.Connect(None)
+    g_bus.Connect(None)
 
-    if status == QStatus.ER_OK:
-        print "BusAttachment connect succeeded. BusName", alljoyn.BusattachmentGetuniquename(g_bus)
+    print g_bus.GetUniqueName()
       
 
+   
+   
+   
    
 
     my_about_listener* listener = create_my_alljoyn_aboutlistener();
@@ -373,6 +362,7 @@ if __name == "__main__":
         return 1;
     }
 
+"""
     /* Perform the service asynchronously until the user signals for an exit */
     if (ER_OK == status) {
         while (s_interrupt == QCC_FALSE) {
@@ -393,5 +383,7 @@ if __name == "__main__":
 
 
     alljoyn_shutdown();
+"""
+
     return 0;
 }

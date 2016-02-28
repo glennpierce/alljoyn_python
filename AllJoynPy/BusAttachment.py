@@ -5,19 +5,10 @@ from enum import Enum, unique
 from . import AllJoynMeta, AllJoynObject
 # Wrapper for file BusAttachment.h
 
-
-
-
-
-
-
-
-
 # Typedefs
 # struct _alljoyn_busattachment_handle * alljoyn_busattachment
 # void (*)(int, int, const int, void *) alljoyn_busattachment_joinsessioncb_ptr
 # void (*)(int, int, void *) alljoyn_busattachment_setlinktimeoutcb_ptr
-
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
@@ -26,8 +17,6 @@ else:
     
 BusAttachmentSetLinkTimeoutCBFuncType = CallbackType(None, C.c_int, C.c_int, C.c_void_p) # status timeout context
 BusAttachmentJoinSessionCBFuncType = CallbackType(None, C.c_int, C.c_int, C.c_int, C.c_void_p) # status sessionId opts context
-
-
 
 
 class BusAttachment(AllJoynObject):

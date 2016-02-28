@@ -445,6 +445,8 @@ class AllJoynObject(object):
 import Init
 import Version
 import BusAttachment
+import AboutData
+import AboutListener
 
 
 class AllJoyn(object):
@@ -463,6 +465,14 @@ class AllJoyn(object):
         
     @property
     def BusAttachment(self):
+        return BusAttachment
+        
+    @property
+    def AboutData(self):
+        return BusAttachment
+        
+    @property
+    def AboutListener(self):
         return BusAttachment
         
     def __init__(self):

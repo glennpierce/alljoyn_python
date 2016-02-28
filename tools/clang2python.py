@@ -139,6 +139,7 @@ type_map = {'char':'C.c_byte',
             'const uint8_t *':'POINTER(C.c_ubyte)',
             'uint8_t *':'POINTER(C.c_ubyte)',
             'const alljoyn_msgarg':'C.c_void_p',
+            'alljoyn_typeid': 'C.c_uint',
             'alljoyn_msgarg':'C.c_void_p',
             'alljoyn_sessionopts':'C.c_void_p',
             'alljoyn_aboutdatalistener':'C.c_void_p',
@@ -277,22 +278,27 @@ def process_file(filepath, of):
     class_template = class_template.replace('__FUNCTION_POINTER_TYPES__', function_pointers_string)
     
     
+    #_fields_ = [("AboutListenerAnnounced",
+    #                POINTER(AboutListenerAnnouncedFuncType))
+    #           ]
     struct_string = ""
-    for struct_name, struct in file_description['structs'].items():
-        python_name_start, python_name_end = spelling_to_python_name(cls['name'])
+    for struct_name, fields in file_description['structs'].items():
+        python_name_start, python_name_end = spelling_to_python_name(struct_name)
         CallbackClassName = python_name_start + python_name_end
         type_map[struct_name] = CallbackClassName   # Add the name to the class map
         type_map[struct_name + "*"] = "POINTER(" + CallbackClassName + ")"
         struct_string += "class " + CallbackClassName + "(C.Structure):\n"
         struct_string += "    _fields_ = [\n"
+
+        for field in fields:
+            field_type = field[0]
+            field_name = field[1]
+            real_field_type = CallbackPtrTpPythonNameMap[field_type]
+            struct_string += "                (\"%s\", POINTER(%s))," % (field_name, real_field_type)
   
-        #for prop in cls['properties']['public']:
-        #    of.write("            (\"%s\", POINTER(%s))," % (underscore_to_camelcase(prop['name']), CallbackPtrTpPythonNameMap[prop['type'].strip()]))
-  
-        #of.write( "              ]\n\n")
+        struct_string += "                ]\n\n"
  
     class_template = class_template.replace('__STRUCTS__', struct_string)
-    
     
             
     methods = {}
