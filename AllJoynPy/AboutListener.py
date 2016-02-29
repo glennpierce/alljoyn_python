@@ -15,7 +15,7 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
     
-AboutAnnouncedFuncType = CallbackType(None, C.c_void_p, C.c_char_p, C.c_int, C.c_int, C.c_int, C.c_int) # context busName version port objectDescriptionArg aboutDataArg
+AboutAnnouncedFuncType = CallbackType(None, C.c_void_p, C.c_char_p, C.c_int, C.c_int, C.c_void_p, C.c_void_p) # context busName version port objectDescriptionArg aboutDataArg
 
 
 class AboutListenerCallBack(C.Structure):
