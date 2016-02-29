@@ -244,7 +244,7 @@ class BusAttachment(AllJoynObject):
  u'RegisterAboutListener': (u'alljoyn_busattachment_registeraboutlistener',
                             (u'void', None),
                             ((u'alljoyn_busattachment', 'C.c_void_p'),
-                             (u'int', 'C.c_int'))),
+                             (u'alljoyn_aboutlistener', 'C.c_void_p'))),          
  u'RegisterBusListener': (u'alljoyn_busattachment_registerbuslistener',
                           (u'void', None),
                           ((u'alljoyn_busattachment', 'C.c_void_p'),
@@ -607,7 +607,7 @@ class BusAttachment(AllJoynObject):
         return self._Ping(self.handle,name,timeout) # const char *,int
 
     def RegisterAboutListener(self, aboutListener):
-        return self._RegisterAboutListener(self.handle,aboutListener) # int
+        return self._RegisterAboutListener(self.handle, aboutListener.handle) # alljoyn_aboutlistener
 
     def UNREGISTERABOUTLISTENER(self, aboutListener):
         return self._UNREGISTERABOUTLISTENER(self.handle,aboutListener) # int
@@ -615,8 +615,13 @@ class BusAttachment(AllJoynObject):
     def UNREGISTERALLABOUTLISTENERS(self):
         return self._UNREGISTERALLABOUTLISTENERS(self.handle)
 
-    def WhoImplementsInterfaces(self, implementsInterfaces,numberInterfaces):
-        return self._WhoImplementsInterfaces(self.handle,implementsInterfaces,numberInterfaces) # const char **,int
+    #def WhoImplementsInterfaces(self, implementsInterfaces, numberInterfaces):
+    def WhoImplementsInterfaces(self, interfaces):
+        array = (C.c_char_p * len(interfaces))()
+        array[:] = interfaces
+        #lib.external_C(array, len(interfaces))
+        # implementsInterfaces, numberInterfaces
+        return self._WhoImplementsInterfaces(self.handle, array, len(interfaces)) # const char **,int
 
     def WhoImplementsInterface(self, implementsInterface):
         return self._WhoImplementsInterface(self.handle,implementsInterface) # const char *

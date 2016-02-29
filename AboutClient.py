@@ -1,32 +1,22 @@
 #!/usr/bin/env python
 
-import AllJoynPy
-from AllJoynPy import AllJoyn, Constants, QStatus
-from callbacks import *
-import ctypes as C
+from AllJoynPy import AllJoyn, AboutListener
 import signal, time
 import sys
-from ctypes import POINTER
-
-
-if sys.platform == 'win32':
-    CallbackType = C.WINFUNCTYPE
-else:
-    CallbackType = C.CFUNCTYPE
-
 
 #Note the removal of almost all Error handling to make the sample code more
 #straight forward to read.  This is only used here for demonstration actual
 #programs should check the return values of all method calls.
  
 
-INTERFACE_NAME = "com.example.about.feature.interface.sample"
-#INTERFACE_NAME = "net.allplay.MediaPlayer";
+timeout = 10
+
+INTERFACE_NAME = "net.allplay.MediaPlayer";
 
 
 def signal_handler(signal, frame):
     QCC_UNUSED(sig);
-    s_interrupt = QCC_TRUE;
+    s_interrupt = True;
 
 """
 
@@ -319,10 +309,18 @@ callback.AboutListenerAnnouncedFuncType = AllJoynPy.AboutListenerAnnouncedFuncTy
 
 """
 
-aboutlistener = AuthListener(callback, result)
+#aboutlistener = AuthListener(callback, result)
 
 
-if __name == "__main__":
+class MyAboutListener(AboutListener.AboutListener):
+    def __init__(self):
+        super(MyAboutListener, self).__init__()
+        
+    def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
+        print "Harley    GLENN !!!!!!!!!!!!!!!!!!!", busName, version, port, objectDescriptionArg, aboutDataArg
+        pass
+
+if __name__ == "__main__":
 
     # Install SIGINT handler so Ctrl + C deallocates memory properly
     alljoyn = AllJoyn()
@@ -341,38 +339,27 @@ if __name == "__main__":
     g_bus.Connect(None)
 
     print g_bus.GetUniqueName()
-      
-
+    
+    aboutListener = MyAboutListener()
    
+    g_bus.RegisterAboutListener(aboutListener)
    
-   
-   
+    print "hhh:"
+    g_bus.WhoImplementsInterfaces([INTERFACE_NAME])
 
-    my_about_listener* listener = create_my_alljoyn_aboutlistener();
-    alljoyn_busattachment_registeraboutlistener(g_bus, listener->aboutlistener);
 
-    const char* interfaces[] = { INTERFACE_NAME };
-    alljoyn_busattachment_whoimplements_interfaces(g_bus, interfaces,
-                                                   sizeof(interfaces) / sizeof(interfaces[0]));
+    s_interrupt = False
+    t=0
+    while s_interrupt == False:
+        time.sleep(0.1)
+        t += 0.1
+        
+        if t >= timeout:
+            break
 
-    if (ER_OK == status) {
-        printf("WhoImplements called.\n");
-    } else {
-        printf("WhoImplements call FAILED with status %s\n", QCC_StatusText(status));
-        return 1;
-    }
 
 """
-    /* Perform the service asynchronously until the user signals for an exit */
-    if (ER_OK == status) {
-        while (s_interrupt == QCC_FALSE) {
-#ifdef _WIN32
-            Sleep(100);
-#else
-            usleep(100 * 1000);
-#endif
-        }
-    }
+    
 
     destroy_my_alljoyn_aboutlistener(listener);
 
@@ -385,5 +372,3 @@ if __name == "__main__":
     alljoyn_shutdown();
 """
 
-    return 0;
-}

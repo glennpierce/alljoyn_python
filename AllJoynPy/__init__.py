@@ -471,9 +471,9 @@ class AllJoyn(object):
     def AboutData(self):
         return BusAttachment
         
-    @property
-    def AboutListener(self):
-        return BusAttachment
+    #@property
+    #def AboutListener(self):
+    #    return BusAttachment
         
     def __init__(self):
         
