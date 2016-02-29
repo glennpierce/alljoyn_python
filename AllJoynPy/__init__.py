@@ -10,9 +10,6 @@ import os, os.path, tempfile, sys, time, StringIO
 from warnings import warn
 from enum import Enum, unique
 
-#Load the constants
-from constants import *
-import library
 
 @unique
 class QStatus(Enum):

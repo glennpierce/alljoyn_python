@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from AllJoynPy import AllJoyn, AboutListener
+from AllJoynPy import AllJoyn, AboutListener, QStatusException
 import signal, time
 import sys
 
@@ -318,6 +318,32 @@ class MyAboutListener(AboutListener.AboutListener):
         
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
         print "Harley    GLENN !!!!!!!!!!!!!!!!!!!", busName, version, port, objectDescriptionArg, aboutDataArg
+
+
+        #objectDescription = AboutObjectDescription();
+        #objectDescription.CreateFromMsgArg(objectDescription, objectDescriptionArg)
+
+        #print "*********************************************************************************"
+        #print "Announce signal discovered"
+        #print "\tFrom bus %s", busName
+        #print "\tAbout version %hu", version
+        #print "\tSessionPort %hu", port
+        #print "\tObjectDescription"
+
+        #aod = AboutObjectDescription();
+        #aod.CreateFromMsgArg(aod, objectDescriptionArg)
+
+        #path_num = aod.Getpaths(None, 0)
+
+        #paths = C.create_string_buffer(path_num)  
+        #aod.Getpaths(paths, path_num)
+
+
+        #print "\tAboutData:"
+        #alljoyn_aboutdata aboutData = AboutData("en", aboutDataArg)
+
+
+
         pass
 
 if __name__ == "__main__":
@@ -335,8 +361,12 @@ if __name__ == "__main__":
 
     # Start the msg bus 
     g_bus.Start()
-    
-    g_bus.Connect(None)
+
+    try:
+        g_bus.Connect(None)
+    except QStatusException as ex:
+        print "Have you got the daemon running ?"
+        sys.exit(1)
 
     print g_bus.GetUniqueName()
     
@@ -344,9 +374,7 @@ if __name__ == "__main__":
    
     g_bus.RegisterAboutListener(aboutListener)
    
-    print "hhh:"
     g_bus.WhoImplementsInterfaces([INTERFACE_NAME])
-
 
     s_interrupt = False
     t=0
