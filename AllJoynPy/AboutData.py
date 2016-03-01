@@ -88,7 +88,7 @@ class AboutData(AllJoynObject):
                                  (u'const char *', 'C.c_char_p'))),
              u'GetField': (u'alljoyn_aboutdata_getfield',
                            (u'QStatus', 'C.c_uint'),
-                           ((u'alljoyn_aboutdata', 'C.c_void_p'), (u'const char *', 'C.c_char_p'), (u'alljoyn_msgarg*', 'POINTER(C.c_void_p)'), (u'const char *', 'C.c_char_p'))),
+                           ((u'alljoyn_aboutdata', 'C.c_void_p'), (u'const char *', 'C.c_char_p'), (u'alljoyn_msgarg*', 'POINTER(POINTER(MsgArg.AlljoynMsgArg))'), (u'const char *', 'C.c_char_p'))),
              u'GetFieldSignature': (u'alljoyn_aboutdata_getfieldsignature',
                                     (u'const char *', 'C.c_char_p'),
                                     ((u'alljoyn_aboutdata', 'C.c_void_p'),
@@ -322,20 +322,16 @@ class AboutData(AllJoynObject):
         return self._SetField(self.handle,name,value,language) # const char *,int,const char *
 
     def GetField(self, name, language=None):
-        # print ctypes.cast(ctypes.c_longlong(id(a)).value, ctypes.py_object).value
-        arg = MsgArg.MsgArg()
-        handle_p = C.cast(arg.handle, C.c_void_p)
-        #handle_p = C.c_void_p(arg.handle)
-        status = self._GetField(self.handle, name, C.byref(handle_p), language) # const char *, alljoyn_msgarg *, const char *
-        arg.handle = C.cast(handle_p.value, C.py_object).value
-        return arg
+        handle = MsgArg.MsgArg._Create()
+        status = self._GetField(self.handle, name, C.byref(handle), language) # const char *, alljoyn_msgarg *, const char *
+        return MsgArg.MsgArg(handle=handle)
         
     def GetFields(self):
         count = self._GetFields(self.handle, None, 0) 
+        print "count", count
         array = (C.c_char_p * count)()
         status = self._GetFields(self.handle, array, count) # const char **, int
         return [a for a in array]
-
 
     def GetAboutData(self,language):
         msgArg = C.c_void_p()

@@ -386,6 +386,7 @@ class AllJoynMeta(type):
    def __new__(meta, name, bases, attrs):
        return super(AllJoynMeta, meta).__new__(meta, name, bases, attrs)
         
+        
 
 class AllJoynObject(object):
     
@@ -440,11 +441,45 @@ class AllJoynObject(object):
             setattr(self, '_' + callable_name, cmethod)
        
 
+    @classmethod
+    def bind_functions_to_cls(cls):
+        for callable_name, method in cls._cmethods.items():
+            lib_function_name = method[0]
+            return_name = method[1][0]
+            args = []
+            try:
+                return_type = (method[1][1]) if method[1][1] else None
+                args = method[2]
+            except:
+                print callable_name
+                print method[1][1]
+                raise
+            
+            cargs = []
+            try:
+                cargs = [a[1] for a in args if a]
+                print callable_name, cargs
+            except:
+                print args
+                raise
+                
+            cmethod = getattr(AllJoynObject.__lib, lib_function_name)
+
+            if return_type:
+                cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
+
+            if cargs:
+                cmethod.argtypes = cargs
+        
+            setattr(cls, '_' + callable_name, cmethod)
+
+            
 import Init
 import Version
 import BusAttachment
 import AboutData
 import AboutListener
+import MsgArg
 
 
 class AllJoyn(object):

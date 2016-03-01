@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from AllJoynPy import AllJoyn, AboutListener, AboutData, QStatusException, AboutObjectDescription, MsgArg
+from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, QStatusException, AboutObjectDescription
 import signal, time
 import sys
 
@@ -304,14 +304,15 @@ class MyAboutListener(AboutListener.AboutListener):
             print "\t" * tabNum, "Key:", field
    
             tmp = aboutData.GetField(field)
-            #print "\t"
-            
-            #print tmp
-            
-            #here
+            print "\t"
+ 
+ 
+            print tmp.Get()
+ 
             #signature = tmp.Signature()
             #print "signature", signature
            
+            
             #if signature and signature[0] == "s":
             #    print tmp.GetString()
                 
@@ -470,6 +471,10 @@ if __name__ == "__main__":
 
     print "AllJoyn Library version:", alljoyn.Version
     print "AllJoyn Library build info:", alljoyn.BuildInfo
+
+
+    print MsgArg.MsgArg.Create()
+
 
     signal.signal(signal.SIGINT, signal_handler)
 

@@ -5,6 +5,9 @@ from enum import Enum, unique
 from . import AllJoynMeta, AllJoynObject
 # Wrapper for file MsgArg.h
 
+class AlljoynMsgArg(C.Structure):
+    _fields_ = []
+               
 @unique
 class TypeId(Enum):
     ALLJOYN_INVALID = 0
@@ -46,433 +49,472 @@ class TypeId(Enum):
 # enum alljoyn_typeid alljoyn_typeid
 
 
-if sys.platform == 'win32':
-    CallbackType = C.WINFUNCTYPE
-else:
-    CallbackType = C.CFUNCTYPE
-    
-
-
 class MsgArg(AllJoynObject):
     
     __metaclass__ = AllJoynMeta
     
     _cmethods = {u'ArrayCreate': (u'alljoyn_msgarg_array_create',
-                  (u'alljoyn_msgarg', 'C.c_void_p'),
-                  ((u'int', 'C.c_int'),)),
+                  (u'alljoyn_msgarg', C.c_void_p),
+                  ((u'int', C.c_int),)),
                   
                  u'ArrayElement': (u'alljoyn_msgarg_array_element',
-                                   (u'alljoyn_msgarg', 'C.c_void_p'),
-                                   ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                                   (u'alljoyn_msgarg', C.c_void_p),
+                                   ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
                                    
                  u'ArrayGet': (u'alljoyn_msgarg_array_get',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                (u'int', 'C.c_int'),
-                                (u'const char *', 'C.c_char_p'))),
+                               (u'QStatus', C.c_uint),
+                               ((u'const alljoyn_msgarg', C.c_void_p),
+                                (u'int', C.c_int),
+                                (u'const char *', C.c_char_p))),
                                 
                  u'ArraySet': (u'alljoyn_msgarg_array_set',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                (u'int *', 'POINTER(C.c_int)'),
-                                (u'const char *', 'C.c_char_p'))),
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p),
+                                (u'int *', POINTER(C.c_int)),
+                                (u'const char *', C.c_char_p))),
                                 
                  u'ArraySetOffset': (u'alljoyn_msgarg_array_set_offset',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int', 'C.c_int'),
-                                      (u'int *', 'POINTER(C.c_int)'),
-                                      (u'const char *', 'C.c_char_p'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'int', C.c_int),
+                                      (u'int *', POINTER(C.c_int)),
+                                      (u'const char *', C.c_char_p))),
                                       
                  u'ArraySignature': (u'alljoyn_msgarg_array_signature',
-                                     (u'int', 'C.c_int'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int', 'C.c_int'),
-                                      (u'char *', 'C.c_char_p'),
-                                      (u'int', 'C.c_int'))),
+                                     (u'int', C.c_int),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'int', C.c_int),
+                                      (u'char *', C.c_char_p),
+                                      (u'int', C.c_int))),
                                       
                  u'ArrayToString': (u'alljoyn_msgarg_array_tostring',
-                                    (u'int', 'C.c_int'),
-                                    ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int', 'C.c_int'),
-                                     (u'char *', 'C.c_char_p'),
-                                     (u'int', 'C.c_int'),
-                                     (u'int', 'C.c_int'))),
+                                    (u'int', C.c_int),
+                                    ((u'const alljoyn_msgarg', C.c_void_p),
+                                     (u'int', C.c_int),
+                                     (u'char *', C.c_char_p),
+                                     (u'int', C.c_int),
+                                     (u'int', C.c_int))),
                                      
                  u'Clear': (u'alljoyn_msgarg_clear',
                             (u'void', None),
-                            ((u'alljoyn_msgarg', 'C.c_void_p'),)),
+                            ((u'alljoyn_msgarg', C.c_void_p),)),
                             
                  u'Clone': (u'alljoyn_msgarg_clone',
                             (u'void', None),
-                            ((u'alljoyn_msgarg', 'C.c_void_p'),
-                             (u'const alljoyn_msgarg', 'C.c_void_p'))),
+                            ((u'alljoyn_msgarg', C.c_void_p),
+                             (u'const alljoyn_msgarg', C.c_void_p))),
                              
                  u'Copy': (u'alljoyn_msgarg_copy',
-                           (u'alljoyn_msgarg', 'C.c_void_p'),
-                           ((u'const alljoyn_msgarg', 'C.c_void_p'),)),
+                           (u'alljoyn_msgarg', C.c_void_p),
+                           ((u'const alljoyn_msgarg', C.c_void_p),)),
 
-                 u'Create': (u'alljoyn_msgarg_create', (u'alljoyn_msgarg', 'C.c_void_p'), ()),
+                 u'Create': (u'alljoyn_msgarg_create', (u'alljoyn_msgarg', POINTER(AlljoynMsgArg)), ()),
 
                  u'CreateAndSet': (u'alljoyn_msgarg_create_and_set',
-                                   (u'alljoyn_msgarg', 'C.c_void_p'),
-                                   ((u'const char *', 'C.c_char_p'),)),
+                                   (u'alljoyn_msgarg', C.c_void_p),
+                                   ((u'const char *', C.c_char_p),)),
 
-                 u'Destroy': (u'alljoyn_msgarg_destroy',
-                              (u'void', None),
-                              ((u'alljoyn_msgarg', 'C.c_void_p'),)),
+                 u'Destroy': (u'alljoyn_msgarg_destroy', (u'void', None), ((u'alljoyn_msgarg', POINTER(AlljoynMsgArg)),)),
 
                  u'Equal': (u'alljoyn_msgarg_equal',
-                            (u'int', 'C.c_int'),
-                            ((u'alljoyn_msgarg', 'C.c_void_p'),
-                             (u'alljoyn_msgarg', 'C.c_void_p'))),
+                            (u'int', C.c_int),
+                            ((u'alljoyn_msgarg', C.c_void_p),
+                             (u'alljoyn_msgarg', C.c_void_p))),
 
-                 u'Get': (u'alljoyn_msgarg_get',
-                          (u'QStatus', 'C.c_uint'),
-                          ((u'alljoyn_msgarg', 'C.c_void_p'),
-                           (u'const char *', 'C.c_char_p'))),
+                 #u'Get': (u'alljoyn_msgarg_get',
+                 #         (u'QStatus', C.c_uint), ((u'alljoyn_msgarg', C.c_void_p), (u'const char *', C.c_char_p))),
 
                  u'GetArrayElement': (u'alljoyn_msgarg_get_array_element',
                                       (u'void', None),
-                                      ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                       (u'int', 'C.c_int'),
-                                       (u'alljoyn_msgarg *', 'POINTER(C.c_void_p)'))),
+                                      ((u'const alljoyn_msgarg', C.c_void_p),
+                                       (u'int', C.c_int),
+                                       (u'alljoyn_msgarg *', POINTER(C.c_void_p)))),
 
                  u'GetArrayElementSignature': (u'alljoyn_msgarg_get_array_elementsignature',
-                                               (u'const char *', 'C.c_char_p'),
-                                               ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                                (u'int', 'C.c_int'))),
+                                               (u'const char *', C.c_char_p),
+                                               ((u'const alljoyn_msgarg', C.c_void_p),
+                                                (u'int', C.c_int))),
 
                  u'GetArrayNumberOfElements': (u'alljoyn_msgarg_get_array_numberofelements',
-                                               (u'int', 'C.c_int'),
-                                               ((u'const alljoyn_msgarg', 'C.c_void_p'),)),
+                                               (u'int', C.c_int),
+                                               ((u'const alljoyn_msgarg', C.c_void_p),)),
 
-                 u'GetBooL': (u'alljoyn_msgarg_get_bool',
-                              (u'QStatus', 'C.c_uint'),
-                              ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                               (u'int *', 'POINTER(C.c_int)'))),
+                 
 
                  u'GetBooLARRAY': (u'alljoyn_msgarg_get_bool_array',
-                                   (u'QStatus', 'C.c_uint'),
-                                   ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                    (u'int *', 'POINTER(C.c_int)'),
-                                    (u'int *', 'POINTER(C.c_int)'))),
+                                   (u'QStatus', C.c_uint),
+                                   ((u'const alljoyn_msgarg', C.c_void_p),
+                                    (u'int *', POINTER(C.c_int)),
+                                    (u'int *', POINTER(C.c_int)))),
 
                  u'GetDICTELEMENT': (u'alljoyn_msgarg_getdictelement',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'const char *', 'C.c_char_p'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'const char *', C.c_char_p))),
+
+
+
+
+
+
+
+
+                 u'GetBool': (u'alljoyn_msgarg_get_bool',
+                              (u'QStatus', C.c_uint),
+                              ((u'const alljoyn_msgarg', C.c_void_p),
+                               (u'int *', POINTER(C.c_byte)))),
+                           
+                 u'GetUInt8': (u'alljoyn_msgarg_get_uint8',
+                               (u'QStatus', C.c_uint),
+                               ((u'const alljoyn_msgarg', C.c_void_p),
+                                (u'int *', POINTER(C.c_ubyte)))),
+                              
+                 u'GetInt16': (u'alljoyn_msgarg_get_int16',
+                               (u'QStatus', C.c_uint),
+                               ((u'const alljoyn_msgarg', C.c_void_p),
+                                (u'int *', POINTER(C.c_short)))),
+                                
+                 u'GetUInt16': (u'alljoyn_msgarg_get_uint16',
+                                (u'QStatus', C.c_uint),
+                                ((u'const alljoyn_msgarg', C.c_void_p),
+                                 (u'int *', POINTER(C.c_ushort)))),
+                                 
+                 u'GetInt32': (u'alljoyn_msgarg_get_int32',
+                               (u'QStatus', C.c_uint),
+                               ((u'const alljoyn_msgarg', C.c_void_p),
+                                (u'int *', POINTER(C.c_int)))),
+                               
+                 u'GetUInt32': (u'alljoyn_msgarg_get_uint32',
+                                (u'QStatus', C.c_uint),
+                                ((u'const alljoyn_msgarg', C.c_void_p),
+                                 (u'int *', POINTER(C.c_uint)))),
+                                 
+                 u'GetInt64': (u'alljoyn_msgarg_get_int64',
+                               (u'QStatus', C.c_uint),
+                               ((u'const alljoyn_msgarg', C.c_void_p),
+                                (u'int *', POINTER(C.c_longlong)))),
+                           
+                 u'GetUInt64': (u'alljoyn_msgarg_get_uint64',
+                                (u'QStatus', C.c_uint),
+                                ((u'const alljoyn_msgarg', C.c_void_p),
+                                 (u'int *', POINTER(C.c_ulonglong)))),
+
 
                  u'GetDouble': (u'alljoyn_msgarg_get_double',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'double *', 'POINTER(C.c_double)'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'const alljoyn_msgarg', C.c_void_p),
+                                 (u'double *', POINTER(C.c_double)))),
 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                                 
                  u'GetDoubleArray': (u'alljoyn_msgarg_get_double_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int *', 'POINTER(C.c_int)'),
-                                      (u'double *', 'POINTER(C.c_double)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'const alljoyn_msgarg', C.c_void_p),
+                                      (u'int *', POINTER(C.c_int)),
+                                      (u'double *', POINTER(C.c_double)))),
 
-                 u'GetInT16': (u'alljoyn_msgarg_get_int16',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                (u'int *', 'POINTER(C.c_int)'))),
+                 
 
                  u'GetInT16ARRAY': (u'alljoyn_msgarg_get_int16_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int *', 'POINTER(C.c_int)'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'const alljoyn_msgarg', C.c_void_p),
+                                     (u'int *', POINTER(C.c_int)),
+                                     (u'int *', POINTER(C.c_int)))),
 
-                 u'GetInT32': (u'alljoyn_msgarg_get_int32',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                (u'int *', 'POINTER(C.c_int)'))),
+                 
 
-                 u'GetInT32ARRAY': (u'alljoyn_msgarg_get_int32_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int *', 'POINTER(C.c_int)'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                 u'GetInt32ARRAY': (u'alljoyn_msgarg_get_int32_array',
+                                    (u'QStatus', C.c_uint),
+                                    ((u'const alljoyn_msgarg', C.c_void_p),
+                                     (u'int *', POINTER(C.c_int)),
+                                     (u'int *', POINTER(C.c_int)))),
 
-                 u'GetInT64': (u'alljoyn_msgarg_get_int64',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                (u'int *', 'POINTER(C.c_int)'))),
+                 
 
-                 u'GetInT64ARRAY': (u'alljoyn_msgarg_get_int64_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int *', 'POINTER(C.c_int)'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                 u'GetInt64ARRAY': (u'alljoyn_msgarg_get_int64_array',
+                                    (u'QStatus', C.c_uint),
+                                    ((u'const alljoyn_msgarg', C.c_void_p),
+                                     (u'int *', POINTER(C.c_int)),
+                                     (u'int *', POINTER(C.c_int)))),
 
                  u'GetKey': (u'alljoyn_msgarg_getkey',
-                             (u'alljoyn_msgarg', 'C.c_void_p'),
-                             ((u'alljoyn_msgarg', 'C.c_void_p'),)),
+                             (u'alljoyn_msgarg', C.c_void_p),
+                             ((u'alljoyn_msgarg', C.c_void_p),)),
 
                  u'GetMember': (u'alljoyn_msgarg_getmember',
-                                (u'alljoyn_msgarg', 'C.c_void_p'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                                (u'alljoyn_msgarg', C.c_void_p),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'GetNuMMEMBERS': (u'alljoyn_msgarg_getnummembers',
-                                    (u'int', 'C.c_int'),
-                                    ((u'alljoyn_msgarg', 'C.c_void_p'),)),
+                                    (u'int', C.c_int),
+                                    ((u'alljoyn_msgarg', C.c_void_p),)),
 
                  u'GetObjectPath': (u'alljoyn_msgarg_get_objectpath',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'char **', 'POINTER(C.c_char_p)'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'const alljoyn_msgarg', C.c_void_p),
+                                     (u'char **', POINTER(C.c_char_p)))),
 
                  u'GetSignature': (u'alljoyn_msgarg_get_signature',
-                                   (u'QStatus', 'C.c_uint'),
-                                   ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                    (u'char **', 'POINTER(C.c_char_p)'))),
+                                   (u'QStatus', C.c_uint),
+                                   ((u'const alljoyn_msgarg', C.c_void_p),
+                                    (u'char **', POINTER(C.c_char_p)))),
 
                  u'GetString': (u'alljoyn_msgarg_get_string',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'char **', 'POINTER(C.c_char_p)'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'const alljoyn_msgarg', POINTER(AlljoynMsgArg)),
+                                 (u'char **', POINTER(C.c_char_p)))),
 
                  u'GetType': (u'alljoyn_msgarg_gettype',
-                              (u'alljoyn_typeid', 'C.c_uint'),
-                              ((u'alljoyn_msgarg', 'C.c_void_p'),)),
+                              (u'alljoyn_typeid', C.c_uint),
+                              ((u'alljoyn_msgarg', C.c_void_p),)),
 
-                 u'GetUINT16': (u'alljoyn_msgarg_get_uint16',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'int *', 'POINTER(C.c_int)'))),
+                 
 
                  u'GetUINT16ARRAY': (u'alljoyn_msgarg_get_uint16_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int *', 'POINTER(C.c_int)'),
-                                      (u'int *', 'POINTER(C.c_int)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'const alljoyn_msgarg', C.c_void_p),
+                                      (u'int *', POINTER(C.c_int)),
+                                      (u'int *', POINTER(C.c_int)))),
 
-                 u'GetUINT32': (u'alljoyn_msgarg_get_uint32',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'int *', 'POINTER(C.c_int)'))),
+                 
 
                  u'GetUINT32ARRAY': (u'alljoyn_msgarg_get_uint32_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int *', 'POINTER(C.c_int)'),
-                                      (u'int *', 'POINTER(C.c_int)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'const alljoyn_msgarg', C.c_void_p),
+                                      (u'int *', POINTER(C.c_int)),
+                                      (u'int *', POINTER(C.c_int)))),
 
-                 u'GetUINT64': (u'alljoyn_msgarg_get_uint64',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'int *', 'POINTER(C.c_int)'))),
-
+                 
                  u'GetUINT64ARRAY': (u'alljoyn_msgarg_get_uint64_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int *', 'POINTER(C.c_int)'),
-                                      (u'int *', 'POINTER(C.c_int)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'const alljoyn_msgarg', C.c_void_p),
+                                      (u'int *', POINTER(C.c_int)),
+                                      (u'int *', POINTER(C.c_int)))),
 
-                 u'GetUINT8': (u'alljoyn_msgarg_get_uint8',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                (u'int *', 'POINTER(C.c_int)'))),
+                 
 
                  u'GetUINT8ARRAY': (u'alljoyn_msgarg_get_uint8_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int *', 'POINTER(C.c_int)'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'const alljoyn_msgarg', C.c_void_p),
+                                     (u'int *', POINTER(C.c_int)),
+                                     (u'int *', POINTER(C.c_int)))),
 
-                 u'GetValue': (u'alljoyn_msgarg_getvalue',
-                               (u'alljoyn_msgarg', 'C.c_void_p'),
-                               ((u'alljoyn_msgarg', 'C.c_void_p'),)),
+                 #u'GetValue': (u'alljoyn_msgarg_getvalue',
+                #               (u'alljoyn_msgarg', C.c_void_p),
+                #               ((u'alljoyn_msgarg', C.c_void_p),)),
 
                  u'GetVariant': (u'alljoyn_msgarg_get_variant',
-                                 (u'QStatus', 'C.c_uint'),
-                                 ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                  (u'alljoyn_msgarg', 'C.c_void_p'))),
+                                 (u'QStatus', C.c_uint),
+                                 ((u'const alljoyn_msgarg', C.c_void_p),
+                                  (u'alljoyn_msgarg', C.c_void_p))),
 
                  u'GetVariantArray': (u'alljoyn_msgarg_get_variant_array',
-                                      (u'QStatus', 'C.c_uint'),
-                                      ((u'const alljoyn_msgarg', 'C.c_void_p'),
-                                       (u'const char *', 'C.c_char_p'),
-                                       (u'int *', 'POINTER(C.c_int)'),
-                                       (u'alljoyn_msgarg *', 'POINTER(C.c_void_p)'))),
+                                      (u'QStatus', C.c_uint),
+                                      ((u'const alljoyn_msgarg', C.c_void_p),
+                                       (u'const char *', C.c_char_p),
+                                       (u'int *', POINTER(C.c_int)),
+                                       (u'alljoyn_msgarg *', POINTER(C.c_void_p)))),
 
                  u'HasSignature': (u'alljoyn_msgarg_hassignature',
-                                   (u'int', 'C.c_int'),
-                                   ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                    (u'const char *', 'C.c_char_p'))),
+                                   (u'int', C.c_int),
+                                   ((u'alljoyn_msgarg', C.c_void_p),
+                                    (u'const char *', C.c_char_p))),
 
                  u'Set': (u'alljoyn_msgarg_set',
-                          (u'QStatus', 'C.c_uint'),
-                          ((u'alljoyn_msgarg', 'C.c_void_p'),
-                           (u'const char *', 'C.c_char_p'))),
+                          (u'QStatus', C.c_uint),
+                          ((u'alljoyn_msgarg', C.c_void_p),
+                           (u'const char *', C.c_char_p))),
 
                  u'SetAndStabILIZE': (u'alljoyn_msgarg_set_and_stabilize',
-                                      (u'QStatus', 'C.c_uint'),
-                                      ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                       (u'const char *', 'C.c_char_p'))),
+                                      (u'QStatus', C.c_uint),
+                                      ((u'alljoyn_msgarg', C.c_void_p),
+                                       (u'const char *', C.c_char_p))),
 
                  u'SetBooL': (u'alljoyn_msgarg_set_bool',
-                              (u'QStatus', 'C.c_uint'),
-                              ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                              (u'QStatus', C.c_uint),
+                              ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetBooLARRAY': (u'alljoyn_msgarg_set_bool_array',
-                                   (u'QStatus', 'C.c_uint'),
-                                   ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                    (u'int', 'C.c_int'),
-                                    (u'int *', 'POINTER(C.c_int)'))),
+                                   (u'QStatus', C.c_uint),
+                                   ((u'alljoyn_msgarg', C.c_void_p),
+                                    (u'int', C.c_int),
+                                    (u'int *', POINTER(C.c_int)))),
 
                  u'SetDICTENTRY': (u'alljoyn_msgarg_setdictentry',
-                                   (u'QStatus', 'C.c_uint'),
-                                   ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                    (u'alljoyn_msgarg', 'C.c_void_p'),
-                                    (u'alljoyn_msgarg', 'C.c_void_p'))),
+                                   (u'QStatus', C.c_uint),
+                                   ((u'alljoyn_msgarg', C.c_void_p),
+                                    (u'alljoyn_msgarg', C.c_void_p),
+                                    (u'alljoyn_msgarg', C.c_void_p))),
 
                  u'SetDouble': (u'alljoyn_msgarg_set_double',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'double', 'C.c_double'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p),
+                                 (u'double', C.c_double))),
 
                  u'SetDoubleArray': (u'alljoyn_msgarg_set_double_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int', 'C.c_int'),
-                                      (u'double *', 'POINTER(C.c_double)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'int', C.c_int),
+                                      (u'double *', POINTER(C.c_double)))),
 
                  u'SetInT16': (u'alljoyn_msgarg_set_int16',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetInT16ARRAY': (u'alljoyn_msgarg_set_int16_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int', 'C.c_int'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'alljoyn_msgarg', C.c_void_p),
+                                     (u'int', C.c_int),
+                                     (u'int *', POINTER(C.c_int)))),
 
                  u'SetInT32': (u'alljoyn_msgarg_set_int32',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetInT32ARRAY': (u'alljoyn_msgarg_set_int32_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int', 'C.c_int'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'alljoyn_msgarg', C.c_void_p),
+                                     (u'int', C.c_int),
+                                     (u'int *', POINTER(C.c_int)))),
 
                  u'SetInT64': (u'alljoyn_msgarg_set_int64',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetInT64ARRAY': (u'alljoyn_msgarg_set_int64_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int', 'C.c_int'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'alljoyn_msgarg', C.c_void_p),
+                                     (u'int', C.c_int),
+                                     (u'int *', POINTER(C.c_int)))),
 
                  u'SetObjectPath': (u'alljoyn_msgarg_set_objectpath',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'const char *', 'C.c_char_p'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'alljoyn_msgarg', C.c_void_p),
+                                     (u'const char *', C.c_char_p))),
 
                  u'SetObjectPathArray': (u'alljoyn_msgarg_set_objectpath_array',
-                                         (u'QStatus', 'C.c_uint'),
-                                         ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                          (u'int', 'C.c_int'),
-                                          (u'const char **', 'POINTER(C.c_char_p)'))),
+                                         (u'QStatus', C.c_uint),
+                                         ((u'alljoyn_msgarg', C.c_void_p),
+                                          (u'int', C.c_int),
+                                          (u'const char **', POINTER(C.c_char_p)))),
 
                  u'SetSignature': (u'alljoyn_msgarg_set_signature',
-                                   (u'QStatus', 'C.c_uint'),
-                                   ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                    (u'const char *', 'C.c_char_p'))),
+                                   (u'QStatus', C.c_uint),
+                                   ((u'alljoyn_msgarg', C.c_void_p),
+                                    (u'const char *', C.c_char_p))),
 
                  u'SetSignatureArray': (u'alljoyn_msgarg_set_signature_array',
-                                        (u'QStatus', 'C.c_uint'),
-                                        ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                         (u'int', 'C.c_int'),
-                                         (u'const char **', 'POINTER(C.c_char_p)'))),
+                                        (u'QStatus', C.c_uint),
+                                        ((u'alljoyn_msgarg', C.c_void_p),
+                                         (u'int', C.c_int),
+                                         (u'const char **', POINTER(C.c_char_p)))),
 
                  u'SetString': (u'alljoyn_msgarg_set_string',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'const char *', 'C.c_char_p'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p),
+                                 (u'const char *', C.c_char_p))),
 
                  u'SetStringArray': (u'alljoyn_msgarg_set_string_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int', 'C.c_int'),
-                                      (u'const char **', 'POINTER(C.c_char_p)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'int', C.c_int),
+                                      (u'const char **', POINTER(C.c_char_p)))),
 
                  u'SetUINT16': (u'alljoyn_msgarg_set_uint16',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetUINT16ARRAY': (u'alljoyn_msgarg_set_uint16_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int', 'C.c_int'),
-                                      (u'int *', 'POINTER(C.c_int)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'int', C.c_int),
+                                      (u'int *', POINTER(C.c_int)))),
 
                  u'SetUINT32': (u'alljoyn_msgarg_set_uint32',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetUINT32ARRAY': (u'alljoyn_msgarg_set_uint32_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int', 'C.c_int'),
-                                      (u'int *', 'POINTER(C.c_int)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'int', C.c_int),
+                                      (u'int *', POINTER(C.c_int)))),
 
                  u'SetUINT64': (u'alljoyn_msgarg_set_uint64',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetUINT64ARRAY': (u'alljoyn_msgarg_set_uint64_array',
-                                     (u'QStatus', 'C.c_uint'),
-                                     ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                      (u'int', 'C.c_int'),
-                                      (u'int *', 'POINTER(C.c_int)'))),
+                                     (u'QStatus', C.c_uint),
+                                     ((u'alljoyn_msgarg', C.c_void_p),
+                                      (u'int', C.c_int),
+                                      (u'int *', POINTER(C.c_int)))),
 
                  u'SetUINT8': (u'alljoyn_msgarg_set_uint8',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'alljoyn_msgarg', 'C.c_void_p'), (u'int', 'C.c_int'))),
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetUINT8ARRAY': (u'alljoyn_msgarg_set_uint8_array',
-                                    (u'QStatus', 'C.c_uint'),
-                                    ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                     (u'int', 'C.c_int'),
-                                     (u'int *', 'POINTER(C.c_int)'))),
+                                    (u'QStatus', C.c_uint),
+                                    ((u'alljoyn_msgarg', C.c_void_p),
+                                     (u'int', C.c_int),
+                                     (u'int *', POINTER(C.c_int)))),
 
                  u'SetStruct': (u'alljoyn_msgarg_setstruct',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'int', 'C.c_int'))),
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p),
+                                 (u'alljoyn_msgarg', C.c_void_p),
+                                 (u'int', C.c_int))),
 
-                 u'Signature': (u'alljoyn_msgarg_signature', (u'int', 'C.c_int'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'), (u'char *', 'C.c_char_p'), (u'size_t', 'C.c_size_t'))),
+                 u'Signature': (u'alljoyn_msgarg_signature', (u'int', C.c_int),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'char *', C.c_char_p), (u'size_t', C.c_size_t))),
 
                  u'Stabilize': (u'alljoyn_msgarg_stabilize',
                                 (u'void', None),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'),)),
+                                ((u'alljoyn_msgarg', C.c_void_p),)),
 
                  u'ToString': (u'alljoyn_msgarg_tostring',
-                               (u'int', 'C.c_int'),
-                               ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                (u'char *', 'C.c_char_p'),
-                                (u'int', 'C.c_int'),
-                                (u'int', 'C.c_int')))}
+                               (u'int', C.c_int),
+                               ((u'alljoyn_msgarg', C.c_void_p),
+                                (u'char *', C.c_char_p),
+                                (u'int', C.c_int),
+                                (u'int', C.c_int)))}
     
-    def __init__(self):
-        self.bind_functions()
-        self.handle = self._Create()
+ 
+    def __init__(self, handle=None):
+        if handle:
+            self.handle = handle
+        else:
+            self.handle = self._Create()
         
     def __del__(self):
         if self.handle:
-            self._Destroy(self.handle)
+            pass    
+            #self._Destroy(self.handle)
+            #print "destroyed"
 
     # Wrapper Methods
 
+    @staticmethod
+    def Create():
+        return MsgArg._Create()
+        
     def CreateAndSet(self):
         return self._CreateAndSet(self.handle)
 
@@ -512,7 +554,6 @@ class MsgArg(AllJoynObject):
 
     def Signature(self):
         size = self._Signature(self.handle, None, 0) 
-        print "size", size
         buf = C.create_string_buffer(size)
         self._Signature(self.handle, buf, size) # char *,int
         return buf.value
@@ -532,8 +573,8 @@ class MsgArg(AllJoynObject):
     def Clear(self):
         return self._Clear(self.handle)
 
-    def StabILIZE(self):
-        return self._StabILIZE(self.handle)
+    def Stabilize(self):
+        return self._Stabilize(self.handle)
 
     def ArraySetOffset(self, argOffset,numArgs,signature):
         return self._ArraySetOffset(self.handle,argOffset,numArgs,signature) # int,int *,const char *
@@ -541,145 +582,190 @@ class MsgArg(AllJoynObject):
     def SetAndStabILIZE(self, signature):
         return self._SetAndStabILIZE(self.handle,signature) # const char *
 
-    def SetUINT8(self, y):
-        return self._SetUINT8(self.handle,y) # int
 
-    def SetBooL(self, b):
-        return self._SetBooL(self.handle,b) # int
 
-    def SetInT16(self, n):
-        return self._SetInT16(self.handle,n) # int
+    #def SetValue(self, value):
+        
 
-    def SetUINT16(self, q):
-        return self._SetUINT16(self.handle,q) # int
 
-    def SetInT32(self, i):
-        return self._SetInT32(self.handle,i) # int
+    #def SetUINT8(self, y):
+        #return self._SetUINT8(self.handle,y) # int
 
-    def SetUINT32(self, u):
-        return self._SetUINT32(self.handle,u) # int
+    #def SetBooL(self, b):
+        #return self._SetBooL(self.handle,b) # int
 
-    def SetInT64(self, x):
-        return self._SetInT64(self.handle,x) # int
+    #def SetInT16(self, n):
+        #return self._SetInT16(self.handle,n) # int
 
-    def SetUINT64(self, t):
-        return self._SetUINT64(self.handle,t) # int
+    #def SetUINT16(self, q):
+        #return self._SetUINT16(self.handle,q) # int
 
-    def SetDouble(self, d):
-        return self._SetDouble(self.handle,d) # double
+    #def SetInT32(self, i):
+        #return self._SetInT32(self.handle,i) # int
 
-    def SetString(self, s):
-        return self._SetString(self.handle,s) # const char *
+    #def SetUINT32(self, u):
+        #return self._SetUINT32(self.handle,u) # int
 
-    def SetObjectPath(self, o):
-        return self._SetObjectPath(self.handle,o) # const char *
+    #def SetInT64(self, x):
+        #return self._SetInT64(self.handle,x) # int
 
-    def SetSignature(self, g):
-        return self._SetSignature(self.handle,g) # const char *
+    #def SetUINT64(self, t):
+        #return self._SetUINT64(self.handle,t) # int
 
-    def GetUINT8(self, y):
-        return self._GetUINT8(self.handle,y) # int *
+    #def SetDouble(self, d):
+        #return self._SetDouble(self.handle,d) # double
 
-    def GetBooL(self, b):
-        return self._GetBooL(self.handle,b) # int *
+    #def SetString(self, s):
+        #return self._SetString(self.handle,s) # const char *
 
-    def GetInT16(self, n):
-        return self._GetInT16(self.handle,n) # int *
+    #def SetObjectPath(self, o):
+        #return self._SetObjectPath(self.handle,o) # const char *
 
-    def GetUINT16(self, q):
-        return self._GetUINT16(self.handle,q) # int *
+    #def SetSignature(self, g):
+        #return self._SetSignature(self.handle,g) # const char *
 
-    def GetInT32(self, i):
-        return self._GetInT32(self.handle,i) # int *
 
-    def GetUINT32(self, u):
-        return self._GetUINT32(self.handle,u) # int *
 
-    def GetInT64(self, x):
-        return self._GetInT64(self.handle,x) # int *
 
-    def GetUINT64(self, t):
-        return self._GetUINT64(self.handle,t) # int *
+    def Get(self):
+        # See https://dbus.freedesktop.org/doc/dbus-specification.html
+        #https://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.83.2.tar.gz
+        # STRUCT, ARRAY, VARIANT, and DICT_ENTRY. container types
+        sig = self.Signature()
+        
+        if len(sig) == 1:
+            # Return basic type
+            first_ch = sig[0]
+            ctype = sig_map[first_ch][0]()
+            method = sig_map[first_ch][1]
+            method(self.handle, ctype, C.byref(ctype))
+            return ctype.value
+        #elif len(sig):
+        
+        
+        #sec_char = sig[1]
+        
+        #ctype = sig_map[first_ch][0](value)    # Should throw exception if wrong type 
+        
+        #ARRAY	97 (ASCII 'a')	Array
+#STRUCT	114 (ASCII 'r'), 40 (ASCII '('), 41 (ASCII ')')	Struct
+#VARIANT	118 (ASCII 'v')	Variant type (the type of the value is part of the value itself)
+#DICT_ENTRY	101 (ASCII 'e'), 123 (ASCII '{'), 125 (ASCII '}')	Entry in a dict or map (array of key-value pairs)
+        
+        #method = sig_map[first_ch][0]
 
-    def GetDouble(self, d):
-        return self._GetDouble(self.handle,d) # double *
 
-    def GetString(self, s):
-        buf = C.create_string_buffer(size)
-        self._GetString(self.handle, buf) # char **
-        return buf
+    #def GetUINT8(self, y):
+        #return self._GetUINT8(self.handle,y) # int *
 
-    def GetObjectPath(self, o):
-        return self._GetObjectPath(self.handle,o) # char **
+    #def GetBooL(self, b):
+        #return self._GetBooL(self.handle,b) # int *
 
-    def GetSignature(self, g):
-        return self._GetSignature(self.handle,g) # char **
+    #def GetInT16(self, n):
+        #return self._GetInT16(self.handle,n) # int *
 
-    def GetVariant(self, v):
-        return self._GetVariant(self.handle,v) # alljoyn_msgarg
+    #def GetUINT16(self, q):
+        #return self._GetUINT16(self.handle,q) # int *
 
-    def SetUINT8ARRAY(self, length,ay):
-        return self._SetUINT8ARRAY(self.handle,length,ay) # int,int *
+    #def GetInT32(self, i):
+        #return self._GetInT32(self.handle,i) # int *
 
-    def SetBooLARRAY(self, length,ab):
-        return self._SetBooLARRAY(self.handle,length,ab) # int,int *
+    #def GetUINT32(self, u):
+        #return self._GetUINT32(self.handle,u) # int *
 
-    def SetInT16ARRAY(self, length,an):
-        return self._SetInT16ARRAY(self.handle,length,an) # int,int *
+    #def GetInT64(self, x):
+        #return self._GetInT64(self.handle,x) # int *
 
-    def SetUINT16ARRAY(self, length,aq):
-        return self._SetUINT16ARRAY(self.handle,length,aq) # int,int *
+    #def GetUINT64(self, t):
+        #return self._GetUINT64(self.handle,t) # int *
 
-    def SetInT32ARRAY(self, length,ai):
-        return self._SetInT32ARRAY(self.handle,length,ai) # int,int *
+    #def GetDouble(self, d):
+        #return self._GetDouble(self.handle,d) # double *
 
-    def SetUINT32ARRAY(self, length,au):
-        return self._SetUINT32ARRAY(self.handle,length,au) # int,int *
+    #def GetString(self):
+        #ret = C.c_char_p()
+        #self._GetString(self.handle, C.byref(ret)) # char **
+        #return ret.value
 
-    def SetInT64ARRAY(self, length,ax):
-        return self._SetInT64ARRAY(self.handle,length,ax) # int,int *
+    #def GetObjectPath(self, o):
+        #return self._GetObjectPath(self.handle,o) # char **
 
-    def SetUINT64ARRAY(self, length,at):
-        return self._SetUINT64ARRAY(self.handle,length,at) # int,int *
+    #def GetSignature(self, g):
+        #return self._GetSignature(self.handle,g) # char **
 
-    def SetDoubleArray(self, length,ad):
-        return self._SetDoubleArray(self.handle,length,ad) # int,double *
 
-    def SetStringArray(self, length,ao):
-        return self._SetStringArray(self.handle,length,ao) # int,const char **
 
-    def SetObjectPathArray(self, length,ao):
-        return self._SetObjectPathArray(self.handle,length,ao) # int,const char **
+    #def GetVariant(self, v):
+    #    return self._GetVariant(self.handle,v) # alljoyn_msgarg
 
-    def SetSignatureArray(self, length,ag):
-        return self._SetSignatureArray(self.handle,length,ag) # int,const char **
 
-    def GetUINT8ARRAY(self, length,ay):
-        return self._GetUINT8ARRAY(self.handle,length,ay) # int *,int *
+    #def SetUINT8ARRAY(self, length,ay):
+        #return self._SetUINT8ARRAY(self.handle,length,ay) # int,int *
 
-    def GetBooLARRAY(self, length,ab):
-        return self._GetBooLARRAY(self.handle,length,ab) # int *,int *
+    #def SetBooLARRAY(self, length,ab):
+        #return self._SetBooLARRAY(self.handle,length,ab) # int,int *
 
-    def GetInT16ARRAY(self, length,an):
-        return self._GetInT16ARRAY(self.handle,length,an) # int *,int *
+    #def SetInT16ARRAY(self, length,an):
+        #return self._SetInT16ARRAY(self.handle,length,an) # int,int *
 
-    def GetUINT16ARRAY(self, length,aq):
-        return self._GetUINT16ARRAY(self.handle,length,aq) # int *,int *
+    #def SetUINT16ARRAY(self, length,aq):
+        #return self._SetUINT16ARRAY(self.handle,length,aq) # int,int *
 
-    def GetInT32ARRAY(self, length,ai):
-        return self._GetInT32ARRAY(self.handle,length,ai) # int *,int *
+    #def SetInT32ARRAY(self, length,ai):
+        #return self._SetInT32ARRAY(self.handle,length,ai) # int,int *
 
-    def GetUINT32ARRAY(self, length,au):
-        return self._GetUINT32ARRAY(self.handle,length,au) # int *,int *
+    #def SetUINT32ARRAY(self, length,au):
+        #return self._SetUINT32ARRAY(self.handle,length,au) # int,int *
 
-    def GetInT64ARRAY(self, length,ax):
-        return self._GetInT64ARRAY(self.handle,length,ax) # int *,int *
+    #def SetInT64ARRAY(self, length,ax):
+        #return self._SetInT64ARRAY(self.handle,length,ax) # int,int *
 
-    def GetUINT64ARRAY(self, length,at):
-        return self._GetUINT64ARRAY(self.handle,length,at) # int *,int *
+    #def SetUINT64ARRAY(self, length,at):
+        #return self._SetUINT64ARRAY(self.handle,length,at) # int,int *
 
-    def GetDoubleArray(self, length,ad):
-        return self._GetDoubleArray(self.handle,length,ad) # int *,double *
+    #def SetDoubleArray(self, length,ad):
+        #return self._SetDoubleArray(self.handle,length,ad) # int,double *
+
+    #def SetStringArray(self, length,ao):
+        #return self._SetStringArray(self.handle,length,ao) # int,const char **
+
+    #def SetObjectPathArray(self, length,ao):
+        #return self._SetObjectPathArray(self.handle,length,ao) # int,const char **
+
+    #def SetSignatureArray(self, length,ag):
+        #return self._SetSignatureArray(self.handle,length,ag) # int,const char **
+
+
+
+
+    #def GetUINT8ARRAY(self, length,ay):
+        #return self._GetUINT8ARRAY(self.handle,length,ay) # int *,int *
+
+    #def GetBooLARRAY(self, length,ab):
+        #return self._GetBooLARRAY(self.handle,length,ab) # int *,int *
+
+    #def GetInT16ARRAY(self, length,an):
+        #return self._GetInT16ARRAY(self.handle,length,an) # int *,int *
+
+    #def GetUINT16ARRAY(self, length,aq):
+        #return self._GetUINT16ARRAY(self.handle,length,aq) # int *,int *
+
+    #def GetInT32ARRAY(self, length,ai):
+        #return self._GetInT32ARRAY(self.handle,length,ai) # int *,int *
+
+    #def GetUINT32ARRAY(self, length,au):
+        #return self._GetUINT32ARRAY(self.handle,length,au) # int *,int *
+
+    #def GetInT64ARRAY(self, length,ax):
+        #return self._GetInT64ARRAY(self.handle,length,ax) # int *,int *
+
+    #def GetUINT64ARRAY(self, length,at):
+        #return self._GetUINT64ARRAY(self.handle,length,at) # int *,int *
+
+    #def GetDoubleArray(self, length,ad):
+        #return self._GetDoubleArray(self.handle,length,ad) # int *,double *
+
+
 
     def GetVariantArray(self, signature,length,av):
         return self._GetVariantArray(self.handle,signature,length,av) # const char *,int *,alljoyn_msgarg *
@@ -711,3 +797,21 @@ class MsgArg(AllJoynObject):
     def GetMember(self, index):
         return self._GetMember(self.handle,index) # int
 
+
+MsgArg.bind_functions_to_cls()
+
+
+sig_map = {
+            "y": (C.c_ubyte, MsgArg._GetUInt8, MsgArg._SetUINT8, MsgArg._GetUINT8ARRAY, MsgArg._SetUINT8ARRAY),
+            "b": (C.c_byte, MsgArg._GetBool, MsgArg._SetBooL, MsgArg._GetBooLARRAY, MsgArg._SetBooLARRAY),
+            "n": (C.c_short, MsgArg._GetInt16, MsgArg._SetInT16, MsgArg._GetInT16ARRAY, MsgArg._SetInT16ARRAY),
+            "q": (C.c_ushort, MsgArg._GetUInt16, MsgArg._SetUINT16, MsgArg._GetUINT16ARRAY, MsgArg._SetUINT16ARRAY),
+            "i": (C.c_int, MsgArg._GetInt32, MsgArg._SetInT32, MsgArg._GetInt32ARRAY, MsgArg._SetInT32ARRAY),
+            "u": (C.c_uint, MsgArg._GetUInt32, MsgArg._SetUINT32, MsgArg._GetUINT32ARRAY, MsgArg._SetUINT32ARRAY),
+            "x": (C.c_longlong, MsgArg._GetInt64, MsgArg._SetInT64, MsgArg._GetInt64ARRAY, MsgArg._SetInT64ARRAY),
+            "t": (C.c_ulonglong, MsgArg._GetUInt64, MsgArg._SetUINT64, MsgArg._GetUINT64ARRAY, MsgArg._SetUINT64ARRAY),
+    #        "d": (C.c_double, MsgArg._GetDouble, MsgArg._SetDouble, MsgArg._GetDoubleArray, MsgArg.__SetDoubleArray),
+            "s": (C.c_char_p, MsgArg._GetString, MsgArg._SetString, None, None),
+     #       "o": (C.c_char_p, MsgArg._GetObjectPath, MsgArg._SetObjectPath, MsgArg._SetObjectPathArray, MsgArg._GetObjectPathArray),
+      #      "g": (C.c_char_p, MsgArg._GetSignature, MsgArg._SetSignature, MsgArg._SetSignatureArray, MsgArg._GetSignatureArray),
+          }
