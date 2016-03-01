@@ -303,7 +303,7 @@ class MyAboutListener(AboutListener.AboutListener):
         for field in aboutData.GetFields():
             print "\t" * tabNum, "Key:", field
    
-            #tmp = aboutData.GetField(field)
+            tmp = aboutData.GetField(field)
             #print "\t"
             
             #print tmp

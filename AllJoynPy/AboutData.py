@@ -322,11 +322,12 @@ class AboutData(AllJoynObject):
         return self._SetField(self.handle,name,value,language) # const char *,int,const char *
 
     def GetField(self, name, language=None):
+        # print ctypes.cast(ctypes.c_longlong(id(a)).value, ctypes.py_object).value
         arg = MsgArg.MsgArg()
         handle_p = C.cast(arg.handle, C.c_void_p)
         #handle_p = C.c_void_p(arg.handle)
         status = self._GetField(self.handle, name, C.byref(handle_p), language) # const char *, alljoyn_msgarg *, const char *
-        arg.handle = handle_p.value
+        arg.handle = C.cast(handle_p.value, C.py_object).value
         return arg
         
     def GetFields(self):
