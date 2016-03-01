@@ -2,7 +2,7 @@ import sys, types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import AllJoynMeta, AllJoynObject, MsgArg
 
 # Wrapper for file AboutData.h
 
@@ -26,7 +26,7 @@ class AboutData(AllJoynObject):
              u'CreateEmpty': (u'alljoyn_aboutdata_create_empty',
                               (u'alljoyn_aboutdata', 'C.c_void_p'),
                               ()),
-             u'CreateFromMsGARG': (u'alljoyn_aboutdata_createfrommsgarg',
+             u'CreateFromMsgARG': (u'alljoyn_aboutdata_createfrommsgarg',
                                    (u'QStatus', 'C.c_uint'),
                                    ((u'alljoyn_aboutdata', 'C.c_void_p'),
                                     (u'const int', 'C.c_int'),
@@ -37,7 +37,7 @@ class AboutData(AllJoynObject):
                                  (u'const char *', 'C.c_char_p'))),
              u'CreateFull': (u'alljoyn_aboutdata_create_full',
                              (u'alljoyn_aboutdata', 'C.c_void_p'),
-                             ((u'const int', 'C.c_int'), (u'const char *', 'C.c_char_p'))),
+                             ((u'const void*', 'C.c_void_p'), (u'const char *', 'C.c_char_p'))),
              u'Destroy': (u'alljoyn_aboutdata_destroy',
                           (u'void', None),
                           ((u'alljoyn_aboutdata', 'C.c_void_p'),)),
@@ -88,19 +88,13 @@ class AboutData(AllJoynObject):
                                  (u'const char *', 'C.c_char_p'))),
              u'GetField': (u'alljoyn_aboutdata_getfield',
                            (u'QStatus', 'C.c_uint'),
-                           ((u'alljoyn_aboutdata', 'C.c_void_p'),
-                            (u'const char *', 'C.c_char_p'),
-                            (u'alljoyn_msgarg*', 'POINTER(C.c_void_p)'),
-                            (u'const char *', 'C.c_char_p'))),
+                           ((u'alljoyn_aboutdata', 'C.c_void_p'), (u'const char *', 'C.c_char_p'), (u'alljoyn_msgarg*', 'POINTER(C.c_void_p)'), (u'const char *', 'C.c_char_p'))),
              u'GetFieldSignature': (u'alljoyn_aboutdata_getfieldsignature',
                                     (u'const char *', 'C.c_char_p'),
                                     ((u'alljoyn_aboutdata', 'C.c_void_p'),
                                      (u'const char *', 'C.c_char_p'))),
-             u'GetFields': (u'alljoyn_aboutdata_getfields',
-                            (u'int', 'C.c_int'),
-                            ((u'alljoyn_aboutdata', 'C.c_void_p'),
-                             (u'const char **', 'POINTER(C.c_char_p)'),
-                             (u'int', 'C.c_int'))),
+             u'GetFields': (u'alljoyn_aboutdata_getfields', (u'int', 'C.c_int'),
+                            ((u'alljoyn_aboutdata', 'C.c_void_p'), (u'const char **', 'POINTER(C.c_char_p)'), (u'int', 'C.c_int'))),
              u'GetHardwareVersion': (u'alljoyn_aboutdata_gethardwareversion',
                                      (u'QStatus', 'C.c_uint'),
                                      ((u'alljoyn_aboutdata', 'C.c_void_p'),
@@ -212,9 +206,12 @@ class AboutData(AllJoynObject):
                                         (u'const char *', 'C.c_char_p')))}
     
     
-    def __init__(self):
+    def __init__(self, msgarg=None, language="en"):
         self.bind_functions()
-        self.handle = None
+        if msgarg:
+            self.handle = self._CreateFull(msgarg, language)
+        else:
+            self.handle = self._Create()
         
     def __del__(self):
         if self.handle:
@@ -222,17 +219,11 @@ class AboutData(AllJoynObject):
 
     # Wrapper Methods
 
-    def CreateEmpty(self):
-        return self._CreateEmpty(self.handle)
-
     def Create(self):
         return self._Create(self.handle)
 
-    def CreateFull(self, language):
+    def CreateFull(self, msgarg, language):
         return self._CreateFull(self.handle,language) # const char *
-
-    def Destroy(self):
-        return self._Destroy(self.handle)
 
     def CreateFromXML(self, aboutDataXml):
         return self._CreateFromXML(self.handle,aboutDataXml) # const char *
@@ -330,17 +321,20 @@ class AboutData(AllJoynObject):
     def SetField(self, name,value,language):
         return self._SetField(self.handle,name,value,language) # const char *,int,const char *
 
-    def GetField(self, name ,language):
-        msgArg = C.c_void_p()
-        self._GetField(self.handle, name, C.byref(msgArg), language) # const char *, alljoyn_msgarg *, const char *
-        return msgArg
+    def GetField(self, name, language=None):
+        arg = MsgArg.MsgArg()
+        handle_p = C.cast(arg.handle, C.c_void_p)
+        #handle_p = C.c_void_p(arg.handle)
+        status = self._GetField(self.handle, name, C.byref(handle_p), language) # const char *, alljoyn_msgarg *, const char *
+        arg.handle = handle_p.value
+        return arg
         
-    def GetFields(self, fields, num_fields):
-        count = self._Getfields(self.handle, None, 0) 
-        array = create_string_buffer(1024) * count
-        field_array = array()
-        status = self._GetFields(self.handle, C.byref(field_array), count) # const char **, int
-        return [str(a) for a in field_array]
+    def GetFields(self):
+        count = self._GetFields(self.handle, None, 0) 
+        array = (C.c_char_p * count)()
+        status = self._GetFields(self.handle, array, count) # const char **, int
+        return [a for a in array]
+
 
     def GetAboutData(self,language):
         msgArg = C.c_void_p()

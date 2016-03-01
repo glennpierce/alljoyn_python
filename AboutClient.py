@@ -1,13 +1,8 @@
 #!/usr/bin/env python
 
-from AllJoynPy import AllJoyn, AboutListener, QStatusException, AboutObjectDescription, MsgArg
+from AllJoynPy import AllJoyn, AboutListener, AboutData, QStatusException, AboutObjectDescription, MsgArg
 import signal, time
 import sys
-
-#Note the removal of almost all Error handling to make the sample code more
-#straight forward to read.  This is only used here for demonstration actual
-#programs should check the return values of all method calls.
- 
 
 timeout = 10
 
@@ -19,60 +14,6 @@ def signal_handler(signal, frame):
     s_interrupt = True;
 
 """
-
-# Print out the fields found in the AboutData. Only fields with known signatures
-# are printed out.  All others will be treated as an unknown field.
-def printAboutData(aboutData, language, tabNum:
-    size_t count = alljoyn.AboutdataGetfields(aboutData, None, 0) 
-    fields = C.create_string_buffer(count)            # sould be arrary of arrays
-    aboutData.GetFields(fields, count)
-    
-    for i in range(count):
-        for j in range(tabNum):
-            print "\t"
-        }
-        print "Key: %s" % (fields[i],)
-
-        tmp = aboutData.GetField(fields[i], language)
-        
-        print "\t"
-        
-        tmp = 
-        signature = C.create_string_buffer(256)  
-        tmp.Signature(signature, tmp, 16)
-        
-        if signature[0] == "s":
-            tmp_s = C.create_string_buffer(256)  
-            tmp.GetString(tmp_s)
-            print tmp_s
-        #elif 
-        
-        
-        #} else if (!strncmp(signature, "as", 2)) {
-        #    size_t las;
-        #    alljoyn_msgarg as_arg = alljoyn_msgarg_create();
-        #    alljoyn_msgarg_get(tmp, "as", &las, &as_arg);
-
-        #    for (size_t j = 0; j < las; ++j) {
-        #        const char* tmp_s;
-        #        alljoyn_msgarg_get(alljoyn_msgarg_array_element(as_arg, j), "s", &tmp_s);
-        #        printf("%s ", tmp_s);
-        #    }
-        #} else if (!strncmp(signature, "ay", 2)) {
-        #    size_t lay;
-        #    uint8_t* pay;
-        #    alljoyn_msgarg_get(tmp, "ay", &lay, &pay);
-        #    for (k = 0; k < lay; ++k) {
-        #        printf("%02x ", pay[k]);
-        #    }
-        #} else {
-        #    printf("User Defined Value\tSignature: %s", signature);
-        #}
-        #printf("\n");
-    #}
-    #free((void*)fields);
-#}
-    
     
 #def BusListenerLostAdvertisedNameFuncT(context, name, transport, namePrefix):
     
@@ -312,10 +253,93 @@ callback.AboutListenerAnnouncedFuncType = AllJoynPy.AboutListenerAnnouncedFuncTy
 #aboutlistener = AuthListener(callback, result)
 
 
+"""
+void printAboutData(AboutData& aboutData, const char* language, int tabNum):
+    for field in aboutData.GetFields():
+        for (int j = 0; j < tabNum; ++j) {
+            printf("\t");
+        }
+        printf("Key: %s", field);
+
+        MsgArg* tmp;
+        aboutData.GetField(fields[i], tmp, language);
+        printf("\t");
+        if (tmp->Signature() == "s") {
+            const char* tmp_s;
+            tmp->Get("s", &tmp_s);
+            printf("%s", tmp_s);
+        } else if (tmp->Signature() == "as") {
+            size_t las;
+            MsgArg* as_arg;
+            tmp->Get("as", &las, &as_arg);
+            for (size_t j = 0; j < las; ++j) {
+                const char* tmp_s;
+                as_arg[j].Get("s", &tmp_s);
+                printf("%s ", tmp_s);
+            }
+        } else if (tmp->Signature() == "ay") {
+            size_t lay;
+            uint8_t* pay;
+            tmp->Get("ay", &lay, &pay);
+            for (size_t j = 0; j < lay; ++j) {
+                printf("%02x ", pay[j]);
+            }
+        } else {
+            printf("User Defined Value\tSignature: %s", tmp->Signature().c_str());
+        }
+        printf("\n");
+    }
+    delete [] fields;
+}
+"""
+
 class MyAboutListener(AboutListener.AboutListener):
     def __init__(self):
         super(MyAboutListener, self).__init__()
         
+    # Print out the fields found in the AboutData. Only fields with known signatures
+    # are printed out.  All others will be treated as an unknown field.
+    def printAboutData(self, aboutData, language, tabNum):
+        for field in aboutData.GetFields():
+            print "\t" * tabNum, "Key:", field
+   
+            #tmp = aboutData.GetField(field)
+            #print "\t"
+            
+            #print tmp
+            
+            #here
+            #signature = tmp.Signature()
+            #print "signature", signature
+           
+            #if signature and signature[0] == "s":
+            #    print tmp.GetString()
+                
+                
+                
+                
+            ##lse if (tmp->Signature() == "as") {
+            #size_t las;
+            #MsgArg* as_arg;
+            #tmp->Get("as", &las, &as_arg);
+            #for (size_t j = 0; j < las; ++j) {
+                #const char* tmp_s;
+                #as_arg[j].Get("s", &tmp_s);
+                #printf("%s ", tmp_s);
+            #}
+        #} else if (tmp->Signature() == "ay") {
+            #size_t lay;
+            #uint8_t* pay;
+            #tmp->Get("ay", &lay, &pay);
+            #for (size_t j = 0; j < lay; ++j) {
+                #printf("%02x ", pay[j]);
+            #}
+        #} else {
+            #printf("User Defined Value\tSignature: %s", tmp->Signature().c_str());
+        #}
+        #printf("\n");
+     
+
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
         
         objectDescription = AboutObjectDescription.AboutObjectDescription(objectDescriptionArg)
@@ -335,11 +359,12 @@ class MyAboutListener(AboutListener.AboutListener):
                 print "\t\t\t", interface
          
         print "\tAboutData:"
-        aboutData = AboutData(aboutDataArg)
+        aboutData = AboutData.AboutData(aboutDataArg)
         
-        #AboutData aboutData(aboutDataArg);
-        #printAboutData(aboutData, NULL, 2);
-        #printf("*********************************************************************************\n");
+        self.printAboutData(aboutData, None, 2);
+        
+        print "*********************************************************************************"
+        
         #QStatus status;
 
         #if (g_bus != NULL) {
@@ -478,17 +503,6 @@ if __name__ == "__main__":
             break
 
 
-"""
+    g_bus.Stop()
+    g_bus.Join()
     
-
-    destroy_my_alljoyn_aboutlistener(listener);
-
-    alljoyn_busattachment_stop(g_bus);
-    alljoyn_busattachment_join(g_bus);
-
-    alljoyn_busattachment_destroy(g_bus);
-
-
-    alljoyn_shutdown();
-"""
-

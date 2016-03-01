@@ -432,6 +432,7 @@ class AllJoynObject(object):
     
             if return_type:
                 cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
+                #print callable_name, cmethod.restype
 
             if cargs:
                 cmethod.argtypes = cargs
@@ -464,25 +465,11 @@ class AllJoyn(object):
     def BusAttachment(self):
         return BusAttachment
         
-    @property
-    def AboutData(self):
-        return BusAttachment
-        
-    #@property
-    #def AboutListener(self):
-    #    return BusAttachment
-        
     def __init__(self):
-        
-        print "here1"
         Init.bind_functions()
         Version.bind_functions()
-        
-        
+
         status = Init._Init()
 
-        print "done"
-
-    #def __del__(self):
-    #    print "In DESTRUCTOR"
-    #    Init.Shutdown()
+    def __del__(self):
+        Init._Shutdown()

@@ -449,11 +449,8 @@ class MsgArg(AllJoynObject):
                                  (u'alljoyn_msgarg', 'C.c_void_p'),
                                  (u'int', 'C.c_int'))),
 
-                 u'Signature': (u'alljoyn_msgarg_signature',
-                                (u'int', 'C.c_int'),
-                                ((u'alljoyn_msgarg', 'C.c_void_p'),
-                                 (u'char *', 'C.c_char_p'),
-                                 (u'int', 'C.c_int'))),
+                 u'Signature': (u'alljoyn_msgarg_signature', (u'int', 'C.c_int'),
+                                ((u'alljoyn_msgarg', 'C.c_void_p'), (u'char *', 'C.c_char_p'), (u'size_t', 'C.c_size_t'))),
 
                  u'Stabilize': (u'alljoyn_msgarg_stabilize',
                                 (u'void', None),
@@ -468,7 +465,7 @@ class MsgArg(AllJoynObject):
     
     def __init__(self):
         self.bind_functions()
-        self.handle = None
+        self.handle = self._Create()
         
     def __del__(self):
         if self.handle:
@@ -476,14 +473,8 @@ class MsgArg(AllJoynObject):
 
     # Wrapper Methods
 
-    def Create(self):
-        return self._Create(self.handle)
-
     def CreateAndSet(self):
         return self._CreateAndSet(self.handle)
-
-    def Destroy(self):
-        return self._Destroy(self.handle)
 
     def ArrayCreate(self):
         return self._ArrayCreate(self.handle)
@@ -512,14 +503,19 @@ class MsgArg(AllJoynObject):
     def ArrayGet(self, numArgs,signature):
         return self._ArrayGet(self.handle,numArgs,signature) # int,const char *
 
-    def ToString(self, str,buf,indent):
-        return self._ToString(self.handle,str,buf,indent) # char *,int,int
+    def ToString(self, str, buf, indent):
+        #buf = C.create_string_buffer(size)
+        return self._ToString(self.handle,str,buf,indent) # char *,int,int   
 
     def ArrayToString(self, numArgs,str,buf,indent):
         return self._ArrayToString(self.handle,numArgs,str,buf,indent) # int,char *,int,int
 
-    def Signature(self, str,buf):
-        return self._Signature(self.handle,str,buf) # char *,int
+    def Signature(self):
+        size = self._Signature(self.handle, None, 0) 
+        print "size", size
+        buf = C.create_string_buffer(size)
+        self._Signature(self.handle, buf, size) # char *,int
+        return buf.value
 
     def ArraySignature(self, numValues,str,buf):
         return self._ArraySignature(self.handle,numValues,str,buf) # int,char *,int
@@ -609,7 +605,9 @@ class MsgArg(AllJoynObject):
         return self._GetDouble(self.handle,d) # double *
 
     def GetString(self, s):
-        return self._GetString(self.handle,s) # char **
+        buf = C.create_string_buffer(size)
+        self._GetString(self.handle, buf) # char **
+        return buf
 
     def GetObjectPath(self, o):
         return self._GetObjectPath(self.handle,o) # char **
