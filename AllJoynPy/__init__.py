@@ -458,7 +458,6 @@ class AllJoynObject(object):
             cargs = []
             try:
                 cargs = [a[1] for a in args if a]
-                print callable_name, cargs
             except:
                 print args
                 raise
@@ -466,11 +465,19 @@ class AllJoynObject(object):
             cmethod = getattr(AllJoynObject.__lib, lib_function_name)
 
             if return_type:
-                cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
+                try:
+                    cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
+                except:
+                    print callable_name
+                    raise
 
             if cargs:
-                cmethod.argtypes = cargs
-        
+                try:
+                    cmethod.argtypes = cargs
+                except:
+                    print callable_name
+                    raise
+
             setattr(cls, '_' + callable_name, cmethod)
 
             

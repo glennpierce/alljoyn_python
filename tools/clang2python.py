@@ -333,7 +333,7 @@ def process_file(filepath, of):
                 #if '_ptr' in param_name:  # callback pointer. fill will junk and manually correct
                 #    param_ctype = "POINTER(CallbackFuncType)"
                 #else:
-                param_ctype = str(type_map[param_name])
+                param_ctype = type_map[param_name]
                 parameter_ctypes.append(param_ctype)
             except Exception as ex:
                 print str(ex)

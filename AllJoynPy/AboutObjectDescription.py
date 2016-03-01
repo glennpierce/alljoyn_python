@@ -103,7 +103,7 @@ class AboutObjectDescription(AllJoynObject):
         count = self._GetInterfaces(self.handle, path, None, 0) 
         array = (C.c_char_p * count)()
         status = self._GetInterfaces(self.handle, path, array, count) # const char **, int
-        return [str(a) for a in array]
+        return [str(a).strip() for a in array]
         #return self._GetInterfaces(self.handle,path,interfaces,numInterfaces) # const char *,const char **,int
 
     def GetInterfacePaths(self, interfaceName,paths,numPaths):
