@@ -25,73 +25,61 @@ from . import AllJoynMeta, AllJoynObject
 #define ALLJOYN_PROXIMITY_PHYSICAL  0x01 /**< Limit the session to the same physical device */
 #define ALLJOYN_PROXIMITY_NETWORK   0x02 /**< Limit the session to network proximity */
 
-
-
 # Typedefs
 # struct _alljoyn_sessionopts_handle * alljoyn_sessionopts
 # int alljoyn_sessionport
 # int alljoyn_sessionid
-
-
-if sys.platform == 'win32':
-    CallbackType = C.WINFUNCTYPE
-else:
-    CallbackType = C.CFUNCTYPE
-    
-
-
-
 
 class SessionOpts(AllJoynObject):
     
     __metaclass__ = AllJoynMeta
     
     _cmethods = {u'CMP': (u'alljoyn_sessionopts_cmp',
-          (u'int', C.c_int),
-          ((u'const alljoyn_sessionopts', C.c_void_p),
-           (u'const alljoyn_sessionopts', C.c_void_p))),
- u'Create': (u'alljoyn_sessionopts_create',
-             (u'alljoyn_sessionopts', C.c_void_p),
-             ((u'int', C.c_int),
-              (u'int', C.c_int),
-              (u'int', C.c_int),
-              (u'int', C.c_int))),
- u'Destroy': (u'alljoyn_sessionopts_destroy',
-              (u'void', None),
-              ((u'alljoyn_sessionopts', C.c_void_p),)),
- u'GetMuLTIPOINT': (u'alljoyn_sessionopts_get_multipoint',
-                    (u'int', C.c_int),
-                    ((u'const alljoyn_sessionopts', C.c_void_p),)),
- u'GetProximity': (u'alljoyn_sessionopts_get_proximity',
-                   (u'int', C.c_int),
-                   ((u'const alljoyn_sessionopts', C.c_void_p),)),
- u'GetTraffic': (u'alljoyn_sessionopts_get_traffic',
+                  (u'int', C.c_int),
+                  ((u'const alljoyn_sessionopts', C.c_void_p),
+                   (u'const alljoyn_sessionopts', C.c_void_p))),
+                u'Create': (u'alljoyn_sessionopts_create',
+                 (u'alljoyn_sessionopts', C.c_void_p),
+                 ((u'int', C.c_int),
+                  (u'int', C.c_int),
+                  (u'int', C.c_int),
+                  (u'int', C.c_int))),
+                u'Destroy': (u'alljoyn_sessionopts_destroy',
+                  (u'void', None),
+                  ((u'alljoyn_sessionopts', C.c_void_p),)),
+                u'GetMuLTIPOINT': (u'alljoyn_sessionopts_get_multipoint',
+                  (u'int', C.c_int),
+                  ((u'const alljoyn_sessionopts', C.c_void_p),)),
+                u'GetProximity': (u'alljoyn_sessionopts_get_proximity',
                  (u'int', C.c_int),
                  ((u'const alljoyn_sessionopts', C.c_void_p),)),
- u'GetTransports': (u'alljoyn_sessionopts_get_transports',
-                    (u'int', C.c_int),
-                    ((u'const alljoyn_sessionopts', C.c_void_p),)),
- u'IsCompatible': (u'alljoyn_sessionopts_iscompatible',
-                   (u'int', C.c_int),
-                   ((u'const alljoyn_sessionopts', C.c_void_p),
-                    (u'const alljoyn_sessionopts', C.c_void_p))),
- u'SetMuLTIPOINT': (u'alljoyn_sessionopts_set_multipoint',
-                    (u'void', None),
-                    ((u'alljoyn_sessionopts', C.c_void_p),
-                     (u'int', C.c_int))),
- u'SetProximity': (u'alljoyn_sessionopts_set_proximity',
-                   (u'void', None),
-                   ((u'alljoyn_sessionopts', C.c_void_p),
-                    (u'int', C.c_int))),
- u'SetTraffic': (u'alljoyn_sessionopts_set_traffic',
+                u'GetTraffic': (u'alljoyn_sessionopts_get_traffic',
+                 (u'int', C.c_int),
+                 ((u'const alljoyn_sessionopts', C.c_void_p),)),
+                u'GetTransports': (u'alljoyn_sessionopts_get_transports',
+                  (u'int', C.c_int),
+                  ((u'const alljoyn_sessionopts', C.c_void_p),)),
+                u'IsCompatible': (u'alljoyn_sessionopts_iscompatible',
+                 (u'int', C.c_int),
+                 ((u'const alljoyn_sessionopts', C.c_void_p),
+                  (u'const alljoyn_sessionopts', C.c_void_p))),
+                u'SetMuLTIPOINT': (u'alljoyn_sessionopts_set_multipoint',
+                  (u'void', None),
+                  ((u'alljoyn_sessionopts', C.c_void_p),
+                   (u'int', C.c_int))),
+                u'SetProximity': (u'alljoyn_sessionopts_set_proximity',
                  (u'void', None),
                  ((u'alljoyn_sessionopts', C.c_void_p),
                   (u'int', C.c_int))),
- u'SetTransports': (u'alljoyn_sessionopts_set_transports',
-                    (u'void', None),
-                    ((u'alljoyn_sessionopts', C.c_void_p),
-                     (u'int', C.c_int)))}
-    
+                u'SetTraffic': (u'alljoyn_sessionopts_set_traffic',
+                 (u'void', None),
+                 ((u'alljoyn_sessionopts', C.c_void_p),
+                  (u'int', C.c_int))),
+                u'SetTransports': (u'alljoyn_sessionopts_set_transports',
+                  (u'void', None),
+                  ((u'alljoyn_sessionopts', C.c_void_p),
+                   (u'int', C.c_int)))}
+      
     def __init__(self):
         pass
         

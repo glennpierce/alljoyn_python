@@ -14,26 +14,26 @@ class AboutProxy(AllJoynObject):
     __metaclass__ = AllJoynMeta
     
     _cmethods = {u'Create': (u'alljoyn_aboutproxy_create',
-             (u'alljoyn_aboutproxy', C.c_void_p),
-             ((u'int', C.c_int),
-              (u'const char *', C.c_char_p),
-              (u'int', C.c_int))),
- u'Destroy': (u'alljoyn_aboutproxy_destroy',
-              (u'void', None),
-              ((u'alljoyn_aboutproxy', C.c_void_p),)),
- u'GetAboutData': (u'alljoyn_aboutproxy_getaboutdata',
+                 (u'alljoyn_aboutproxy', C.c_void_p),
+                 ((u'int', C.c_int),
+                  (u'const char *', C.c_char_p),
+                  (u'int', C.c_int))),
+                  u'Destroy': (u'alljoyn_aboutproxy_destroy',
+                    (u'void', None),
+                    ((u'alljoyn_aboutproxy', C.c_void_p),)),
+                  u'GetAboutData': (u'alljoyn_aboutproxy_getaboutdata',
                    (u'QStatus', C.c_uint),
                    ((u'alljoyn_aboutproxy', C.c_void_p),
                     (u'const char *', C.c_char_p),
                     (u'int', C.c_int))),
- u'GetObjectDescription': (u'alljoyn_aboutproxy_getobjectdescription',
-                           (u'QStatus', C.c_uint),
-                           ((u'alljoyn_aboutproxy', C.c_void_p),
-                            (u'int', C.c_int))),
- u'GetVersion': (u'alljoyn_aboutproxy_getversion',
-                 (u'QStatus', C.c_uint),
-                 ((u'alljoyn_aboutproxy', C.c_void_p),
-                  (u'int *', 'POINTER(C.c_int)')))}
+                  u'GetObjectDescription': (u'alljoyn_aboutproxy_getobjectdescription',
+                   (u'QStatus', C.c_uint),
+                   ((u'alljoyn_aboutproxy', C.c_void_p),
+                    (u'int', C.c_int))),
+                  u'GetVersion': (u'alljoyn_aboutproxy_getversion',
+                   (u'QStatus', C.c_uint),
+                   ((u'alljoyn_aboutproxy', C.c_void_p),
+                    (u'int *', 'POINTER(C.c_int)')))}
     
     def __init__(self):
         pass

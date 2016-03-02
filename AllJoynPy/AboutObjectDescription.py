@@ -10,65 +10,64 @@ class AboutObjectDescription(AllJoynObject):
     __metaclass__ = AllJoynMeta
     
     _cmethods = {u'Clear': (u'alljoyn_aboutobjectdescription_clear',
-            (u'void', None),
-            ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),)),
+                    (u'void', None),
+                    ((u'alljoyn_aboutobjectdescription', C.c_void_p),)),
                 
-                 u'Create': (u'alljoyn_aboutobjectdescription_create',
-             (u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-             ()),
- 
-                 u'CreateFromMsgARG': (u'alljoyn_aboutobjectdescription_createfrommsgarg',
-                       (u'QStatus', 'C.c_uint'),
-                       ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                        (u'const void*', 'C.c_void_p'))),
- 
-                 u'CreateFull': (u'alljoyn_aboutobjectdescription_create_full', (u'alljoyn_aboutobjectdescription', 'C.c_void_p'), ((u'const void*', 'C.c_void_p'),)),
+                u'Create': (u'alljoyn_aboutobjectdescription_create',
+                   (u'alljoyn_aboutobjectdescription', C.c_void_p),
+                   ()),
+                
+                u'CreateFromMsgARG': (u'alljoyn_aboutobjectdescription_createfrommsgarg',
+                 (u'QStatus', C.c_uint),
+                 ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                    (u'const void*', C.c_void_p))),
+                
+                u'CreateFull': (u'alljoyn_aboutobjectdescription_create_full', (u'alljoyn_aboutobjectdescription', C.c_void_p), ((u'const void*', C.c_void_p),)),
 
-                 u'Destroy': (u'alljoyn_aboutobjectdescription_destroy', (u'void', None), ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),)),
- 
-                 u'GetInterfacePaths': (u'alljoyn_aboutobjectdescription_getinterfacepaths',
-                        (u'int', 'C.c_int'),
-                        ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                         (u'const char *', 'C.c_char_p'),
-                         (u'const char **', 'POINTER(C.c_char_p)'),
-                         (u'int', 'C.c_int'))),
-                         
-                 u'GetInterfaces': (u'alljoyn_aboutobjectdescription_getinterfaces',
-                                    (u'int', 'C.c_int'),
-                                    ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                                     (u'const char *', 'C.c_char_p'),
-                                     (u'const char **', 'POINTER(C.c_char_p)'),
-                                     (u'int', 'C.c_int'))),
-                                     
-                 u'GetMsgARG': (u'alljoyn_aboutobjectdescription_getmsgarg',
-                                (u'QStatus', 'C.c_uint'),
-                                ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                                 (u'int', 'C.c_int'))),
-                                 
-                 u'GetPaths': (u'alljoyn_aboutobjectdescription_getpaths',
-                               (u'int', 'C.c_int'),
-                               ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                                (u'const char **', 'POINTER(C.c_char_p)'),
-                                (u'int', 'C.c_int'))),
-                                
-                 u'HasInterface': (u'alljoyn_aboutobjectdescription_hasinterface',
-                                   (u'int', 'C.c_int'),
-                                   ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                                    (u'const char *', 'C.c_char_p'))),
-                                    
-                 u'HasInterfaceAtPath': (u'alljoyn_aboutobjectdescription_hasinterfaceatpath',
-                                         (u'int', 'C.c_int'),
-                                         ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                                          (u'const char *', 'C.c_char_p'),
-                                          (u'const char *', 'C.c_char_p'))),
-                                          
-                 u'HasPath': (u'alljoyn_aboutobjectdescription_haspath',
-                              (u'int', 'C.c_int'),
-                              ((u'alljoyn_aboutobjectdescription', 'C.c_void_p'),
-                               (u'const char *', 'C.c_char_p')))}
+                u'Destroy': (u'alljoyn_aboutobjectdescription_destroy', (u'void', None), ((u'alljoyn_aboutobjectdescription', C.c_void_p),)),
+                
+                u'GetInterfacePaths': (u'alljoyn_aboutobjectdescription_getinterfacepaths',
+                    (u'int', C.c_int),
+                    ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                       (u'const char *', C.c_char_p),
+                       (u'const char **', POINTER(C.c_char_p)),
+                       (u'int', C.c_int))),
+                
+                u'GetInterfaces': (u'alljoyn_aboutobjectdescription_getinterfaces',
+                    (u'int', C.c_int),
+                    ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                       (u'const char *', C.c_char_p),
+                       (u'const char **', POINTER(C.c_char_p)),
+                       (u'int', C.c_int))),
+                
+                u'GetMsgARG': (u'alljoyn_aboutobjectdescription_getmsgarg',
+                    (u'QStatus', C.c_uint),
+                    ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                       (u'int', C.c_int))),
+                
+                u'GetPaths': (u'alljoyn_aboutobjectdescription_getpaths',
+                 (u'int', C.c_int),
+                 ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                    (u'const char **', POINTER(C.c_char_p)),
+                    (u'int', C.c_int))),
+                
+                u'HasInterface': (u'alljoyn_aboutobjectdescription_hasinterface',
+                 (u'int', C.c_int),
+                 ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                    (u'const char *', C.c_char_p))),
+                
+                u'HasInterfaceAtPath': (u'alljoyn_aboutobjectdescription_hasinterfaceatpath',
+                   (u'int', C.c_int),
+                   ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                      (u'const char *', C.c_char_p),
+                      (u'const char *', C.c_char_p))),
+                
+                u'HasPath': (u'alljoyn_aboutobjectdescription_haspath',
+                  (u'int', C.c_int),
+                  ((u'alljoyn_aboutobjectdescription', C.c_void_p),
+                     (u'const char *', C.c_char_p)))}
     
     def __init__(self, msgarg=None):
-        self.bind_functions()
         if msgarg:
             #self.handle = self._CreateFull(msgarg)
             self.handle = self._Create()
@@ -123,3 +122,6 @@ class AboutObjectDescription(AllJoynObject):
 
     def GetMsGARG(self, msgArg):
         return self._GetMsGARG(self.handle,msgArg) # int
+
+
+AboutObjectDescription.bind_functions_to_cls()

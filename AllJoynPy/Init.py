@@ -9,8 +9,8 @@ class AllJoynInit(AllJoynObject):
     
     __metaclass__ = AllJoynMeta
     
-    _cmethods = {u'Init': (u'alljoyn_init', (u'QStatus', 'C.c_uint'), ()),
-                 u'Shutdown': (u'alljoyn_shutdown', (u'QStatus', 'C.c_uint'), ())}
+    _cmethods = {u'Init': (u'alljoyn_init', (u'QStatus', C.c_uint), ()),
+                 u'Shutdown': (u'alljoyn_shutdown', (u'QStatus', C.c_uint), ())}
     
     def __init__(self):
         #self.bind_functions()
@@ -19,5 +19,8 @@ class AllJoynInit(AllJoynObject):
     def __del__(self):
         #self.AllJoynDestroy(self.handle)
         pass
+
+
+AllJoynInit.bind_functions_to_cls()
 
 sys.modules[__name__] = AllJoynInit()  # See https://mail.python.org/pipermail/python-ideas/2012-May/014969.html

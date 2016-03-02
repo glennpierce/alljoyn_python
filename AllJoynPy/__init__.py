@@ -414,31 +414,31 @@ class AllJoynObject(object):
             raise QStatusException(AllJoynObject.__lib.QCC_StatusText(status), status)
         return qstatus
       
-    def bind_functions(self):
+    # def bind_functions(self):
         
-        for callable_name, method in self._cmethods.items():
-            lib_function_name = method[0]
-            return_name = method[1][0]
-            return_type = eval(method[1][1]) if method[1][1] else None
-            args = method[2]
+    #     for callable_name, method in self._cmethods.items():
+    #         lib_function_name = method[0]
+    #         return_name = method[1][0]
+    #         return_type = eval(method[1][1]) if method[1][1] else None
+    #         args = method[2]
             
-            cargs = []
-            try:
-                cargs = [eval(a[1]) for a in args if a]
-            except:
-                print args
-                raise
+    #         cargs = []
+    #         try:
+    #             cargs = [eval(a[1]) for a in args if a]
+    #         except:
+    #             print args
+    #             raise
                 
-            cmethod = getattr(AllJoynObject.__lib, lib_function_name)
+    #         cmethod = getattr(AllJoynObject.__lib, lib_function_name)
     
-            if return_type:
-                cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
-                #print callable_name, cmethod.restype
+    #         if return_type:
+    #             cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
+    #             #print callable_name, cmethod.restype
 
-            if cargs:
-                cmethod.argtypes = cargs
+    #         if cargs:
+    #             cmethod.argtypes = cargs
         
-            setattr(self, '_' + callable_name, cmethod)
+    #         setattr(self, '_' + callable_name, cmethod)
        
 
     @classmethod
@@ -508,9 +508,6 @@ class AllJoyn(object):
         return BusAttachment
         
     def __init__(self):
-        Init.bind_functions()
-        Version.bind_functions()
-
         status = Init._Init()
 
     def __del__(self):

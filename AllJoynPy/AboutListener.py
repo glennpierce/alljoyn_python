@@ -27,13 +27,12 @@ class AboutListener(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
     
-    _cmethods = {u'Create': (u'alljoyn_aboutlistener_create', (u'alljoyn_aboutlistener', 'C.c_void_p'), 
-                            ((u'const alljoyn_aboutlistener_callback *', 'POINTER(AboutListener.AboutListenerCallBack)'),
-                            (u'const void *', 'C.c_void_p'))),
-                 u'Destroy': (u'alljoyn_aboutlistener_destroy', (u'void', None), ((u'alljoyn_aboutlistener', 'C.c_void_p'),))}
+    _cmethods = {u'Create': (u'alljoyn_aboutlistener_create', (u'alljoyn_aboutlistener', C.c_void_p), 
+                            ((u'const alljoyn_aboutlistener_callback *', POINTER(AboutListenerCallBack)),
+                            (u'const void *', C.c_void_p))),
+                 u'Destroy': (u'alljoyn_aboutlistener_destroy', (u'void', None), ((u'alljoyn_aboutlistener', C.c_void_p),))}
     
     def __init__(self, callback=None):
-        self.bind_functions()
         callback_structure = AboutListenerCallBack()
         
         if callback:
@@ -57,3 +56,6 @@ class AboutListener(AllJoynObject):
         
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
         pass
+
+
+AboutListener.bind_functions_to_cls()
