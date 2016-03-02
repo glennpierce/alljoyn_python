@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, QStatusException, AboutObjectDescription
+from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData,
+                      QStatusException, AboutObjectDescription, Session,
+                      TransportMask
 import signal, time
 import sys
 
@@ -37,7 +39,9 @@ class MyAboutListener(AboutListener.AboutListener):
     
 
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
-        
+       
+        g_bus = context
+
         objectDescription = AboutObjectDescription.AboutObjectDescription(objectDescriptionArg)
 
         print "*********************************************************************************"
@@ -60,6 +64,14 @@ class MyAboutListener(AboutListener.AboutListener):
         self.printAboutData(aboutData, None, 2);
         
         print "*********************************************************************************"
+       
+        ALLJOYN_TRAFFIC_TYPE_MESSAGES = 0x01   # Session carries message traffic
+        ALLJOYN_PROXIMITY_ANY = 0xFF # Accept any proximity options 
+
+        opts = SessionOpts(Session.ALLJOYN_TRAFFIC_TYPE_MESSAGES, Session.ALLJOYN_PROXIMITY_ANY,  TransportMask.ALLJOYN_TRANSPORT_ANY)
+        
+        gbus.EnableConcurrentCallbacks()
+        g_bus.JoinSession(busName, port, &sessionListener, sessionId, opts)
         
         #QStatus status;
 
@@ -183,7 +195,7 @@ if __name__ == "__main__":
 
     print g_bus.GetUniqueName()
     
-    aboutListener = MyAboutListener()
+    aboutListener = MyAboutListener(g_bus)
    
     g_bus.RegisterAboutListener(aboutListener)
    

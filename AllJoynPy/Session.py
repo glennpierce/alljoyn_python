@@ -6,24 +6,14 @@ from . import AllJoynMeta, AllJoynObject
 # Wrapper for file Session.h
 
 
-#define ALLJOYN_SESSION_PORT_ANY (alljoyn_sessionport)0
-#define ALLJOYN_SESSION_ID_ALL_HOSTED ((alljoyn_sessionid)(-1))
-#define ALLJOYN_TRAFFIC_TYPE_MESSAGES        0x01   /**< Session carries message traffic */
-#define ALLJOYN_TRAFFIC_TYPE_RAW_UNRELIABLE  0x02   /**< Session carries an unreliable (lossy) byte stream */
-#define ALLJOYN_TRAFFIC_TYPE_RAW_RELIABLE    0x04   /**< Session carries a reliable byte stream */
-#define ALLJOYN_PROXIMITY_ANY       0xFF /**< Accept any proximity options */
-#define ALLJOYN_PROXIMITY_PHYSICAL  0x01 /**< Limit the session to the same physical device */
-#define ALLJOYN_PROXIMITY_NETWORK   0x02 /**< Limit the session to network proximity */
-
-
-#define ALLJOYN_SESSION_PORT_ANY (alljoyn_sessionport)0
-#define ALLJOYN_SESSION_ID_ALL_HOSTED ((alljoyn_sessionid)(-1))
-#define ALLJOYN_TRAFFIC_TYPE_MESSAGES        0x01   /**< Session carries message traffic */
-#define ALLJOYN_TRAFFIC_TYPE_RAW_UNRELIABLE  0x02   /**< Session carries an unreliable (lossy) byte stream */
-#define ALLJOYN_TRAFFIC_TYPE_RAW_RELIABLE    0x04   /**< Session carries a reliable byte stream */
-#define ALLJOYN_PROXIMITY_ANY       0xFF /**< Accept any proximity options */
-#define ALLJOYN_PROXIMITY_PHYSICAL  0x01 /**< Limit the session to the same physical device */
-#define ALLJOYN_PROXIMITY_NETWORK   0x02 /**< Limit the session to network proximity */
+ALLJOYN_SESSION_PORT_ANY = 0
+ALLJOYN_SESSION_ID_ALL_HOSTED = -1
+ALLJOYN_TRAFFIC_TYPE_MESSAGES = 0x01   # Session carries message traffic
+ALLJOYN_TRAFFIC_TYPE_RAW_UNRELIABLE = 0x02   # Session carries an unreliable (lossy) byte stream
+ALLJOYN_TRAFFIC_TYPE_RAW_RELIABLE = 0x04   # Session carries a reliable byte stream 
+ALLJOYN_PROXIMITY_ANY = 0xFF # Accept any proximity options 
+ALLJOYN_PROXIMITY_PHYSICAL = 0x01 # Limit the session to the same physical device 
+ALLJOYN_PROXIMITY_NETWORK = 0x02 # Limit the session to network proximity 
 
 # Typedefs
 # struct _alljoyn_sessionopts_handle * alljoyn_sessionopts
@@ -80,20 +70,13 @@ class SessionOpts(AllJoynObject):
                   ((u'alljoyn_sessionopts', C.c_void_p),
                    (u'int', C.c_int)))}
       
-    def __init__(self):
-        pass
+    def __init__(self, isMultipoint,proximity,transports):
+        self.handle = self._Create(isMultipoint,proximity,transports) # int,int,int
         
     def __del__(self):
-        #self.SessionOptsDestroy(self.handle)
-        pass
+        return self._Destroy(self.handle)
 
     # Wrapper Methods
-
-    def Create(self, isMultipoint,proximity,transports):
-        return self._Create(self.handle,isMultipoint,proximity,transports) # int,int,int
-
-    def Destroy(self):
-        return self._Destroy(self.handle)
 
     def GetTraffic(self):
         return self._GetTraffic(self.handle)
