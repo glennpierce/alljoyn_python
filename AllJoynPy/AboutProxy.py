@@ -36,7 +36,7 @@ class AboutProxy(AllJoynObject):
                     (u'int *', 'POINTER(C.c_int)')))}
     
     def __init__(self):
-        pass
+        super(AboutProxy, self).__init__()
         
     def __del__(self):
         #self.AboutProxyDestroy(self.handle)

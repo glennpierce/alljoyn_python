@@ -33,6 +33,8 @@ class AboutListener(AllJoynObject):
                  u'Destroy': (u'alljoyn_aboutlistener_destroy', (u'void', None), ((u'alljoyn_aboutlistener', C.c_void_p),))}
 
     def __init__(self, callback_data=None):
+        super(AboutListener, self).__init__()
+        
         callback_structure = AboutListenerCallBack()
     
         self.callback_data = callback_data

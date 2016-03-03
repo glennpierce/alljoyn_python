@@ -71,6 +71,7 @@ class SessionOpts(AllJoynObject):
                    (u'int', C.c_int)))}
       
     def __init__(self, isMultipoint,proximity,transports):
+        super(SessionOpts, self).__init__(self)
         self.handle = self._Create(isMultipoint,proximity,transports) # int,int,int
         
     def __del__(self):
@@ -108,7 +109,5 @@ class SessionOpts(AllJoynObject):
     def CMP(self, other):
         return self._CMP(self.handle,other) # const alljoyn_sessionopts
 
-    
 
-
-Session.bind_functions_to_cls()
+SessionOpts.bind_functions_to_cls()

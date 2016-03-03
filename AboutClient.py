@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData,
-                      QStatusException, AboutObjectDescription, Session,
-                      TransportMask
+from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
+                      QStatusException, AboutObjectDescription, Session, \
+                      TransportMask, SessionListener
 import signal, time
 import sys
 
@@ -12,13 +12,22 @@ INTERFACE_NAME = "net.allplay.MediaPlayer";
 
 
 def signal_handler(signal, frame):
-    QCC_UNUSED(sig);
+    #QCC_UNUSED(sig);
     s_interrupt = True;
 
+class MySessionListener(SessionListener.SessionListener):
+    def __init__(self, callback_data=None):
+        super(MySessionListener, self).__init__()
+        
+    def OnSessionLostCallBack(self, context, sessionId, reason):
+        print "SessionLost sessionId = %u, Reason = %d" % (sessionId, reason)
 
 class MyAboutListener(AboutListener.AboutListener):
-    def __init__(self):
-        super(MyAboutListener, self).__init__()
+    def __init__(self, callback_data=None):
+        super(MyAboutListener, self).__init__(callback_data=callback_data)
+        print "MyAboutListener __init__", id(self)
+        
+      
         
     # Print out the fields found in the AboutData. Only fields with known signatures
     # are printed out.  All others will be treated as an unknown field.
@@ -68,10 +77,16 @@ class MyAboutListener(AboutListener.AboutListener):
         ALLJOYN_TRAFFIC_TYPE_MESSAGES = 0x01   # Session carries message traffic
         ALLJOYN_PROXIMITY_ANY = 0xFF # Accept any proximity options 
 
-        opts = SessionOpts(Session.ALLJOYN_TRAFFIC_TYPE_MESSAGES, Session.ALLJOYN_PROXIMITY_ANY,  TransportMask.ALLJOYN_TRANSPORT_ANY)
+        # Has to be after bus
+        self.sessionListener = MySessionListener()
         
-        gbus.EnableConcurrentCallbacks()
-        g_bus.JoinSession(busName, port, &sessionListener, sessionId, opts)
+        #opts = Session.SessionOpts(Session.ALLJOYN_TRAFFIC_TYPE_MESSAGES, Session.ALLJOYN_PROXIMITY_ANY,  TransportMask.ALLJOYN_TRANSPORT_ANY)
+        
+        #gbus.EnableConcurrentCallbacks()
+        #g_bus.JoinSession(busName, port, sessionListener, sessionId, opts)
+        
+        
+        
         
         #QStatus status;
 
@@ -80,6 +95,8 @@ class MyAboutListener(AboutListener.AboutListener):
             #SessionOpts opts(SessionOpts::TRAFFIC_MESSAGES, false, SessionOpts::PROXIMITY_ANY, TRANSPORT_ANY);
             #g_bus->EnableConcurrentCallbacks();
             #status = g_bus->JoinSession(busName, port, &sessionListener, sessionId, opts);
+            
+            
             #printf("SessionJoined sessionId = %u, status = %s\n", sessionId, QCC_StatusText(status));
             #if (ER_OK == status && 0 != sessionId) {
                 #AboutProxy aboutProxy(*g_bus, busName, sessionId);
@@ -195,8 +212,14 @@ if __name__ == "__main__":
 
     print g_bus.GetUniqueName()
     
+    
+    
     aboutListener = MyAboutListener(g_bus)
    
+    
+    
+    
+
     g_bus.RegisterAboutListener(aboutListener)
    
     g_bus.WhoImplementsInterfaces([INTERFACE_NAME])

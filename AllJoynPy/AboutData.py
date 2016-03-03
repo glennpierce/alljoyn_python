@@ -208,6 +208,8 @@ class AboutData(AllJoynObject):
     
     
     def __init__(self, msgarg=None, language="en"):
+        super(AboutData, self).__init__()
+        
         if msgarg:
             self.handle = self._CreateFull(msgarg, language)
         else:

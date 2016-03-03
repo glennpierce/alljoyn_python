@@ -68,6 +68,8 @@ class AboutObjectDescription(AllJoynObject):
                      (u'const char *', C.c_char_p)))}
     
     def __init__(self, msgarg=None):
+        super(AboutObjectDescription, self).__init__()
+        
         if msgarg:
             #self.handle = self._CreateFull(msgarg)
             self.handle = self._Create()
