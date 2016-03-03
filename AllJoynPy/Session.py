@@ -17,7 +17,7 @@ ALLJOYN_PROXIMITY_NETWORK = 0x02 # Limit the session to network proximity
 
 # Typedefs
 # struct _alljoyn_sessionopts_handle * alljoyn_sessionopts
-# int alljoyn_sessionport
+# uint16 alljoyn_sessionport
 # int alljoyn_sessionid
 
 class SessionOpts(AllJoynObject):
@@ -70,9 +70,12 @@ class SessionOpts(AllJoynObject):
                   ((u'alljoyn_sessionopts', C.c_void_p),
                    (u'int', C.c_int)))}
       
-    def __init__(self, isMultipoint,proximity,transports):
-        super(SessionOpts, self).__init__(self)
-        self.handle = self._Create(isMultipoint,proximity,transports) # int,int,int
+    def __init__(self, traffic, isMultipoint, proximity, transports):
+        super(SessionOpts, self).__init__()
+        
+        #extern AJ_API alljoyn_sessionopts AJ_CALL alljoyn_sessionopts_create(uint8_t traffic, QCC_BOOL isMultipoint,
+        #                                                             uint8_t proximity, alljoyn_transportmask transports);
+        self.handle = self._Create(traffic, isMultipoint, proximity, transports) # int,int,int
         
     def __del__(self):
         return self._Destroy(self.handle)

@@ -473,13 +473,18 @@ class AllJoynObject(object):
                 
             cmethod = getattr(AllJoynObject.__lib, lib_function_name)
 
+            if callable_name == "EnableConcurrentCallBacks":
+                print "return_type", return_type
+                
             if return_type:
                 try:
                     cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
                 except:
                     print callable_name
                     raise
-
+            else:
+                cmethod.restype = None
+                    
             if cargs:
                 try:
                     cmethod.argtypes = cargs
@@ -487,6 +492,9 @@ class AllJoynObject(object):
                     print callable_name
                     raise
 
+            if callable_name == "EnableConcurrentCallBacks":
+                print callable_name, "cmethod.restype", cmethod.restype, "cmethod.argtypes", cmethod.argtypes
+                    
             setattr(cls, '_' + callable_name, cmethod)
 
             

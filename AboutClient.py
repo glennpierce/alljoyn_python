@@ -26,7 +26,7 @@ class MyAboutListener(AboutListener.AboutListener):
     def __init__(self, callback_data=None):
         super(MyAboutListener, self).__init__(callback_data=callback_data)
         print "MyAboutListener __init__", id(self)
-        
+        self.sessionListener = MySessionListener()
       
         
     # Print out the fields found in the AboutData. Only fields with known signatures
@@ -77,12 +77,14 @@ class MyAboutListener(AboutListener.AboutListener):
         ALLJOYN_TRAFFIC_TYPE_MESSAGES = 0x01   # Session carries message traffic
         ALLJOYN_PROXIMITY_ANY = 0xFF # Accept any proximity options 
 
-        # Has to be after bus
-        self.sessionListener = MySessionListener()
         
-        #opts = Session.SessionOpts(Session.ALLJOYN_TRAFFIC_TYPE_MESSAGES, Session.ALLJOYN_PROXIMITY_ANY,  TransportMask.ALLJOYN_TRANSPORT_ANY)
         
-        #gbus.EnableConcurrentCallbacks()
+        opts = Session.SessionOpts(Session.ALLJOYN_TRAFFIC_TYPE_MESSAGES,
+                                   False,
+                                   Session.ALLJOYN_PROXIMITY_ANY,
+                                   TransportMask.ALLJOYN_TRANSPORT_ANY)
+        
+        g_bus.EnableConcurrentCallbacks()
         #g_bus.JoinSession(busName, port, sessionListener, sessionId, opts)
         
         

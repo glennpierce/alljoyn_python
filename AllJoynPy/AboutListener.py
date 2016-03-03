@@ -35,24 +35,27 @@ class AboutListener(AllJoynObject):
     def __init__(self, callback_data=None):
         super(AboutListener, self).__init__()
         
-        callback_structure = AboutListenerCallBack()
+        self.callback_structure = AboutListenerCallBack()
     
         self.callback_data = callback_data
 
-        callback_structure.AboutListenerAnnounced = AboutAnnouncedFuncType(AboutListener._OnAboutListenerCallBack)
+        self.callback_structure.AboutListenerAnnounced = AboutAnnouncedFuncType(AboutListener._OnAboutListenerCallBack)
         
         # We pass the id of self tothe callback here as the context so we can get self in the callback.
         # Usuall ctypes would handle the self magic but in this case the ptr is stuck into a structure
         # and ctypes does not then do the magic
         # print ctypes.cast(ctypes.c_longlong(id(a)).value, ctypes.py_object).value
-        self.handle = self._Create(C.byref(callback_structure), C.c_void_p(id(self)))
-            
+        #self.handle = self._Create(C.byref(callback_structure), C.c_void_p(id(self)))
+        #self.unique = C.c_int(self.unique_id)
+        self.handle = self._Create(C.byref(self.callback_structure), self.unique_id)
+        
     def __del__(self):
         self._Destroy(self.handle)
    
     @staticmethod
     def _OnAboutListenerCallBack(context, busName, version, port, objectDescriptionArg, aboutDataArg):
-        self = C.cast(context, C.py_object).value
+        print "Harley", context, type(context)
+        self = AllJoynObject.unique_instances[context]
         self.OnAboutListenerCallBack(self.callback_data, busName, version, port, objectDescriptionArg, aboutDataArg)
         
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
