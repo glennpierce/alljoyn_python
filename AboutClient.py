@@ -40,7 +40,7 @@ class MyAboutListener(AboutListener.AboutListener):
             tmp = aboutData.GetField(field)
 
             if tmp.Signature().startswith("ay"):
-                print "\t", ' '.join([hex(v) for v in tmp.GetSingleCompleteValue()])
+                print "\t", ' '.join(["%02x " % v for v in tmp.GetSingleCompleteValue()])
             elif tmp.Signature().startswith("as"):
                 print "\t", [v for v in tmp.GetSingleCompleteValue()]
             elif tmp.Signature().startswith("s"):
@@ -69,7 +69,7 @@ class MyAboutListener(AboutListener.AboutListener):
                 print "\t\t\t", interface
 
         print "\tAboutData:"
-        aboutData = AboutData.AboutData(aboutDataArg)
+        aboutData = AboutData.AboutData(aboutDataArg, language="en")
 
         self.printAboutData(aboutData, None, 2)
 

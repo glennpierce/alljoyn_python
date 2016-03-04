@@ -241,13 +241,11 @@ class MsgArg(AllJoynObject):
                                     (u'int *', POINTER(C.c_int)))),
 
 
-                 u'GetDoubleArray': (u'alljoyn_msgarg_get_double_array',
-                                     (u'QStatus', C.c_uint),
-                                     ((u'const alljoyn_msgarg', C.c_void_p),
-                                      (u'int *', POINTER(C.c_int)),
-                                      (u'double *', POINTER(C.c_double)))),
-
-
+                 u'GetUInt8Array': (u'alljoyn_msgarg_get_uint8_array',
+                                    (u'QStatus', C.c_uint),
+                                    ((u'const alljoyn_msgarg', C.c_void_p),
+                                     (u'int *', POINTER(C.c_int)),
+                                     (u'int *', POINTER(POINTER(C.c_ubyte))))),
 
                  u'GetInt16Array': (u'alljoyn_msgarg_get_int16_array',
                                     (u'QStatus', C.c_uint),
@@ -286,12 +284,12 @@ class MsgArg(AllJoynObject):
                                       (u'int *', POINTER(C.c_int)),
                                       (u'int *', POINTER(C.c_ulonglong)))),
 
+                 u'GetDoubleArray': (u'alljoyn_msgarg_get_double_array',
+                                     (u'QStatus', C.c_uint),
+                                     ((u'const alljoyn_msgarg', C.c_void_p),
+                                      (u'int *', POINTER(C.c_int)),
+                                      (u'double *', POINTER(C.c_double)))),
 
-                 u'GetUInt8Array': (u'alljoyn_msgarg_get_uint8_array',
-                                    (u'QStatus', C.c_uint),
-                                    ((u'const alljoyn_msgarg', C.c_void_p),
-                                     (u'int *', POINTER(C.c_int)),
-                                     (u'int *', POINTER(C.c_ubyte)))),
 
                  # u'GetValue': (u'alljoyn_msgarg_getvalue',
                  #               (u'alljoyn_msgarg', C.c_void_p),
@@ -586,26 +584,30 @@ class MsgArg(AllJoynObject):
 
             if first_ch == 'a':
 
-                
-
                 length = C.c_int()
-                array = (sig_map[sec_ch][0] * 1)()
+                # array = (sig_map[sec_ch][0] * 16)()
                 method = sig_map[sec_ch][3]
-                method(self.handle, C.byref(length), array)
+                # method(self.handle, C.byref(length), C.byref(array))
 
+                # print "boo", [int(a) for a in array]
 
-                print "sec_ch", sec_ch
-                print "length", length.value
-                print "type", sig_map[sec_ch][0]
-                print "method", sig_map[sec_ch]
+                # print "sec_ch", sec_ch
+                # print "length", length.value
+                # print "type", sig_map[sec_ch][0]
+                # print "method", sig_map[sec_ch]
 
                 # print "real size", length.value
                 # Call again getting the real number of elements
-                array = (sig_map[sec_ch][0] * length.value)()
-                method(self.handle, C.byref(length), array)
-                print "array", array
+                # array = (sig_map[sec_ch]
+                array_type = sig_map[sec_ch][0]
+
+                p = C.pointer(array_type())
+                #p = ctypes.cast("foo", ctypes.POINTER(array_types))
+                method(self.handle, C.byref(length), C.byref(p))
                 l = []
-                return [a for a in array]
+                for i in range(length.value):
+                    l.append(p[i])
+                return l
 
     # def GetVariant(self, v):
     # return self._GetVariant(self.handle,v) # alljoyn_msgarg
