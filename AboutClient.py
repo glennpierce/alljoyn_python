@@ -39,10 +39,12 @@ class MyAboutListener(AboutListener.AboutListener):
 
             tmp = aboutData.GetField(field)
 
+            print "Signature", tmp.Signature()
+
             if tmp.Signature().startswith("ay"):
                 print "\t", ' '.join(["%02x " % v for v in tmp.GetSingleCompleteValue()])
             elif tmp.Signature().startswith("as"):
-                print "\t", [v for v in tmp.GetSingleCompleteValue()]
+                print "\t", self.GetStringArray() #[v for v in tmp.GetSingleCompleteValue()]
             elif tmp.Signature().startswith("s"):
                 print "\t", tmp.GetSingleCompleteValue()
             else:
@@ -73,55 +75,39 @@ class MyAboutListener(AboutListener.AboutListener):
 
         self.printAboutData(aboutData, None, 2)
 
-        # print "*********************************************************************************"
+        print "*********************************************************************************"
 
-        # opts = Session.SessionOpts(Session.ALLJOYN_TRAFFIC_TYPE_MESSAGES,
-        #                            False,
-        #                            Session.ALLJOYN_PROXIMITY_ANY,
-        #                            TransportMask.ALLJOYN_TRANSPORT_ANY)
+        opts = Session.SessionOpts(Session.ALLJOYN_TRAFFIC_TYPE_MESSAGES,
+                                    False,
+                                    Session.ALLJOYN_PROXIMITY_ANY,
+                                    TransportMask.ALLJOYN_TRANSPORT_ANY)
 
-        # print g_bus
-        # g_bus.EnableConcurrentCallBacks()
-        # sessionId = g_bus.JoinSession(busName, port, self.sessionListener, opts)
-        # print "SessionJoined sessionId = ", sessionId
+        print g_bus
+        g_bus.EnableConcurrentCallBacks()
+        sessionId = g_bus.JoinSession(busName, port, self.sessionListener, opts)
+        print "SessionJoined sessionId = ", sessionId
 
-        # aboutProxy = AboutProxy.AboutProxy(g_bus, busName, sessionId)
+        aboutProxy = AboutProxy.AboutProxy(g_bus, busName, sessionId)
 
-        # objArg = aboutProxy.GetObjectDescription()
-        # print "*********************************************************************************"
-        # print "AboutProxy.GetObjectDescription:"
-        # #AboutObjectDescription.AboutObjectDescription(objArg)
+        objArg = aboutProxy.GetObjectDescription()
+        print "*********************************************************************************"
+        print "AboutProxy.GetObjectDescription:"
 
-        # aboutObjectDescription = AboutObjectDescription.AboutObjectDescription(objArg)
+        aboutObjectDescription = AboutObjectDescription.AboutObjectDescription(objArg)
 
+        for path in aboutObjectDescription.GetPaths():
+            print "\t", path
+            for interface in aboutObjectDescription.GetInterfaces(path):
+                print "\t\t", interface
 
+        aArg = aboutProxy.GetAboutData()
+        print "*********************************************************************************"
+        print "AboutProxy.GetAboutData: (Default Language)"
 
-
-
-    
-               
-                
-                # 
-                # AboutObjectDescription aboutObjectDescription(objArg);
-                #path_num = aboutObjectDescription.GetPaths(NULL, 0);
-                # paths = new const char*[path_num];
-                #aboutObjectDescription.GetPaths(paths, path_num);
-                # for (size_t i = 0; i < path_num; ++i) {
-                    #printf("\t%s\n", paths[i]);
-                    # size_t intf_num = aboutObjectDescription.GetInterfaces(paths[i], NULL, 0);
-                    # const char** intfs = new const char*[intf_num];
-                    #aboutObjectDescription.GetInterfaces(paths[i], intfs, intf_num);
-                    # for (size_t j = 0; j < intf_num; ++j) {
-                        #printf("\t\t%s\n", intfs[j]);
-                    #}
-                    # delete [] intfs;
-                #}
-                # delete [] paths;
+        defaultLangAboutData = AboutData.AboutData()
+        self.printAboutData(defaultLangAboutData, None, 1)
 
                 # MsgArg aArg;
-                #aboutProxy.GetAboutData("en", aArg);
-                # printf("*********************************************************************************\n");
-                #printf("AboutProxy.GetAboutData: (Default Language)\n");
                 # AboutData defaultLangAboutData(aArg);
                 #printAboutData(defaultLangAboutData, NULL, 1);
                 # size_t lang_num;

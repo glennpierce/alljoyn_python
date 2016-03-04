@@ -3,7 +3,7 @@ import types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import AllJoynMeta, AllJoynObject, MsgArg
 # Wrapper for file AboutListener.h
 
 # Typedefs
@@ -60,7 +60,8 @@ class AboutListener(AllJoynObject):
     def _OnAboutListenerCallBack(context, busName, version, port, objectDescriptionArg, aboutDataArg):
         print "Harley", context, type(context)
         self = AllJoynObject.unique_instances[context]
-        self.OnAboutListenerCallBack(self.callback_data, busName, version, port, objectDescriptionArg, aboutDataArg)
+        self.OnAboutListenerCallBack(self.callback_data, busName, version, port, MsgArg.MsgArg(objectDescriptionArg), \
+                                     MsgArg.MsgArg(aboutDataArg))
 
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
         pass

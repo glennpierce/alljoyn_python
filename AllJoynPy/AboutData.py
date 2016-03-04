@@ -222,21 +222,15 @@ class AboutData(AllJoynObject):
         super(AboutData, self).__init__()
 
         if msgarg:
-            self.handle = self._CreateFull(msgarg, language)
+            self.handle = self._CreateFull(msgarg.handle, language)
         else:
-            self.handle = self._Create()
+            self.handle = self._Create(language)
 
     def __del__(self):
         if self.handle:
             self._Destroy(self.handle)
 
     # Wrapper Methods
-
-    def Create(self):
-        return self._Create(self.handle)
-
-    def CreateFull(self, msgarg, language):
-        return self._CreateFull(self.handle, language)  # const char *
 
     def CreateFromXML(self, aboutDataXml):
         return self._CreateFromXML(self.handle, aboutDataXml)  # const char *

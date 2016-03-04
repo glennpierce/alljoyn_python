@@ -39,7 +39,7 @@ class SessionOpts(AllJoynObject):
                  u'Destroy': (u'alljoyn_sessionopts_destroy',
                               (u'void', None),
                               ((u'alljoyn_sessionopts', C.c_void_p),)),
-                 u'GetMuLTIPOINT': (u'alljoyn_sessionopts_get_multipoint',
+                 u'GetMultiPoint': (u'alljoyn_sessionopts_get_multipoint',
                                     (u'int', C.c_int),
                                     ((u'const alljoyn_sessionopts', C.c_void_p),)),
                  u'GetProximity': (u'alljoyn_sessionopts_get_proximity',
@@ -55,7 +55,7 @@ class SessionOpts(AllJoynObject):
                                    (u'int', C.c_int),
                                    ((u'const alljoyn_sessionopts', C.c_void_p),
                                        (u'const alljoyn_sessionopts', C.c_void_p))),
-                 u'SetMuLTIPOINT': (u'alljoyn_sessionopts_set_multipoint',
+                 u'SetMultiPoint': (u'alljoyn_sessionopts_set_multipoint',
                                     (u'void', None),
                                     ((u'alljoyn_sessionopts', C.c_void_p),
                                         (u'int', C.c_int))),
@@ -82,19 +82,17 @@ class SessionOpts(AllJoynObject):
     def __del__(self):
         return self._Destroy(self.handle)
 
-    # Wrapper Methods
-
     def GetTraffic(self):
         return self._GetTraffic(self.handle)
 
     def SetTraffic(self, traffic):
         return self._SetTraffic(self.handle, traffic)  # int
 
-    def GetMuLTIPOINT(self):
-        return self._GetMuLTIPOINT(self.handle)
+    def GetMultiPoint(self):
+        return self._GetMultiPoint(self.handle)
 
-    def SetMuLTIPOINT(self, isMultipoint):
-        return self._SetMuLTIPOINT(self.handle, isMultipoint)  # int
+    def SetMultiPoint(self, isMultipoint):
+        return self._SetMultiPoint(self.handle, isMultipoint)  # int
 
     def GetProximity(self):
         return self._GetProximity(self.handle)

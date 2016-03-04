@@ -75,7 +75,7 @@ class AboutObjectDescription(AllJoynObject):
         if msgarg:
             #self.handle = self._CreateFull(msgarg)
             self.handle = self._Create()
-            self._CreateFromMsgARG(self.handle, msgarg)
+            self._CreateFromMsgARG(self.handle, msgarg.handle)
         else:
             self.handle = self._Create()
 

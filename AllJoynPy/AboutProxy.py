@@ -26,12 +26,12 @@ class AboutProxy(AllJoynObject):
                                    (u'QStatus', C.c_uint),
                                    ((u'alljoyn_aboutproxy', C.c_void_p),
                                        (u'const char *', C.c_char_p),
-                                       (u'int', C.c_int))),
+                                       (u'void*', POINTER(MsgArg.AlljoynMsgArg)))),
 
                  u'GetObjectDescription': (u'alljoyn_aboutproxy_getobjectdescription',
                                            (u'QStatus', C.c_uint),
                                            ((u'alljoyn_aboutproxy', C.c_void_p),
-                                               (u'void*', POINTER(POINTER(MsgArg.AlljoynMsgArg))))),
+                                               (u'void*', (POINTER(MsgArg.AlljoynMsgArg))))),
 
                  u'GetVersion': (u'alljoyn_aboutproxy_getversion',
                                  (u'QStatus', C.c_uint),
@@ -48,11 +48,13 @@ class AboutProxy(AllJoynObject):
     # Wrapper Methods
     def GetObjectDescription(self):
         handle = MsgArg.MsgArg._Create()
-        self._GetObjectDescription(self.handle, C.byref(handle))  # int
+        self._GetObjectDescription(self.handle, handle)  # int
         return MsgArg.MsgArg(handle=handle)
 
-    def GetAboutData(self, language, data):
-        return self._GetAboutData(self.handle, language, data)  # const char *,int
+    def GetAboutData(self, language="en"):
+        handle = MsgArg.MsgArg._Create()
+        self._GetAboutData(self.handle, language, handle)  # const char *,int
+        return MsgArg.MsgArg(handle=handle)
 
     def GetVersion(self, version):
         return self._GetVersion(self.handle, version)  # int *

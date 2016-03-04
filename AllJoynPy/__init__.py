@@ -428,11 +428,11 @@ class AllJoynObject(object):
 
     if sys.platform.startswith("darwin"):
         # on darwin load the lib with the normal LoadLibrary function.
-        __lib = functForLoad.LoadLibrary(libName)
+        _lib = functForLoad.LoadLibrary(libName)
     else:
         # on the other systems, get the library like an attribute of the load function (ctypes.windll or ctypes.cdll)
         #self.lib = getattr(functForLoad, "/usr/lib64/" + libName)
-        __lib = getattr(functForLoad, "liballjoyn_c.so")
+        _lib = getattr(functForLoad, "liballjoyn_c.so")
 
     unique_id_count = 0
     unique_instances = {}
@@ -446,9 +446,9 @@ class AllJoynObject(object):
     def QStatusToException(status):
         qstatus = QStatus(status)
         if qstatus != QStatus.ER_OK:
-            AllJoynObject.__lib.QCC_StatusText.restype = C.c_char_p
-            AllJoynObject.__lib.QCC_StatusText.argtypes = [C.c_uint32]
-            raise QStatusException(AllJoynObject.__lib.QCC_StatusText(status), status)
+            AllJoynObject._lib.QCC_StatusText.restype = C.c_char_p
+            AllJoynObject._lib.QCC_StatusText.argtypes = [C.c_uint32]
+            raise QStatusException(AllJoynObject._lib.QCC_StatusText(status), status)
         return qstatus
 
     # def bind_functions(self):
@@ -466,7 +466,7 @@ class AllJoynObject(object):
     #             print args
     #             raise
 
-    #         cmethod = getattr(AllJoynObject.__lib, lib_function_name)
+    #         cmethod = getattr(AllJoynObject._lib, lib_function_name)
 
     #         if return_type:
     #             cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
@@ -498,7 +498,7 @@ class AllJoynObject(object):
                 print args
                 raise
 
-            cmethod = getattr(AllJoynObject.__lib, lib_function_name)
+            cmethod = getattr(AllJoynObject._lib, lib_function_name)
 
             if callable_name == "EnableConcurrentCallBacks":
                 print "return_type", return_type
