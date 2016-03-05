@@ -62,7 +62,7 @@ class MsgArg(AllJoynObject):
 
                  u'ArrayElement': (u'alljoyn_msgarg_array_element',
                                    (u'alljoyn_msgarg', C.c_void_p),
-                                   ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                                   ((u'alljoyn_msgarg', POINTER(AlljoynMsgArg)), (u'int', C.c_int))),
 
                  u'ArrayGet': (u'alljoyn_msgarg_array_get',
                                (u'QStatus', C.c_uint),
@@ -225,57 +225,64 @@ class MsgArg(AllJoynObject):
                  u'GetBoolArray': (u'alljoyn_msgarg_get_bool_array',
                                    (u'QStatus', C.c_uint),
                                    ((u'const alljoyn_msgarg', C.c_void_p),
-                                    (u'int *', POINTER(C.c_int)),
+                                    (u'size_t *', POINTER(C.c_int)),
                                     (u'int *', POINTER(C.c_int)))),
 
                  u'GetUInt8Array': (u'alljoyn_msgarg_get_uint8_array',
                                     (u'QStatus', C.c_uint),
                                     ((u'const alljoyn_msgarg', C.c_void_p),
-                                     (u'int *', POINTER(C.c_int)),
+                                     (u'size_t *', POINTER(C.c_size_t)),
                                      (u'int *', POINTER(POINTER(C.c_ubyte))))),
 
                  u'GetInt16Array': (u'alljoyn_msgarg_get_int16_array',
                                     (u'QStatus', C.c_uint),
                                     ((u'const alljoyn_msgarg', C.c_void_p),
-                                     (u'int *', POINTER(C.c_int)),
+                                     (u'size_t *', POINTER(C.c_size_t)),
                                      (u'int *', POINTER(C.c_short)))),
 
                  u'GetInt32Array': (u'alljoyn_msgarg_get_int32_array',
                                     (u'QStatus', C.c_uint),
                                     ((u'const alljoyn_msgarg', C.c_void_p),
-                                     (u'int *', POINTER(C.c_int)),
+                                     (u'size_t *', POINTER(C.c_size_t)),
                                      (u'int *', POINTER(C.c_int)))),
 
                  u'GetInt64Array': (u'alljoyn_msgarg_get_int64_array',
                                     (u'QStatus', C.c_uint),
                                     ((u'const alljoyn_msgarg', C.c_void_p),
-                                     (u'int *', POINTER(C.c_int)),
+                                     (u'size_t *', POINTER(C.c_size_t)),
                                      (u'int *', POINTER(C.c_longlong)))),
 
                  u'GetUInt16Array': (u'alljoyn_msgarg_get_uint16_array',
                                      (u'QStatus', C.c_uint),
                                      ((u'const alljoyn_msgarg', C.c_void_p),
-                                      (u'int *', POINTER(C.c_int)),
+                                      (u'size_t *', POINTER(C.c_size_t)),
                                       (u'int *', POINTER(C.c_ushort)))),
 
                  u'GetUInt32Array': (u'alljoyn_msgarg_get_uint32_array',
                                      (u'QStatus', C.c_uint),
                                      ((u'const alljoyn_msgarg', C.c_void_p),
-                                      (u'int *', POINTER(C.c_int)),
+                                      (u'size_t *', POINTER(C.c_size_t)),
                                       (u'int *', POINTER(C.c_uint)))),
 
                  u'GetUInt64Array': (u'alljoyn_msgarg_get_uint64_array',
                                      (u'QStatus', C.c_uint),
                                      ((u'const alljoyn_msgarg', C.c_void_p),
-                                      (u'int *', POINTER(C.c_int)),
+                                      (u'size_t *', POINTER(C.c_size_t)),
                                       (u'int *', POINTER(C.c_ulonglong)))),
 
                  u'GetDoubleArray': (u'alljoyn_msgarg_get_double_array',
                                      (u'QStatus', C.c_uint),
                                      ((u'const alljoyn_msgarg', C.c_void_p),
-                                      (u'int *', POINTER(C.c_int)),
+                                      (u'size_t *', POINTER(C.c_size_t)),
                                       (u'double *', POINTER(C.c_double)))),
    
+#                 u'GetStringArray': (u'alljoyn_msgarg_get',
+#                                     (u'QStatus', C.c_uint),
+#                                     ((u'const alljoyn_msgarg', C.c_void_p),
+#                                      (u'char *', C.c_char_p),
+#                                      (u'int *', POINTER(C.c_int)),
+#                                      (u'msgarg *',POINTER(POINTER(AlljoynMsgArg))))),
+                 
                  # u'GetValue': (u'alljoyn_msgarg_getvalue',
                  #               (u'alljoyn_msgarg', C.c_void_p),
                  #               ((u'alljoyn_msgarg', C.c_void_p),)),
@@ -478,7 +485,7 @@ class MsgArg(AllJoynObject):
         return self._ArrayCreate(self.handle)
 
     def ArrayElement(self, index):
-        return self._ArrayElement(self.handle, index)  # int
+        return MsgArg(self._ArrayElement(self.handle, index)) 
 
     def Set(self, signature):
         return self._Set(self.handle, signature)  # const char *
@@ -487,7 +494,7 @@ class MsgArg(AllJoynObject):
         return self._Get(self.handle, signature)  # const char *
 
     def Copy(self):
-        return self._Copy(self.handle)
+        return MsgArg(self._Copy(self.handle))
 
     def Clone(self, source):
         return self._Clone(self.handle, source)  # const alljoyn_msgarg
@@ -557,77 +564,81 @@ class MsgArg(AllJoynObject):
             first_ch = sig[0]
             sec_ch = sig[1]
 
-            if first_ch == 'a' and sec_ch != 's':
-                length = C.c_int()
-                method = sig_map[sec_ch][3]
-                array_type = sig_map[sec_ch][0]
-                p = C.pointer(array_type())
-                method(self.handle, C.byref(length), C.byref(p))
-                l = []
-                for i in range(length.value):
-                    l.append(p[i])
-                return l
-            elif first_ch == 'a' and sec_ch == 's':
-                length = C.c_int()
-                method = sig_map[sec_ch][3]
-                array_type = sig_map[sec_ch][0]
-                print "array_type", array_type
-                p = C.pointer(array_type())
-                method(self.handle, C.byref(length), p)
-                l = []
-                for i in range(length.value):
-                    l.append(p[i])
-                return l
+            length = C.c_size_t()
+            method = sig_map[sec_ch][3]
+            array_type = sig_map[sec_ch][0]
+            p = C.pointer(array_type())
+            method(self.handle, C.byref(length), C.byref(p))
+            l = []
+            for i in range(length.value):
+                l.append(p[i])
+            return l
+           
+          
+# working
+#    def Get(self, signature, ctypes_list, argument_list):
+#        # expects list of args as ctypes and the arguments themselves
+#
+#        if len(ctypes_list) != len(argument_list):
+#            raise AttributeError("Wrong number of parameters") 
+#
+#        method = AllJoynObject._lib.alljoyn_msgarg_get
+#        method.restype = C.c_uint
+#        method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
+#        arguments = [self.handle, signature] + argument_list
+#        #print "argtypes", method.argtypes 
+#        #print "arguments", arguments
+#        return AllJoynObject.QStatusToException(method(*arguments))
+#    
+    @classmethod
+    def _Get(cls, handle, signature, ctypes_list, argument_list):
+        # expects list of args as ctypes and the arguments themselves
 
+        if len(ctypes_list) != len(argument_list):
+            raise AttributeError("Wrong number of parameters") 
 
-    def Get(self, signature, *args):
-        #printf.argtypes = [c_char_p, c_char_p, c_int, c_double]
-        #printf("String '%s', Int %d, Double %f\n", "Hi", 10, 2.2)
-        # String 'Hi', Int 10, Double 2.200000
-
-
-    def GetStringArray(self):
-        length = C.c_int()
-
-        # (u'QStatus', C.c_uint), ((u'alljoyn_msgarg', C.c_void_p), (u'const char *', C.c_char_p))),
-
-        method = AllJoynObject._lib.alljoyn_msgarg_array_get
+        method = AllJoynObject._lib.alljoyn_msgarg_get
         method.restype = C.c_uint
-        method.argtypes = [C.c_void_p, POINTER(C.c_int), C.c_void_p]
+        method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
+        arguments = [handle, signature] + argument_list
+        #print "argtypes", method.argtypes 
+        #print "arguments", arguments
+        return AllJoynObject.QStatusToException(method(*arguments))
 
-        msgArg = C.c_void_p()
-        status = method(self.handle, C.byref(length), C.byref(msgArg))
-
-        method(self.handle, )
-
-# u'GetStringArray': (u'alljoyn_msgarg_array_get',
-#                                      (u'QStatus', C.c_uint),
-#                                      ((u'const alljoyn_msgarg', C.c_void_p),
-#                                       (u'int *', POINTER(C.c_int)),
-#                                       (u'char **', POINTER(C.c_char_p)))),
-
-
-
-#    u'GetArrayNumberOfElements': (u'alljoyn_msgarg_get_array_numberofelements',
-#                                                (u'int', C.c_int),
-#                                                ((u'const alljoyn_msgarg', C.c_void_p),)),
-
-# u'GetString': (u'alljoyn_msgarg_get_string',
-#                                 (u'QStatus', C.c_uint),
-#                                 ((u'const alljoyn_msgarg', POINTER(AlljoynMsgArg)),
-#                                  (u'char **', POINTER(C.c_char_p)))),
-
-#           ize_t las;
-#             alljoyn_msgarg as_arg = alljoyn_msgarg_create();
-#             alljoyn_msgarg_get(tmp, "as", &las, &as_arg);
-
-#             for (size_t j = 0; j < las; ++j) {
-#                 const char* tmp_s;
-#                 alljoyn_msgarg_get(alljoyn_msgarg_array_element(as_arg, j), "s", &tmp_s);
-#                 printf("%s ", tmp_s);
-#             }
-
-
+    def Get(self, signature, ctypes_list, argument_list):
+        return self._Get(self.handle, signature, ctypes_list, argument_list)
+    
+    @classmethod
+    def _GetStringArray(cls, handle, length_ptr, msgarg_handle_ptr):
+        cls._Get(handle, "as", [POINTER(C.c_size_t), POINTER(POINTER(AlljoynMsgArg))], [length_ptr, msgarg_handle_ptr])
+        msgarg = MsgArg(handle=msgarg_handle_ptr)   
+        result = []
+        for i in range(length_ptr.value):
+            stringRet = C.c_char_p()
+            msgarg.ArrayElement(i).Get("s", [POINTER(C.c_char_p)], [C.byref(stringRet)])
+            result.append(stringRet.value)
+        return result
+     
+    
+   
+    def GetStringArray(self):
+        returned_handle = self._Create()
+        length = C.c_size_t()
+        return self._GetStringArray(self.handle, length, returned_handle)
+        
+# Working
+#    def GetStringArray(self):
+#        handle = self._Create()
+#        length = C.c_size_t()
+#        self.Get("as", [POINTER(C.c_size_t), POINTER(POINTER(AlljoynMsgArg))], [C.byref(length), C.byref(handle)])
+#        msgarg = MsgArg(handle=handle)   
+#        result = []
+#        for i in range(length.value):
+#            stringRet = C.c_char_p()
+#            msgarg.ArrayElement(i).Get("s", [POINTER(C.c_char_p)], [C.byref(stringRet)])
+#            result.append(stringRet.value)
+#        return result
+     
     # def GetVariant(self, v):
     # return self._GetVariant(self.handle,v) # alljoyn_msgarg
 

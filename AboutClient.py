@@ -44,7 +44,7 @@ class MyAboutListener(AboutListener.AboutListener):
             if tmp.Signature().startswith("ay"):
                 print "\t", ' '.join(["%02x " % v for v in tmp.GetSingleCompleteValue()])
             elif tmp.Signature().startswith("as"):
-                print "\t", self.GetStringArray() #[v for v in tmp.GetSingleCompleteValue()]
+                print "\t",   tmp.GetStringArray()  # [v for v in tmp.GetSingleCompleteValue()] 
             elif tmp.Signature().startswith("s"):
                 print "\t", tmp.GetSingleCompleteValue()
             else:

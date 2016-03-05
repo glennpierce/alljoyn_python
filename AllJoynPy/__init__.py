@@ -448,7 +448,9 @@ class AllJoynObject(object):
         if qstatus != QStatus.ER_OK:
             AllJoynObject._lib.QCC_StatusText.restype = C.c_char_p
             AllJoynObject._lib.QCC_StatusText.argtypes = [C.c_uint32]
-            raise QStatusException(AllJoynObject._lib.QCC_StatusText(status), status)
+            text = AllJoynObject._lib.QCC_StatusText(status)
+            print "text", text
+            raise QStatusException(text, status)
         return qstatus
 
     # def bind_functions(self):

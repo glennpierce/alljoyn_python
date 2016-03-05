@@ -42,7 +42,7 @@ class AboutData(AllJoynObject):
                  u'Destroy': (u'alljoyn_aboutdata_destroy',
                               (u'void', None),
                               ((u'alljoyn_aboutdata', C.c_void_p),)),
-                 u'GetAJSOFTWAREVERSION': (u'alljoyn_aboutdata_getajsoftwareversion',
+                 u'GetAJSoftwareVersion': (u'alljoyn_aboutdata_getajsoftwareversion',
                                            (u'QStatus', C.c_uint),
                                            ((u'alljoyn_aboutdata', C.c_void_p),
                                                (u'char **', POINTER(C.c_char_p)))),
@@ -310,8 +310,8 @@ class AboutData(AllJoynObject):
     def GetSoftwareVersion(self, softwareVersion):
         return self._GetSoftwareVersion(self.handle, softwareVersion)  # char **
 
-    def GetAJSOFTWAREVERSION(self, ajSoftwareVersion):
-        return self._GetAJSOFTWAREVERSION(self.handle, ajSoftwareVersion)  # char **
+    def GetAJSoftwareVersion(self, ajSoftwareVersion):
+        return self._GetAJSoftwareVersion(self.handle, ajSoftwareVersion)  # char **
 
     def SetHardwareVersion(self, hardwareVersion):
         return self._SetHardwareVersion(self.handle, hardwareVersion)  # const char *
