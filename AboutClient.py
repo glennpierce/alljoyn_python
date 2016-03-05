@@ -44,7 +44,7 @@ class MyAboutListener(AboutListener.AboutListener):
             if tmp.Signature().startswith("ay"):
                 print "\t", ' '.join(["%02x " % v for v in tmp.GetSingleCompleteValue()])
             elif tmp.Signature().startswith("as"):
-                print "\t",   tmp.GetStringArray()  # [v for v in tmp.GetSingleCompleteValue()] 
+                print "\t",  ' '.join([v for v in tmp.GetSingleCompleteValue()])
             elif tmp.Signature().startswith("s"):
                 print "\t", tmp.GetSingleCompleteValue()
             else:
@@ -107,9 +107,7 @@ class MyAboutListener(AboutListener.AboutListener):
         defaultLangAboutData = AboutData.AboutData()
         self.printAboutData(defaultLangAboutData, None, 1)
 
-                # MsgArg aArg;
-                # AboutData defaultLangAboutData(aArg);
-                #printAboutData(defaultLangAboutData, NULL, 1);
+              
                 # size_t lang_num;
                 #lang_num = defaultLangAboutData.GetSupportedLanguages();
                 #// If the lang_num == 1 we only have a default language

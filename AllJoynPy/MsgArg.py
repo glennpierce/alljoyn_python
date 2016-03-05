@@ -474,10 +474,8 @@ class MsgArg(AllJoynObject):
         if self.handle:
             pass
             # self._Destroy(self.handle)
-            # print "destroyed"
-
+  
     # Wrapper Methods
-
     def CreateAndSet(self):
         return self._CreateAndSet(self.handle)
 
@@ -546,7 +544,23 @@ class MsgArg(AllJoynObject):
         return self._SetAndStabilize(self.handle, signature)  # const char *
 
     # def SetValue(self, value):
-
+    
+    @classmethod
+    def NumericListMarshaller(cls, handle, signature):
+        length = C.c_size_t()
+        method = sig_map[signature][3]
+        ctype = sig_map[signature][0]
+        p = C.pointer(ctype())
+        method(handle, C.byref(length), C.byref(p))
+        l = []
+        for i in range(length.value):
+            l.append(p[i])
+        return l
+    
+    @classmethod
+    def StringListMarshaller(cls, handle, signature):
+        return cls._GetStringArray(handle)
+    
     def GetSingleCompleteValue(self):
         # See https://dbus.freedesktop.org/doc/dbus-specification.html
         # https://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.83.2.tar.gz
@@ -564,32 +578,12 @@ class MsgArg(AllJoynObject):
             first_ch = sig[0]
             sec_ch = sig[1]
 
-            length = C.c_size_t()
-            method = sig_map[sec_ch][3]
-            array_type = sig_map[sec_ch][0]
-            p = C.pointer(array_type())
-            method(self.handle, C.byref(length), C.byref(p))
-            l = []
-            for i in range(length.value):
-                l.append(p[i])
-            return l
-           
-          
-# working
-#    def Get(self, signature, ctypes_list, argument_list):
-#        # expects list of args as ctypes and the arguments themselves
-#
-#        if len(ctypes_list) != len(argument_list):
-#            raise AttributeError("Wrong number of parameters") 
-#
-#        method = AllJoynObject._lib.alljoyn_msgarg_get
-#        method.restype = C.c_uint
-#        method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
-#        arguments = [self.handle, signature] + argument_list
-#        #print "argtypes", method.argtypes 
-#        #print "arguments", arguments
-#        return AllJoynObject.QStatusToException(method(*arguments))
-#    
+            if first_ch == 'a':
+                marshaller =  sig_map[sec_ch][5]
+                return marshaller(self.handle, sec_ch)
+            else:
+                raise AttributeError("GetSingleCompleteValue only supports simple types and arrays of simple types")
+        
     @classmethod
     def _Get(cls, handle, signature, ctypes_list, argument_list):
         # expects list of args as ctypes and the arguments themselves
@@ -609,36 +603,21 @@ class MsgArg(AllJoynObject):
         return self._Get(self.handle, signature, ctypes_list, argument_list)
     
     @classmethod
-    def _GetStringArray(cls, handle, length_ptr, msgarg_handle_ptr):
-        cls._Get(handle, "as", [POINTER(C.c_size_t), POINTER(POINTER(AlljoynMsgArg))], [length_ptr, msgarg_handle_ptr])
-        msgarg = MsgArg(handle=msgarg_handle_ptr)   
+    def _GetStringArray(cls, handle):
+        length = C.c_size_t()
+        msgarg_handle = cls._Create()
+        cls._Get(handle, "as", [POINTER(C.c_size_t), POINTER(POINTER(AlljoynMsgArg))], [C.byref(length), C.byref(msgarg_handle)])
+        msgarg = MsgArg(handle=msgarg_handle)   
         result = []
-        for i in range(length_ptr.value):
+        for i in range(length.value):
             stringRet = C.c_char_p()
             msgarg.ArrayElement(i).Get("s", [POINTER(C.c_char_p)], [C.byref(stringRet)])
             result.append(stringRet.value)
         return result
      
-    
-   
     def GetStringArray(self):
-        returned_handle = self._Create()
-        length = C.c_size_t()
-        return self._GetStringArray(self.handle, length, returned_handle)
-        
-# Working
-#    def GetStringArray(self):
-#        handle = self._Create()
-#        length = C.c_size_t()
-#        self.Get("as", [POINTER(C.c_size_t), POINTER(POINTER(AlljoynMsgArg))], [C.byref(length), C.byref(handle)])
-#        msgarg = MsgArg(handle=handle)   
-#        result = []
-#        for i in range(length.value):
-#            stringRet = C.c_char_p()
-#            msgarg.ArrayElement(i).Get("s", [POINTER(C.c_char_p)], [C.byref(stringRet)])
-#            result.append(stringRet.value)
-#        return result
-     
+        return self._GetStringArray(self.handle)
+
     # def GetVariant(self, v):
     # return self._GetVariant(self.handle,v) # alljoyn_msgarg
 
@@ -663,8 +642,8 @@ class MsgArg(AllJoynObject):
     def SetDictEntry(self, key, value):
         return self._SetDictEntry(self.handle, key, value)  # alljoyn_msgarg,alljoyn_msgarg
 
-    def SetsTRUCT(self, struct_members, num_members):
-        return self._SetsTRUCT(self.handle, struct_members, num_members)  # alljoyn_msgarg,int
+    def SetStruct(self, struct_members, num_members):
+        return self._SetStruct(self.handle, struct_members, num_members)  # alljoyn_msgarg,int
 
     def GetNumMembers(self):
         return self._GetNumMembers(self.handle)
@@ -677,16 +656,16 @@ MsgArg.bind_functions_to_cls()
 
 
 sig_map = {
-    "y": (C.c_ubyte, MsgArg._GetUInt8, MsgArg._SetUInt8, MsgArg._GetUInt8Array, MsgArg._SetUInt8Array),
-    "b": (C.c_byte, MsgArg._GetBool, MsgArg._SetBool, MsgArg._GetBoolArray, MsgArg._SetBoolArray),
-    "n": (C.c_short, MsgArg._GetInt16, MsgArg._SetInt16, MsgArg._GetInt16Array, MsgArg._SetInt16Array),
-    "q": (C.c_ushort, MsgArg._GetUInt16, MsgArg._SetUInt16, MsgArg._GetUInt16Array, MsgArg._SetUInt16Array),
-    "i": (C.c_int, MsgArg._GetInt32, MsgArg._SetInt32, MsgArg._GetInt32Array, MsgArg._SetInt32Array),
-    "u": (C.c_uint, MsgArg._GetUInt32, MsgArg._SetUInt32, MsgArg._GetUInt32Array, MsgArg._SetUInt32Array),
-    "x": (C.c_longlong, MsgArg._GetInt64, MsgArg._SetInt64, MsgArg._GetInt64Array, MsgArg._SetInt64Array),
-    "t": (C.c_ulonglong, MsgArg._GetUInt64, MsgArg._SetUInt64, MsgArg._GetUInt64Array, MsgArg._SetUInt64Array),
-    "d": (C.c_double, MsgArg._GetDouble, MsgArg._SetDouble, MsgArg._GetDoubleArray, MsgArg._SetDoubleArray),
-    "s": (C.c_char_p, MsgArg._GetString, MsgArg._SetString, MsgArg._GetStringArray, None),
+    "y": (C.c_ubyte, MsgArg._GetUInt8, MsgArg._SetUInt8, MsgArg._GetUInt8Array, MsgArg._SetUInt8Array, MsgArg.NumericListMarshaller),
+    "b": (C.c_byte, MsgArg._GetBool, MsgArg._SetBool, MsgArg._GetBoolArray, MsgArg._SetBoolArray, MsgArg.NumericListMarshaller),
+    "n": (C.c_short, MsgArg._GetInt16, MsgArg._SetInt16, MsgArg._GetInt16Array, MsgArg._SetInt16Array, MsgArg.NumericListMarshaller),
+    "q": (C.c_ushort, MsgArg._GetUInt16, MsgArg._SetUInt16, MsgArg._GetUInt16Array, MsgArg._SetUInt16Array, MsgArg.NumericListMarshaller),
+    "i": (C.c_int, MsgArg._GetInt32, MsgArg._SetInt32, MsgArg._GetInt32Array, MsgArg._SetInt32Array, MsgArg.NumericListMarshaller),
+    "u": (C.c_uint, MsgArg._GetUInt32, MsgArg._SetUInt32, MsgArg._GetUInt32Array, MsgArg._SetUInt32Array, MsgArg.NumericListMarshaller),
+    "x": (C.c_longlong, MsgArg._GetInt64, MsgArg._SetInt64, MsgArg._GetInt64Array, MsgArg._SetInt64Array, MsgArg.NumericListMarshaller),
+    "t": (C.c_ulonglong, MsgArg._GetUInt64, MsgArg._SetUInt64, MsgArg._GetUInt64Array, MsgArg._SetUInt64Array, MsgArg.NumericListMarshaller),
+    "d": (C.c_double, MsgArg._GetDouble, MsgArg._SetDouble, MsgArg._GetDoubleArray, MsgArg._SetDoubleArray, MsgArg.NumericListMarshaller),
+    "s": (C.c_char_p, MsgArg._GetString, MsgArg._SetString, MsgArg._GetStringArray, None, MsgArg.StringListMarshaller),
     #"o": (C.c_char_p, MsgArg._GetObjectPath, MsgArg._SetObjectPath, MsgArg._SetObjectPathArray, MsgArg._GetObjectPathArray),
     #"g": (C.c_char_p, MsgArg._GetSignature, MsgArg._SetSignature, MsgArg._SetSignatureArray, MsgArg._GetSignatureArray),
 }
