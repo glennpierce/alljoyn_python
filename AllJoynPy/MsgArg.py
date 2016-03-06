@@ -304,19 +304,17 @@ class MsgArg(AllJoynObject):
                                    ((u'alljoyn_msgarg', C.c_void_p),
                                     (u'const char *', C.c_char_p))),
 
-                 u'Set': (u'alljoyn_msgarg_set',
-                          (u'QStatus', C.c_uint),
-                          ((u'alljoyn_msgarg', C.c_void_p),
-                           (u'const char *', C.c_char_p))),
+#                 u'Set': (u'alljoyn_msgarg_set',
+#                          (u'QStatus', C.c_uint),
+#                          ((u'alljoyn_msgarg', C.c_void_p),
+#                           (u'const char *', C.c_char_p))),
 
                  u'SetAndStabilize': (u'alljoyn_msgarg_set_and_stabilize',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_msgarg', C.c_void_p),
                                        (u'const char *', C.c_char_p))),
 
-                 u'SetBool': (u'alljoyn_msgarg_set_bool',
-                              (u'QStatus', C.c_uint),
-                              ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
 
                  u'SetBoolArray': (u'alljoyn_msgarg_set_bool_array',
                                    (u'QStatus', C.c_uint),
@@ -330,6 +328,39 @@ class MsgArg(AllJoynObject):
                                     (u'alljoyn_msgarg', C.c_void_p),
                                     (u'alljoyn_msgarg', C.c_void_p))),
 
+                 u'SetBool': (u'alljoyn_msgarg_set_bool',
+                              (u'QStatus', C.c_uint),
+                              ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
+                 
+                 u'SetUInt8': (u'alljoyn_msgarg_set_uint8',
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
+                 u'SetInt16': (u'alljoyn_msgarg_set_int16',
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
+                 u'SetUInt16': (u'alljoyn_msgarg_set_uint16',
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+
+                 u'SetUInt32': (u'alljoyn_msgarg_set_uint32',
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
+                 u'SetInt32': (u'alljoyn_msgarg_set_int32',
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
+                 u'SetInt64': (u'alljoyn_msgarg_set_int64',
+                               (u'QStatus', C.c_uint),
+                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
+                 u'SetUInt64': (u'alljoyn_msgarg_set_uint64',
+                                (u'QStatus', C.c_uint),
+                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
+                 
                  u'SetDouble': (u'alljoyn_msgarg_set_double',
                                 (u'QStatus', C.c_uint),
                                 ((u'alljoyn_msgarg', C.c_void_p),
@@ -341,30 +372,18 @@ class MsgArg(AllJoynObject):
                                       (u'int', C.c_int),
                                       (u'double *', POINTER(C.c_double)))),
 
-                 u'SetInt16': (u'alljoyn_msgarg_set_int16',
-                               (u'QStatus', C.c_uint),
-                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
-
                  u'SetInt16Array': (u'alljoyn_msgarg_set_int16_array',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_msgarg', C.c_void_p),
                                      (u'int', C.c_int),
                                      (u'int *', POINTER(C.c_int)))),
 
-                 u'SetInt32': (u'alljoyn_msgarg_set_int32',
-                               (u'QStatus', C.c_uint),
-                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
-
                  u'SetInt32Array': (u'alljoyn_msgarg_set_int32_array',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_msgarg', C.c_void_p),
                                      (u'int', C.c_int),
                                      (u'int *', POINTER(C.c_int)))),
-
-                 u'SetInt64': (u'alljoyn_msgarg_set_int64',
-                               (u'QStatus', C.c_uint),
-                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
-
+       
                  u'SetInt64Array': (u'alljoyn_msgarg_set_int64_array',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_msgarg', C.c_void_p),
@@ -403,20 +422,12 @@ class MsgArg(AllJoynObject):
                                      ((u'alljoyn_msgarg', C.c_void_p),
                                       (u'int', C.c_int),
                                       (u'const char **', POINTER(C.c_char_p)))),
-
-                 u'SetUInt16': (u'alljoyn_msgarg_set_uint16',
-                                (u'QStatus', C.c_uint),
-                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
-
+                 
                  u'SetUInt16Array': (u'alljoyn_msgarg_set_uint16_array',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_msgarg', C.c_void_p),
                                       (u'int', C.c_int),
                                       (u'int *', POINTER(C.c_int)))),
-
-                 u'SetUInt32': (u'alljoyn_msgarg_set_uint32',
-                                (u'QStatus', C.c_uint),
-                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetUInt32Array': (u'alljoyn_msgarg_set_uint32_array',
                                      (u'QStatus', C.c_uint),
@@ -424,19 +435,11 @@ class MsgArg(AllJoynObject):
                                       (u'int', C.c_int),
                                       (u'int *', POINTER(C.c_int)))),
 
-                 u'SetUInt64': (u'alljoyn_msgarg_set_uint64',
-                                (u'QStatus', C.c_uint),
-                                ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
-
                  u'SetUInt64Array': (u'alljoyn_msgarg_set_uint64_array',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_msgarg', C.c_void_p),
                                       (u'int', C.c_int),
                                       (u'int *', POINTER(C.c_int)))),
-
-                 u'SetUInt8': (u'alljoyn_msgarg_set_uint8',
-                               (u'QStatus', C.c_uint),
-                               ((u'alljoyn_msgarg', C.c_void_p), (u'int', C.c_int))),
 
                  u'SetUInt8Array': (u'alljoyn_msgarg_set_uint8_array',
                                     (u'QStatus', C.c_uint),
@@ -464,17 +467,21 @@ class MsgArg(AllJoynObject):
                                 (u'int', C.c_int),
                                 (u'int', C.c_int)))}
 
-    def __init__(self, handle=None):
-        if handle:
-            self.handle = handle
-        else:
-            self.handle = self._Create()
+
+    def __init__(self):
+        self.handle = self._Create()
 
     def __del__(self):
         if self.handle:
             pass
             # self._Destroy(self.handle)
   
+    @classmethod
+    def FromHandle(cls, handle):
+        instance = cls()
+        instance.handle = handle
+        return instance
+        
     # Wrapper Methods
     def CreateAndSet(self):
         return self._CreateAndSet(self.handle)
@@ -483,13 +490,7 @@ class MsgArg(AllJoynObject):
         return self._ArrayCreate(self.handle)
 
     def ArrayElement(self, index):
-        return MsgArg(self._ArrayElement(self.handle, index)) 
-
-    def Set(self, signature):
-        return self._Set(self.handle, signature)  # const char *
-
-    def Get(self, signature):
-        return self._Get(self.handle, signature)  # const char *
+        return MsgArg.FromHandle(self._ArrayElement(self.handle, index)) 
 
     def Copy(self):
         return MsgArg(self._Copy(self.handle))
@@ -546,7 +547,7 @@ class MsgArg(AllJoynObject):
     # def SetValue(self, value):
     
     @classmethod
-    def NumericListMarshaller(cls, handle, signature):
+    def NumericListReturnMarshaller(cls, handle, signature):
         length = C.c_size_t()
         method = sig_map[signature][3]
         ctype = sig_map[signature][0]
@@ -558,7 +559,7 @@ class MsgArg(AllJoynObject):
         return l
     
     @classmethod
-    def StringListMarshaller(cls, handle, signature):
+    def StringListReturnMarshaller(cls, handle, signature):
         return cls._GetStringArray(handle)
     
     def GetSingleCompleteValue(self):
@@ -583,7 +584,40 @@ class MsgArg(AllJoynObject):
                 return marshaller(self.handle, sec_ch)
             else:
                 raise AttributeError("GetSingleCompleteValue only supports simple types and arrays of simple types")
+                
+    def SetSingleCompleteValue(self, signature, value):
+        if len(sig) == 1:
+            # Return basic type
+            first_ch = sig[0]
+            ctype = sig_map[first_ch][0]()
+            method = sig_map[first_ch][2]
+            return method(self.handle, ctype, value)
+        elif len(sig) == 2:
+            first_ch = sig[0]
+            sec_ch = sig[1]
+
+            if first_ch == 'a':
+                marshaller =  sig_map[sec_ch][5]
+                return marshaller(self.handle, sec_ch)
+            else:
+                raise AttributeError("GetSingleCompleteValue only supports simple types and arrays of simple types")
         
+    @classmethod
+    def _Set(cls, handle, signature, ctypes_list, argument_list):
+        # expects list of args as ctypes and the arguments themselves
+
+        if len(ctypes_list) != len(argument_list):
+            raise AttributeError("Wrong number of parameters") 
+
+        method = AllJoynObject._lib.alljoyn_msgarg_set
+        method.restype = C.c_uint
+        method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
+        arguments = [handle, signature] + argument_list
+        return AllJoynObject.QStatusToException(method(*arguments))
+        
+    def Set(self, signature, ctypes_list, argument_list):
+        return self._Set(self.handle, signature, ctypes_list, argument_list)
+    
     @classmethod
     def _Get(cls, handle, signature, ctypes_list, argument_list):
         # expects list of args as ctypes and the arguments themselves
@@ -595,8 +629,6 @@ class MsgArg(AllJoynObject):
         method.restype = C.c_uint
         method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
         arguments = [handle, signature] + argument_list
-        #print "argtypes", method.argtypes 
-        #print "arguments", arguments
         return AllJoynObject.QStatusToException(method(*arguments))
 
     def Get(self, signature, ctypes_list, argument_list):
@@ -607,7 +639,7 @@ class MsgArg(AllJoynObject):
         length = C.c_size_t()
         msgarg_handle = cls._Create()
         cls._Get(handle, "as", [POINTER(C.c_size_t), POINTER(POINTER(AlljoynMsgArg))], [C.byref(length), C.byref(msgarg_handle)])
-        msgarg = MsgArg(handle=msgarg_handle)   
+        msgarg = MsgArg.FromHandle(msgarg_handle)   
         result = []
         for i in range(length.value):
             stringRet = C.c_char_p()
@@ -656,16 +688,16 @@ MsgArg.bind_functions_to_cls()
 
 
 sig_map = {
-    "y": (C.c_ubyte, MsgArg._GetUInt8, MsgArg._SetUInt8, MsgArg._GetUInt8Array, MsgArg._SetUInt8Array, MsgArg.NumericListMarshaller),
-    "b": (C.c_byte, MsgArg._GetBool, MsgArg._SetBool, MsgArg._GetBoolArray, MsgArg._SetBoolArray, MsgArg.NumericListMarshaller),
-    "n": (C.c_short, MsgArg._GetInt16, MsgArg._SetInt16, MsgArg._GetInt16Array, MsgArg._SetInt16Array, MsgArg.NumericListMarshaller),
-    "q": (C.c_ushort, MsgArg._GetUInt16, MsgArg._SetUInt16, MsgArg._GetUInt16Array, MsgArg._SetUInt16Array, MsgArg.NumericListMarshaller),
-    "i": (C.c_int, MsgArg._GetInt32, MsgArg._SetInt32, MsgArg._GetInt32Array, MsgArg._SetInt32Array, MsgArg.NumericListMarshaller),
-    "u": (C.c_uint, MsgArg._GetUInt32, MsgArg._SetUInt32, MsgArg._GetUInt32Array, MsgArg._SetUInt32Array, MsgArg.NumericListMarshaller),
-    "x": (C.c_longlong, MsgArg._GetInt64, MsgArg._SetInt64, MsgArg._GetInt64Array, MsgArg._SetInt64Array, MsgArg.NumericListMarshaller),
-    "t": (C.c_ulonglong, MsgArg._GetUInt64, MsgArg._SetUInt64, MsgArg._GetUInt64Array, MsgArg._SetUInt64Array, MsgArg.NumericListMarshaller),
-    "d": (C.c_double, MsgArg._GetDouble, MsgArg._SetDouble, MsgArg._GetDoubleArray, MsgArg._SetDoubleArray, MsgArg.NumericListMarshaller),
-    "s": (C.c_char_p, MsgArg._GetString, MsgArg._SetString, MsgArg._GetStringArray, None, MsgArg.StringListMarshaller),
+    "y": (C.c_ubyte, MsgArg._GetUInt8, MsgArg._SetUInt8, MsgArg._GetUInt8Array, MsgArg._SetUInt8Array, MsgArg.NumericListReturnMarshaller),
+    "b": (C.c_byte, MsgArg._GetBool, MsgArg._SetBool, MsgArg._GetBoolArray, MsgArg._SetBoolArray, MsgArg.NumericListReturnMarshaller),
+    "n": (C.c_short, MsgArg._GetInt16, MsgArg._SetInt16, MsgArg._GetInt16Array, MsgArg._SetInt16Array, MsgArg.NumericListReturnMarshaller),
+    "q": (C.c_ushort, MsgArg._GetUInt16, MsgArg._SetUInt16, MsgArg._GetUInt16Array, MsgArg._SetUInt16Array, MsgArg.NumericListReturnMarshaller),
+    "i": (C.c_int, MsgArg._GetInt32, MsgArg._SetInt32, MsgArg._GetInt32Array, MsgArg._SetInt32Array, MsgArg.NumericListReturnMarshaller),
+    "u": (C.c_uint, MsgArg._GetUInt32, MsgArg._SetUInt32, MsgArg._GetUInt32Array, MsgArg._SetUInt32Array, MsgArg.NumericListReturnMarshaller),
+    "x": (C.c_longlong, MsgArg._GetInt64, MsgArg._SetInt64, MsgArg._GetInt64Array, MsgArg._SetInt64Array, MsgArg.NumericListReturnMarshaller),
+    "t": (C.c_ulonglong, MsgArg._GetUInt64, MsgArg._SetUInt64, MsgArg._GetUInt64Array, MsgArg._SetUInt64Array, MsgArg.NumericListReturnMarshaller),
+    "d": (C.c_double, MsgArg._GetDouble, MsgArg._SetDouble, MsgArg._GetDoubleArray, MsgArg._SetDoubleArray, MsgArg.NumericListReturnMarshaller),
+    "s": (C.c_char_p, MsgArg._GetString, MsgArg._SetString, MsgArg._GetStringArray, None, MsgArg.StringListReturnMarshaller),
     #"o": (C.c_char_p, MsgArg._GetObjectPath, MsgArg._SetObjectPath, MsgArg._SetObjectPathArray, MsgArg._GetObjectPathArray),
     #"g": (C.c_char_p, MsgArg._GetSignature, MsgArg._SetSignature, MsgArg._SetSignatureArray, MsgArg._GetSignatureArray),
 }

@@ -2,7 +2,7 @@
 
 from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
     QStatusException, AboutObjectDescription, Session, \
-    TransportMask, SessionListener, AboutProxy
+    TransportMask, SessionListener, AboutProxy, ProxyBusObject
 import signal
 import time
 import sys
@@ -13,7 +13,6 @@ INTERFACE_NAME = "net.allplay.MediaPlayer"
 
 
 def signal_handler(signal, frame):
-    # QCC_UNUSED(sig);
     s_interrupt = True
 
 
@@ -37,7 +36,7 @@ class MyAboutListener(AboutListener.AboutListener):
         for field in aboutData.GetFields():
             print "\t" * tabNum, "Key:", field,
 
-            tmp = aboutData.GetField(field)
+            tmp = aboutData.GetField(field, language=language)
 
             print "Signature", tmp.Signature()
 
@@ -54,6 +53,9 @@ class MyAboutListener(AboutListener.AboutListener):
 
         g_bus = context
 
+        print "objectDescriptionArg", objectDescriptionArg, type(objectDescriptionArg)
+        print "aboutDataArg", aboutDataArg, type(aboutDataArg)
+        
         objectDescription = AboutObjectDescription.AboutObjectDescription(objectDescriptionArg)
 
         print "*********************************************************************************"
@@ -106,45 +108,72 @@ class MyAboutListener(AboutListener.AboutListener):
 
         defaultLangAboutData = AboutData.AboutData()
         self.printAboutData(defaultLangAboutData, None, 1)
-
+        
+        defaultLanguage = defaultLangAboutData.GetDefaultLanguage()
+        # Print out the AboutData for every language but the default it has already been printed.
+        
+        for lang in defaultLangAboutData.GetSupportedLanguages():
+            if lang != defaultLanguage:
+                aArg = aboutProxy.GetAboutData(language=lang)
+                printAboutData(aArg, lang, 1);
+            ver = aboutProxy.GetVersion()
+            print "*********************************************************************************"
+            print "AboutProxy.GetVersion %hd" % (ver,)
+            print "*********************************************************************************"
+            path = objectDescription.GetInterfacePaths(INTERFACE_NAME)[0];
+            print "Calling %s/%s" % (path, INTERFACE_NAME)
+            print "busName", busName, type(busName)
+            print "path", path, type(path)
+            print "sessionId", sessionId, type(sessionId)
+            proxyBusObject = ProxyBusObject.ProxyBusObject(g_bus, busName, path, sessionId)
+           
+            print "proxyBusObject", proxyBusObject
+            try:
+                proxyBusObject.IntroSpectRemoteObject()
+            except QStatusException, ex:
+                print "Failed to introspect remote object."
+                
               
-                # size_t lang_num;
-                #lang_num = defaultLangAboutData.GetSupportedLanguages();
-                #// If the lang_num == 1 we only have a default language
-                # if (lang_num > 1) {
-                    # const char** langs = new const char*[lang_num];
-                    #defaultLangAboutData.GetSupportedLanguages(langs, lang_num);
-                    #char* defaultLanguage;
-                    # defaultLangAboutData.GetDefaultLanguage(&defaultLanguage);
-                    #// print out the AboutData for every language but the
-                    #// default it has already been printed.
-                    # for (size_t i = 0; i < lang_num; ++i) {
-                        # if (strcmp(defaultLanguage, langs[i]) != 0) {
-                            #status = aboutProxy.GetAboutData(langs[i], aArg);
-                            # if (ER_OK == status) {
-                                #defaultLangAboutData.CreatefromMsgArg(aArg, langs[i]);
-                                #printf("AboutProxy.GetAboutData: (%s)\n", langs[i]);
-                                #printAboutData(defaultLangAboutData, langs[i], 1);
-                            #}
-                        #}
-                    #}
-                    # delete [] langs;
-                #}
-
-                # uint16_t ver;
-                # aboutProxy.GetVersion(ver);
-                # printf("*********************************************************************************\n");
-                #printf("AboutProxy.GetVersion %hd\n", ver);
-                # printf("*********************************************************************************\n");
-
-                # const char* path;
-                # objectDescription.GetInterfacePaths(INTERFACE_NAME, &path, 1);
-                #printf("Calling %s/%s\n", path, INTERFACE_NAME);
-                # ProxyBusObject proxyObject(*g_bus, busName, path, sessionId);
-                #status = proxyObject.IntrospectRemoteObject();
-                # if (status != ER_OK) {
-                    #printf("Failed to introspect remote object.\n");
-                #}
+            
+            
+            
+            
+            
+            
+            
+            
+#            alljoyn_msgarg arg =
+#                    alljoyn_msgarg_create_and_set("s", "ECHO Echo echo...\n");
+#                alljoyn_message replyMsg = alljoyn_message_create(g_bus);
+#
+#                alljoyn_proxybusobject_methodcall(proxyObject,
+#                                                  INTERFACE_NAME,
+#                                                  "Echo", arg,
+#                                                  1, replyMsg,
+#                                                  25000, 0);
+#                if (status != ER_OK) {
+#                    printf("Failed to call Echo method.\n");
+#                    return;
+#                }
+#
+#                char* echoReply;
+#                alljoyn_msgarg reply_msgarg =
+#                    alljoyn_message_getarg(replyMsg, 0);
+#                status = alljoyn_msgarg_get(reply_msgarg, "s", &echoReply);
+#                if (status != ER_OK) {
+#                    printf("Failed to read Echo method reply.\n");
+#                }
+#                printf("Echo method reply: %s\n", echoReply);
+#                alljoyn_message_destroy(replyMsg);
+#                alljoyn_msgarg_destroy(arg);
+#                alljoyn_proxybusobject_destroy(proxyObject);
+#            
+            
+            
+            
+            
+            
+            
                 # MsgArg arg("s", "ECHO Echo echo...\n");
                 # Message replyMsg(*g_bus);
                 # status = proxyObject.MethodCall(INTERFACE_NAME, "Echo", &arg, 1, replyMsg);
@@ -162,9 +191,7 @@ class MyAboutListener(AboutListener.AboutListener):
         #} else {
             #printf("BusAttachment is NULL\n");
         #}
-    #}
-    # MySessionListener sessionListener;
-
+        
         pass
 
 if __name__ == "__main__":

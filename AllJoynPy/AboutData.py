@@ -1,3 +1,17 @@
+ # Copyright Glenn Pierce. All rights reserved.
+ #
+ #    Permission to use, copy, modify, and/or distribute this software for any
+ #    purpose with or without fee is hereby granted, provided that the above
+ #    copyright notice and this permission notice appear in all copies.
+ #
+ #    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ #    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ #    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ #    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ #    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 import sys
 import types
 import ctypes as C
@@ -88,12 +102,6 @@ class AboutData(AllJoynObject):
                                         (u'char **', POINTER(C.c_char_p)),
                                         (u'const char *', C.c_char_p))),
                  
-
-# extern AJ_API QStatus AJ_CALL alljoyn_aboutdata_getfield(alljoyn_aboutdata data,
-#                                                          const char* name,
-#                                                          alljoyn_msgarg* value,
-#                                                          const char* language);
-
                  u'GetField': (u'alljoyn_aboutdata_getfield',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_aboutdata', C.c_void_p), (u'const char *', C.c_char_p),
@@ -155,11 +163,11 @@ class AboutData(AllJoynObject):
                                ((u'alljoyn_aboutdata', C.c_void_p),
                                    (u'const int *', POINTER(C.c_int)),
                                    (u'const int', C.c_int))),
-                 u'SetAPPIDFROMSTRING': (u'alljoyn_aboutdata_setappid_fromstring',
+                 u'SetAppIdFromString': (u'alljoyn_aboutdata_setappid_fromstring',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', C.c_void_p),
                                              (u'const char *', C.c_char_p))),
-                 u'SetAPPNAME': (u'alljoyn_aboutdata_setappname',
+                 u'SetAppName': (u'alljoyn_aboutdata_setappname',
                                  (u'QStatus', C.c_uint),
                                  ((u'alljoyn_aboutdata', C.c_void_p),
                                      (u'const char *', C.c_char_p),
@@ -244,8 +252,8 @@ class AboutData(AllJoynObject):
     def SetAPPID(self, appId, num):
         return self._SetAPPID(self.handle, appId, num)  # const int *,const int
 
-    def SetAPPIDFROMSTRING(self, appId):
-        return self._SetAPPIDFROMSTRING(self.handle, appId)  # const char *
+    def SetAppIdFromString(self, appId):
+        return self._SetAppIdFromString(self.handle, appId)  # const char *
 
     def GetAPPID(self, appId, num):
         return self._GetAPPID(self.handle, appId, num)  # int **,int *
@@ -253,9 +261,11 @@ class AboutData(AllJoynObject):
     def SetDefaultLanguage(self, defaultLanguage):
         return self._SetDefaultLanguage(self.handle, defaultLanguage)  # const char *
 
-    def GetDefaultLanguage(self, defaultLanguage):
-        return self._GetDefaultLanguage(self.handle, defaultLanguage)  # char **
-
+    def GetDefaultLanguage(self):
+        defaultLanguage = C.c_char_p()
+        self._GetDefaultLanguage(self.handle, C.byref(defaultLanguage))  # char **
+        return defaultLanguage.value
+                                 
     def SetDeviceName(self, deviceName, language):
         return self._SetDeviceName(self.handle, deviceName, language)  # const char *,const char *
 
@@ -268,8 +278,8 @@ class AboutData(AllJoynObject):
     def GetDeviceId(self, deviceId):
         return self._GetDeviceId(self.handle, deviceId)  # char **
 
-    def SetAPPNAME(self, appName, language):
-        return self._SetAPPNAME(self.handle, appName, language)  # const char *,const char *
+    def SetAppName(self, appName, language):
+        return self._SetAppName(self.handle, appName, language)  # const char *,const char *
 
     def GetAPPNAME(self, appName, language):
         return self._GetAPPNAME(self.handle, appName, language)  # char **,const char *
@@ -289,8 +299,12 @@ class AboutData(AllJoynObject):
     def SetSupportedLanguage(self, language):
         return self._SetSupportedLanguage(self.handle, language)  # const char *
 
-    def GetSupportedLanguages(self, languageTags, num):
-        return self._GetSupportedLanguages(self.handle, languageTags, num)  # const char **,int
+    def GetSupportedLanguages(self):
+        size = self._GetSupportedLanguages(self.handle, None, 0)
+        # array of allocated char*
+        array = (C.c_char_p * size)()
+        self._GetSupportedLanguages(self.handle, array, size)  # const char **,int
+        return [a for a in array]  
 
     def SetDescription(self, description, language):
         return self._SetDescription(self.handle, description, language)  # const char *,const char *
@@ -329,14 +343,10 @@ class AboutData(AllJoynObject):
         return self._SetField(self.handle, name, value, language)  # const char *,int,const char *
 
     def GetField(self, name, language=None):
-        # handle = MsgArg.MsgArg._Create()
-        # # const char *, alljoyn_msgarg *, const char *
-        # self._GetField(self.handle, name, C.byref(handle), language)
-        # return MsgArg.MsgArg(handle=handle)
         handle = MsgArg.MsgArg._Create()
         # const char *, alljoyn_msgarg *, const char *
         self._GetField(self.handle, name, C.byref(handle), language)
-        return MsgArg.MsgArg(handle=handle)
+        return MsgArg.MsgArg.FromHandle(handle)
 
     def GetFields(self):
         count = self._GetFields(self.handle, None, 0)

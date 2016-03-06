@@ -1,3 +1,17 @@
+ # Copyright Glenn Pierce. All rights reserved.
+ #
+ #    Permission to use, copy, modify, and/or distribute this software for any
+ #    purpose with or without fee is hereby granted, provided that the above
+ #    copyright notice and this permission notice appear in all copies.
+ #
+ #    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ #    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ #    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ #    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ #    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 import ctypes as C
 from ctypes import POINTER
 from . import AllJoynMeta, AllJoynObject
@@ -73,6 +87,9 @@ class AboutObjectDescription(AllJoynObject):
         super(AboutObjectDescription, self).__init__()
 
         if msgarg:
+            
+            print "jshkhkhkjshfsd", msgarg, type(msgarg), msgarg.handle
+            
             #self.handle = self._CreateFull(msgarg)
             self.handle = self._Create()
             self._CreateFromMsgARG(self.handle, msgarg.handle)
@@ -106,10 +123,12 @@ class AboutObjectDescription(AllJoynObject):
         array = (C.c_char_p * count)()
         status = self._GetInterfaces(self.handle, path, array, count)  # const char **, int
         return [str(a).strip() for a in array]
-        # return self._GetInterfaces(self.handle,path,interfaces,numInterfaces) # const char *,const char **,int
-
-    def GetInterfacePaths(self, interfaceName, paths, numPaths):
-        return self._GetInterfacePaths(self.handle, interfaceName, paths, numPaths)  # const char *,const char **,int
+   
+    def GetInterfacePaths(self, interfaceName):
+        count = self._GetInterfacePaths(self.handle, interfaceName, None, 0)
+        array = (C.c_char_p * count)()
+        status = self._GetInterfacePaths(self.handle, interfaceName, array, count)  # const char *,const char **,int
+        return [str(a).strip() for a in array]
 
     def Clear(self):
         return self._Clear(self.handle)
