@@ -73,10 +73,10 @@ static void echo_cb(alljoyn_busobject object,
 }
 
 
-class MyBusAttachment(BusAttachment):
-    def __init__(self, application_name, allow_remote_mesages=True):
-        super(MyBusAttachment, self).__init__(application_name, allow_remote_mesages)
-        self.iface = self.GetInterface(INTERFACE_NAME)
+#class MyBusAttachment(BusAttachment):
+#    def __init__(self, application_name, allow_remote_mesages=True):
+#        super(MyBusAttachment, self).__init__(application_name, allow_remote_mesages)
+#        self.iface = self.GetInterface(INTERFACE_NAME)
         
     
 
@@ -115,6 +115,30 @@ class MySessionPortListener(SessionPortListener.SessionPortListener):
         self.sessionListener = MySessionListener()
         
 
+class MyBusObject(BusObject.BusObject):
+    def __init__(self, bus_attachment, path, is_place_holder):
+        super(MyBusObject, self).__init__(path, False)   
+        self.iface = self.GetInterface(INTERFACE_NAME)
+        self.AddInterface(iface)
+        
+        
+       
+    alljoyn_busobject_setannounceflag(result, iface, ANNOUNCED);
+    if (status != ER_OK) {
+        printf("Failed to add %s interface to the BusObject\n", INTERFACE_NAME);
+    }
+
+    alljoyn_interfacedescription_member echomember;
+    alljoyn_interfacedescription_getmember(iface, "Echo", &echomember);
+    const alljoyn_busobject_methodentry methodEntries[] = {
+        { &echomember, echo_cb }
+    };
+    status =
+        alljoyn_busobject_addmethodhandlers(result, methodEntries,
+                                            sizeof(methodEntries) / sizeof(methodEntries[0]));
+
+        
+        
 if __name__ == "__main__":
     
     # Install SIGINT handler so Ctrl + C deallocates memory properly
@@ -206,15 +230,13 @@ if __name__ == "__main__":
     
     g_bus.CreateInterfacesFromXML(interface)
     
-  
+
+    busObject = MyBusObject(gbus, "/example/path")
 
 
 
 
-
-
-    alljoyn_busobject busObject = create_my_alljoyn_busobject(bus,
-                                                              "/example/path");
+    alljoyn_busobject busObject = create_my_alljoyn_busobject("/example/path")
 
     status = alljoyn_busattachment_registerbusobject(bus, busObject);
     if (ER_OK != status) {
