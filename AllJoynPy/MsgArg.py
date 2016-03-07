@@ -618,6 +618,9 @@ class MsgArg(AllJoynObject):
     def Set(self, signature, ctypes_list, argument_list):
         return self._Set(self.handle, signature, ctypes_list, argument_list)
     
+    def SetString(self, string):
+        return self.Set("s", [C.c_char_p], [string])
+    
     @classmethod
     def _Get(cls, handle, signature, ctypes_list, argument_list):
         # expects list of args as ctypes and the arguments themselves

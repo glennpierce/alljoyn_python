@@ -50,6 +50,7 @@ name_map = {
             'messagereceiver': 'MessageReceiver',
             'autopinger': 'AutoPinger',
             'sessionlistener': 'SessionListener',
+            'sessionportlistener' : 'SessionPortListener',
             'abouticonobj': 'AboutIconObj',
             'abouticon': 'AboutIcon',
             'sessionopts': 'SessionOpts',
@@ -105,6 +106,7 @@ type_map = {'char':'C.c_byte',
             'double*':'POINTER(C.c_double)', 
             'char**':'POINTER(C.c_char_p)', 
             'size_t*':'POINTER(C.c_size_t)', 
+            'alljoyn_messagetype':'C.c_void_p',
             'alljoyn_transportmask':'C.c_ushort',
             'alljoyn_proxybusobject':'C.c_void_p',
             'alljoyn_proxybusobject*':'POINTER(C.c_void_p)',
@@ -133,6 +135,7 @@ type_map = {'char':'C.c_byte',
             'alljoyn_message':'C.c_void_p',
             'alljoyn_message*':'POINTER(C.c_void_p)',
             'alljoyn_msgarg':'C.c_void_p',
+            'alljoyn_sessionportlistener':'C.c_void_p',
             'alljoyn_msgarg*':'POINTER(C.c_void_p)',
             'alljoyn_sessionlostreason': 'C.c_uint',
             'const alljoyn_interfacedescription_member':'C.c_void_p',
@@ -174,7 +177,7 @@ file_objects = {'enums':[],
                 'functions': []
                }
            
-CallbackPtrTpPythonNameMap = {}
+CallbackPtrToPythonNameMap = {}
 
 def underscore_to_camelcase(value):
     return ''.join([x.capitalize() for x in value.lower().split('_')])
@@ -264,7 +267,7 @@ def process_file(filepath, of):
             python_name_start, python_name_end = spelling_to_python_name(function_pointer_name)
             callbackName = python_name_start + python_name_end
             callbackName = callbackName.replace('PTR', 'FuncType')
-            CallbackPtrTpPythonNameMap[function_pointer_name] = callbackName
+            CallbackPtrToPythonNameMap[function_pointer_name] = callbackName
             type_map[function_pointer_name.strip()] = 'POINTER(' + callbackName + ')'
             
             #print function_pointer_name,  type_map[function_pointer_name.strip()]
@@ -294,7 +297,7 @@ def process_file(filepath, of):
         for field in fields:
             field_type = field[0]
             field_name = field[1]
-            real_field_type = CallbackPtrTpPythonNameMap[field_type]
+            real_field_type = CallbackPtrToPythonNameMap.get(field_type,field_type+"unknown_fix")
             struct_string += "                (\"%s\", POINTER(%s))," % (field_name, real_field_type)
   
         struct_string += "                ]\n\n"

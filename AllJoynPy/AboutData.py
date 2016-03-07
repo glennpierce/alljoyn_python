@@ -158,10 +158,10 @@ class AboutData(AllJoynObject):
                               (u'int', C.c_int),
                               ((u'alljoyn_aboutdata', C.c_void_p),
                                   (u'const char *', C.c_char_p))),
-                 u'SetAPPID': (u'alljoyn_aboutdata_setappid',
+                 u'SetAppId': (u'alljoyn_aboutdata_setappid',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_aboutdata', C.c_void_p),
-                                   (u'const int *', POINTER(C.c_int)),
+                                   (u'const int *', POINTER(C.c_ubyte)),
                                    (u'const int', C.c_int))),
                  u'SetAppIdFromString': (u'alljoyn_aboutdata_setappid_fromstring',
                                          (u'QStatus', C.c_uint),
@@ -246,17 +246,19 @@ class AboutData(AllJoynObject):
     def IsValid(self, language):
         return self._IsValid(self.handle, language)  # const char *
 
-    def CreateFromMsGARG(self, arg, language):
-        return self._CreateFromMsGARG(self.handle, arg, language)  # const int,const char *
+    def CreateFromMsgArg(self, arg, language):
+        return self._CreateFromMsgArg(self.handle, arg, language)  # const int,const char *
 
-    def SetAPPID(self, appId, num):
-        return self._SetAPPID(self.handle, appId, num)  # const int *,const int
+    def SetAppId(self, app_id):
+        array = (C.c_ubyte * len(app_id))(*app_id)
+        return self._SetAppId(self.handle, array, len(app_id))  # const int *,const int
 
     def SetAppIdFromString(self, appId):
         return self._SetAppIdFromString(self.handle, appId)  # const char *
 
-    def GetAPPID(self, appId, num):
-        return self._GetAPPID(self.handle, appId, num)  # int **,int *
+    def GetAppId(self, appId, num):
+        
+        return self._GetAppId(self.handle, appId, num)  # int **,int *
 
     def SetDefaultLanguage(self, defaultLanguage):
         return self._SetDefaultLanguage(self.handle, defaultLanguage)  # const char *
@@ -272,8 +274,8 @@ class AboutData(AllJoynObject):
     def GetDeviceName(self, deviceName, language):
         return self._GetDeviceName(self.handle, deviceName, language)  # char **,const char *
 
-    def SetDeviceId(self, deviceId):
-        return self._SetDeviceId(self.handle, deviceId)  # const char *
+    def SetDeviceId(self, device_id):
+        return self._SetDeviceId(self.handle, device_id)  # const char *
 
     def GetDeviceId(self, deviceId):
         return self._GetDeviceId(self.handle, deviceId)  # char **
@@ -281,8 +283,8 @@ class AboutData(AllJoynObject):
     def SetAppName(self, appName, language):
         return self._SetAppName(self.handle, appName, language)  # const char *,const char *
 
-    def GetAPPNAME(self, appName, language):
-        return self._GetAPPNAME(self.handle, appName, language)  # char **,const char *
+    def GetAppName(self, app_name, language):
+        return self._GetAppName(self.handle, app_name, language)  # char **,const char *
 
     def SetManufacturer(self, manufacturer, language):
         return self._SetManufacturer(self.handle, manufacturer, language)  # const char *,const char *
@@ -312,14 +314,14 @@ class AboutData(AllJoynObject):
     def GetDescription(self, description, language):
         return self._GetDescription(self.handle, description, language)  # char **,const char *
 
-    def SetDateOfManufacture(self, dateOfManufacture):
-        return self._SetDateOfManufacture(self.handle, dateOfManufacture)  # const char *
+    def SetDateOfManufacture(self, date_of_manufacture):
+        return self._SetDateOfManufacture(self.handle, date_of_manufacture)  # const char *
 
     def GetDateOfManufacture(self, dateOfManufacture):
         return self._GetDateOfManufacture(self.handle, dateOfManufacture)  # char **
 
-    def SetSoftwareVersion(self, softwareVersion):
-        return self._SetSoftwareVersion(self.handle, softwareVersion)  # const char *
+    def SetSoftwareVersion(self, software_version):
+        return self._SetSoftwareVersion(self.handle, software_version)  # const char *
 
     def GetSoftwareVersion(self, softwareVersion):
         return self._GetSoftwareVersion(self.handle, softwareVersion)  # char **

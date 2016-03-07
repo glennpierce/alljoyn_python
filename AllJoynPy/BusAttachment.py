@@ -491,11 +491,12 @@ class BusAttachment(AllJoynObject):
     def ReleaseName(self, name):
         return self._ReleaseName(self.handle, name)  # const char *
 
-    def BindSessionPort(self, sessionPort, opts, listener):
-        return self._BindSessionPort(self.handle, sessionPort, opts, listener)  # int *,const int,int
+    def BindSessionPort(self, session_port, opts, listener):
+        port = C.c_int(session_port)
+        return self._BindSessionPort(self.handle, C.byref(port), opts, listener.handle)  # int *,const int,int
 
-    def UnbindSessionPort(self, sessionPort):
-        return self._UnbindSessionPort(self.handle, sessionPort)  # int
+    def UnbindSessionPort(self, session_port):
+        return self._UnbindSessionPort(self.handle, session_port)  # int
 
     def EnablePeerSecurity(self, authMechanisms, listener, keyStoreFileName, isShared):
         # const char *,int,const char *,int

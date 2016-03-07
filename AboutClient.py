@@ -2,14 +2,15 @@
 
 from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
     QStatusException, AboutObjectDescription, Session, \
-    TransportMask, SessionListener, AboutProxy, ProxyBusObject
+    TransportMask, SessionListener, AboutProxy, ProxyBusObject, \
+    Message
 import signal
 import time
 import sys
 
 timeout = 10
 
-INTERFACE_NAME = "net.allplay.MediaPlayer"
+INTERFACE_NAME = "com.example.about.feature.interface.sample"
 
 
 def signal_handler(signal, frame):
@@ -27,7 +28,6 @@ class MySessionListener(SessionListener.SessionListener):
 class MyAboutListener(AboutListener.AboutListener):
     def __init__(self, callback_data=None):
         super(MyAboutListener, self).__init__(callback_data=callback_data)
-        print "MyAboutListener __init__", id(self)
         self.sessionListener = MySessionListener()
 
     # Print out the fields found in the AboutData. Only fields with known signatures
@@ -133,19 +133,13 @@ class MyAboutListener(AboutListener.AboutListener):
             except QStatusException, ex:
                 print "Failed to introspect remote object."
                 
-              
+            arg = MsgArg.MsgArg()
+            arg.SetString("ECHO Echo echo...\n")
             
+            replyMsg = Message.Message(g_bus)
             
+            proxyBusObject.MethodCall(INTERFACE_NAME, "Echo", arg, 1, replyMsg, 25000, 0)
             
-            
-            
-            
-            
-            
-#            alljoyn_msgarg arg =
-#                    alljoyn_msgarg_create_and_set("s", "ECHO Echo echo...\n");
-#                alljoyn_message replyMsg = alljoyn_message_create(g_bus);
-#
 #                alljoyn_proxybusobject_methodcall(proxyObject,
 #                                                  INTERFACE_NAME,
 #                                                  "Echo", arg,

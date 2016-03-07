@@ -97,7 +97,6 @@ class SessionListener(AllJoynObject):
         self.handle = self._Create(C.byref(self.callback_structure), self.unique_id)
 
     def __del__(self):
-        print "In del"
         if self.handle:
             return self._Destroy(self.handle)
 
