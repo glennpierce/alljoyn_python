@@ -329,14 +329,14 @@ class AboutData(AllJoynObject):
     def GetAJSoftwareVersion(self, ajSoftwareVersion):
         return self._GetAJSoftwareVersion(self.handle, ajSoftwareVersion)  # char **
 
-    def SetHardwareVersion(self, hardwareVersion):
-        return self._SetHardwareVersion(self.handle, hardwareVersion)  # const char *
+    def SetHardwareVersion(self, hardware_version):
+        return self._SetHardwareVersion(self.handle, hardware_version)  # const char *
 
     def GetHardwareVersion(self, hardwareVersion):
         return self._GetHardwareVersion(self.handle, hardwareVersion)  # char **
 
-    def SetSupportURL(self, supportUrl):
-        return self._SetSupportURL(self.handle, supportUrl)  # const char *
+    def SetSupportURL(self, support_url):
+        return self._SetSupportURL(self.handle, support_url)  # const char *
 
     def GetSupportURL(self, supportUrl):
         return self._GetSupportURL(self.handle, supportUrl)  # char **

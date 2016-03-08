@@ -78,17 +78,17 @@ class SessionPortListener(AllJoynObject):
     @staticmethod
     def _OnAcceptSessionJoinerCallBack(context, session_port, joiner, opts):
         self = AllJoynObject.unique_instances[context]
-        self.OnAcceptSessionJoinerCallBack(self.callback_data, sessionId, reason)
+        self.OnAcceptSessionJoinerCallBack(self.callback_data, session_port, joiner, opts)
 
     @staticmethod
     def _OnSessionJoinedCallback(context, session_port, session_id, joiner):
         self = AllJoynObject.unique_instances[context]
-        self.OnSessionJoinedCallback(self.callback_data, sessionId, uniqueName)
+        self.OnSessionJoinedCallback(self.callback_data, session_port, session_id, joiner)
 
-    def _OnAcceptSessionJoinerCallBack(self, context, sessionId, reason):
+    def OnAcceptSessionJoinerCallBack(self, callback_data, session_port, joiner, opts):
         pass
 
-    def _OnSessionJoinedCallback(self, context, sessionId, uniqueName):
+    def OnSessionJoinedCallback(self, callback_data, session_port, session_id, joiner):
         pass
 
     

@@ -3,7 +3,7 @@
 from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
     QStatusException, AboutObjectDescription, Session, \
     TransportMask, SessionListener, AboutProxy, ProxyBusObject, \
-    Message, SessionPortListener
+    Message, SessionPortListener, AboutObject, AjAPI, InterfaceDescription
 import signal
 import time
 import sys
@@ -16,45 +16,6 @@ INTERFACE_NAME = "com.example.about.feature.interface.sample"
 def signal_handler(signal, frame):
     s_interrupt = True
 
-
-
-static void sessionportlistener_sessionjoined_cb(const void* context,
-                                                 alljoyn_sessionport sessionPort,
-                                                 alljoyn_sessionid id,
-                                                 const char* joiner)
-{
-    QCC_UNUSED(context);
-    QCC_UNUSED(sessionPort);
-    QCC_UNUSED(joiner);
-    printf("Session Joined SessionId = %u\n", id);
-}
-
-static QCC_BOOL sessionportlistener_acceptsessionjoiner_cb(const void* context,
-                                                           alljoyn_sessionport sessionPort,
-                                                           const char* joiner,
-                                                           const alljoyn_sessionopts opts)
-{
-    QCC_UNUSED(context);
-    QCC_UNUSED(joiner);
-    QCC_UNUSED(opts);
-    if (sessionPort != ASSIGNED_SESSION_PORT) {
-        printf("Rejecting join attempt on unexpected session port %d\n", sessionPort);
-        return QCC_FALSE;
-    }
-    return QCC_TRUE;
-}
-
-
-static alljoyn_sessionportlistener create_my_alljoyn_sessionportlistener()
-{
-    alljoyn_sessionportlistener_callbacks* callbacks =
-        (alljoyn_sessionportlistener_callbacks*)
-        malloc(sizeof(alljoyn_sessionportlistener_callbacks));
-
-    callbacks->accept_session_joiner = sessionportlistener_acceptsessionjoiner_cb;
-    callbacks->session_joined = sessionportlistener_sessionjoined_cb;
-    return alljoyn_sessionportlistener_create(callbacks, NULL);
-}
 
 /**
  * Respond to remote method call `Echo` by returning the string back to the sender
@@ -73,71 +34,64 @@ static void echo_cb(alljoyn_busobject object,
 }
 
 
-#class MyBusAttachment(BusAttachment):
-#    def __init__(self, application_name, allow_remote_mesages=True):
-#        super(MyBusAttachment, self).__init__(application_name, allow_remote_mesages)
-#        self.iface = self.GetInterface(INTERFACE_NAME)
-        
-    
-
-static alljoyn_busobject create_my_alljoyn_busobject(alljoyn_busattachment bus,
-                                                     const char* path)
-{
-    #QStatus status = ER_FAIL;
-    #alljoyn_busobject result = NULL;
-    #result = alljoyn_busobject_create(path, QCC_FALSE, NULL, NULL);
-
-    #alljoyn_interfacedescription iface = alljoyn_busattachment_getinterface(bus, INTERFACE_NAME);
-    #assert(iface != NULL);
-
-    status = alljoyn_busobject_addinterface(result, iface);
-    alljoyn_busobject_setannounceflag(result, iface, ANNOUNCED);
-    if (status != ER_OK) {
-        printf("Failed to add %s interface to the BusObject\n", INTERFACE_NAME);
-    }
-
-    alljoyn_interfacedescription_member echomember;
-    alljoyn_interfacedescription_getmember(iface, "Echo", &echomember);
-    const alljoyn_busobject_methodentry methodEntries[] = {
-        { &echomember, echo_cb }
-    };
-    status =
-        alljoyn_busobject_addmethodhandlers(result, methodEntries,
-                                            sizeof(methodEntries) / sizeof(methodEntries[0]));
-
-    return result;
-}
-
 
 class MySessionPortListener(SessionPortListener.SessionPortListener):
     def __init__(self, callback_data=None):
         super(MySessionPortListener, self).__init__(callback_data=callback_data)
         self.sessionListener = MySessionListener()
         
+    def OnAcceptSessionJoinerCallBack(self, callback_data, session_port, joiner, opts):
+        QCC_UNUSED(joiner);
+        QCC_UNUSED(opts);
 
+        if (sessionPort != ASSIGNED_SESSION_PORT) {
+            printf("Rejecting join attempt on unexpected session port %d\n", sessionPort);
+            return false;
+        }
+        return true;
+
+    def OnSessionJoinedCallback(self, callback_data, session_port, session_id, joiner):
+        QCC_UNUSED(sessionPort);
+        QCC_UNUSED(joiner);
+
+        printf("Session Joined SessionId = %u\n", id);
+    
+     
+        
 class MyBusObject(BusObject.BusObject):
     def __init__(self, bus_attachment, path, is_place_holder):
         super(MyBusObject, self).__init__(path, False)   
-        self.iface = self.GetInterface(INTERFACE_NAME)
-        self.AddInterface(iface)
+        self.iface = bus_attachment.GetInterface(INTERFACE_NAME)
+        self.AddInterface(self.iface)
+        self.SetAnnounceFlag(self.iface, AjAPI.AnnounceFlag.ANNOUNCED);
         
+        methodEntryStruct = BusObjectMethodEntry()
+        methodEntryStruct.Member = self.iface.GetMember("Echo")
+        methodEntryStruct.MethodHandler = MessageReceiver.MessageReceiverMethodHandlerFuncType(MyBusObject.Echo)
         
-       
-    alljoyn_busobject_setannounceflag(result, iface, ANNOUNCED);
-    if (status != ER_OK) {
-        printf("Failed to add %s interface to the BusObject\n", INTERFACE_NAME);
-    }
+        self.AddMethodHandlers(self, [methodEntryStruct]):
+    
+    @staticmethod
+    def Echo(member, msg):
+        # Respond to remote method call `Echo` by returning the string back to the
+        # sender.
+        text = msg.GetArg(0).GetString()
+        print "Echo method called:", text
+        replyMsg = MsgArg.MsgArg()
+        replyMsg.SetString("Echoing ... " + text)
 
-    alljoyn_interfacedescription_member echomember;
-    alljoyn_interfacedescription_getmember(iface, "Echo", &echomember);
-    const alljoyn_busobject_methodentry methodEntries[] = {
-        { &echomember, echo_cb }
-    };
-    status =
-        alljoyn_busobject_addmethodhandlers(result, methodEntries,
-                                            sizeof(methodEntries) / sizeof(methodEntries[0]));
 
-        
+#void Echo(const InterfaceDescription::Member* member, Message& msg) {
+#        QCC_UNUSED(member);
+
+#        printf("Echo method called: %s", msg->GetArg(0)->v_string.str);
+#        const MsgArg* arg((msg->GetArg(0)));
+#        QStatus status = MethodReply(msg, arg, 1);
+#        if (status != ER_OK) {
+#            printf("Failed to created MethodReply.\n");
+#        }
+#    }
+    
         
 if __name__ == "__main__":
     
@@ -149,7 +103,6 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    
     # Create message bus
     g_bus = alljoyn.BusAttachment.BusAttachment("About Service Example", True)
 
@@ -169,11 +122,7 @@ if __name__ == "__main__":
                                     ALLJOYN_PROXIMITY_ANY,
                                     ALLJOYN_TRANSPORT_ANY)
     
-    
-      
-        
-        
-        
+
     alljoyn_sessionport sessionPort = ASSIGNED_SESSION_PORT;
     
     listener = MySessionPortListener()
@@ -233,31 +182,21 @@ if __name__ == "__main__":
 
     busObject = MyBusObject(gbus, "/example/path")
 
+    g_bus.RegisterBusObject(busObject)
+    
+    # Announce about signal */
+    
+    aboutObj = AboutObject.AboutObject(g_bus, AjAPI.AnnounceFlag.UNANNOUNCED)
 
-
-
-    alljoyn_busobject busObject = create_my_alljoyn_busobject("/example/path")
-
-    status = alljoyn_busattachment_registerbusobject(bus, busObject);
-    if (ER_OK != status) {
-        printf("Failed to register BusObject (%s)", QCC_StatusText(status));
-        return 1;
-    }
-
-    /* Announce about signal */
-    alljoyn_aboutobj aboutObj = alljoyn_aboutobj_create(bus, UNANNOUNCED);
-    /*
-     * Note the ObjectDescription that is part of the Announce signal is found
-     * automatically by introspecting the BusObjects registered with the bus
-     * attachment.
-     */
-    status = alljoyn_aboutobj_announce(aboutObj, sessionPort, aboutData);
-    if (ER_OK == status) {
-        printf("AboutObj Announce Succeeded.\n");
-    } else {
-        printf("AboutObj Announce failed (%s)\n", QCC_StatusText(status));
-        return 1;
-    }
+    # Note the ObjectDescription that is part of the Announce signal is found
+    # automatically by introspecting the BusObjects registered with the bus
+    # attachment.
+   
+    try:
+        aboutObj.Announce(sessionPort, aboutData)
+        print "AboutObj Announce Succeeded."
+    except AlljoynPy.QStatusException ex:
+        print str(ex)
 
     # Perform the service asynchronously until the user signals for an exit 
     while s_interrupt is False:

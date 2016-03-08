@@ -1,0 +1,76 @@
+# Copyright Glenn Pierce. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+import sys, types
+import ctypes as C
+from ctypes import POINTER
+from enum import Enum, unique
+from . import AllJoynMeta, AllJoynObject
+
+# Wrapper for file AboutObj.h
+
+# Typedefs
+# struct _alljoyn_aboutobj_handle * alljoyn_aboutobj
+
+
+if sys.platform == 'win32':
+    CallbackType = C.WINFUNCTYPE
+else:
+    CallbackType = C.CFUNCTYPE
+    
+
+class AboutObject(AllJoynObject):
+    
+    __metaclass__ = AllJoynMeta
+    
+    _cmethods = {u'Announce': (u'alljoyn_aboutobj_announce',
+               (u'QStatus', 'C.c_uint'),
+               ((u'alljoyn_aboutobj', 'C.c_void_p'),
+                (u'int', 'C.c_int'),
+                (u'int', 'C.c_int'))),
+                 u'AnnounceUsingDataListener': (u'alljoyn_aboutobj_announce_using_datalistener',
+                                                (u'QStatus', 'C.c_uint'),
+                                                ((u'alljoyn_aboutobj', 'C.c_void_p'),
+                                                 (u'int', 'C.c_int'),
+                                                 (u'int', 'C.c_int'))),
+                 u'Create': (u'alljoyn_aboutobj_create',
+                             (u'alljoyn_aboutobj', 'C.c_void_p'),
+                             ((u'void*', 'C.c_void_p'), (u'uint', 'C.c_uint'))),
+                 u'Destroy': (u'alljoyn_aboutobj_destroy',
+                              (u'void', None),
+                              ((u'alljoyn_aboutobj', 'C.c_void_p'),)),
+                 u'UNANNOUNCE': (u'alljoyn_aboutobj_unannounce',
+                                 (u'QStatus', 'C.c_uint'),
+                                 ((u'alljoyn_aboutobj', 'C.c_void_p'),))}
+    
+    def __init__(self, bus, isAnnounced):
+        self.handle = self._Create(bus, isAnnounced) 
+        
+    def __del__(self):
+        return self._Destroy(self.handle)
+
+    # Wrapper Methods
+
+    def Announce(self, sessionPort, aboutData):
+        return self._Announce(self.handle,sessionPort,aboutData) # int,int
+
+    def AnnounceUsingDataListener(self, sessionPort,aboutListener):
+        return self._AnnounceUsingDataListener(self.handle,sessionPort,aboutListener) # int,int
+
+    def UNANNOUNCE(self):
+        return self._UNANNOUNCE(self.handle)
+
+    
+AboutObject.bind_functions_to_cls()

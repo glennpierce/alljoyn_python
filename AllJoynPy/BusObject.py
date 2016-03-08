@@ -16,7 +16,7 @@ import sys, types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import AllJoynMeta, AllJoynObject, BusObject, MessageReceiver
 
 # Wrapper for file BusObject.h
 
@@ -49,11 +49,9 @@ class BusObjectCallBacks(C.Structure):
 
 class BusObjectMethodEntry(C.Structure):
     _fields_ = [
-                ("Member", POINTER(constunknown_fix)),
-                ("MethodHandler", POINTER(alljoyn_messagereceiver_methodhandler_ptrunknown_fix))
+                ("Member", POINTER(BusObject.InterfaceDescriptionMember)),
+                ("MethodHandler", POINTER(MessageReceiver.MessageReceiverMethodHandlerFuncType))
                ]
-
-
 
 class BusObject(AllJoynObject):
     
@@ -150,7 +148,7 @@ class BusObject(AllJoynObject):
                  u'SetAnnounceFlag': (u'alljoyn_busobject_setannounceflag',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busobject', C.c_void_p),
-                                       (u'const int', C.c_int),
+                                       (u'void*', POINTER(InterfaceDescriptionMember)),
                                        (u'int', C.c_int))),
                  u'Signal': (u'alljoyn_busobject_signal',
                              (u'QStatus', C.c_uint),
@@ -231,13 +229,15 @@ class BusObject(AllJoynObject):
         return self._GetName(self.handle,buffer,bufferSz) # char *,int
 
     def AddInterface(self, iface):
-        return self._AddInterface(self.handle,iface) # const int
+        return self._AddInterface(self.handle, iface.handle) # const int
 
     def AddMethodHandler(self, member,handler,context):
-        return self._AddMethodHandler(self.handle,member,handler,context) # const int,int,void *
+        return self._AddMethodHandler(self.handle,member, handler, context) # const int,int,void *
 
-    def AddMethodHandlers(self, entries,numEntries):
-        return self._AddMethodHandlers(self.handle,entries,numEntries) # const alljoyn_busobject_methodentry *,int
+    def AddMethodHandlers(self, entries):
+        array = (C.c_char_p * len(entries))()
+        array[:] = entries
+        return self._AddMethodHandlers(self.handle, array, len(entries) # const alljoyn_busobject_methodentry *,int
 
     def MethodReplyARGS(self, msg,args,numArgs):
         return self._MethodReplyARGS(self.handle,msg,args,numArgs) # int,const int,int
@@ -266,8 +266,8 @@ class BusObject(AllJoynObject):
     def GetAnnouncedInterfaceNames(self, interfaces,numInterfaces):
         return self._GetAnnouncedInterfaceNames(self.handle,interfaces,numInterfaces) # const char **,int
 
-    def SetAnnounceFlag(self, iface,isAnnounced):
-        return self._SetAnnounceFlag(self.handle,iface,isAnnounced) # const int,int
+    def SetAnnounceFlag(self, iface, isAnnounced):
+        return self._SetAnnounceFlag(self.handle, iface.handle, isAnnounced) # const int,int
 
     def AddInterfaceAnnounced(self, iface):
         return self._AddInterfaceAnnounced(self.handle,iface) # const int
