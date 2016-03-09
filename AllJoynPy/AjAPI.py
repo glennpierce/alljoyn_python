@@ -43,11 +43,11 @@ class Unity(AllJoynObject):
     __metaclass__ = AllJoynMeta
     
     _cmethods = {u'DeferredCallBacksProcess': (u'alljoyn_unity_deferred_callbacks_process',
-                               (u'int', 'C.c_int'),
+                               (u'int', C.c_int),
                                ()),
                  u'SetDeferredCallBackMainThreadOnly': (u'alljoyn_unity_set_deferred_callback_mainthread_only',
                                                         (u'void', None),
-                                                        ((u'QCC_BOOL', 'C.c_int'),))}
+                                                        ((u'QCC_BOOL', C.c_int),))}
     
     def __init__(self):
         pass

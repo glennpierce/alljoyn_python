@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
     QStatusException, AboutObjectDescription, Session, \
@@ -17,44 +18,19 @@ def signal_handler(signal, frame):
     s_interrupt = True
 
 
-/**
- * Respond to remote method call `Echo` by returning the string back to the sender
- */
-static void echo_cb(alljoyn_busobject object,
-                    const alljoyn_interfacedescription_member* member,
-                    alljoyn_message msg) {
-    alljoyn_msgarg arg = alljoyn_message_getarg(msg, 0);
-    QCC_UNUSED(member);
-    printf("Echo method called %s\n", ((ajn::MsgArg*)arg)->v_string.str);
-
-    QStatus status = alljoyn_busobject_methodreply_args(object, msg, arg, 1);
-    if (status != ER_OK) {
-        printf("Failed to created MethodReply.\n");
-    }
-}
-
-
-
 class MySessionPortListener(SessionPortListener.SessionPortListener):
     def __init__(self, callback_data=None):
         super(MySessionPortListener, self).__init__(callback_data=callback_data)
         self.sessionListener = MySessionListener()
         
     def OnAcceptSessionJoinerCallBack(self, callback_data, session_port, joiner, opts):
-        QCC_UNUSED(joiner);
-        QCC_UNUSED(opts);
-
-        if (sessionPort != ASSIGNED_SESSION_PORT) {
-            printf("Rejecting join attempt on unexpected session port %d\n", sessionPort);
-            return false;
-        }
-        return true;
+        if session_port != ASSIGNED_SESSION_PORT:
+            print "Rejecting join attempt on unexpected session port", session_port
+            return False
+        return True
 
     def OnSessionJoinedCallback(self, callback_data, session_port, session_id, joiner):
-        QCC_UNUSED(sessionPort);
-        QCC_UNUSED(joiner);
-
-        printf("Session Joined SessionId = %u\n", id);
+        print "Session Joined SessionId", session_id
     
      
         
@@ -63,36 +39,26 @@ class MyBusObject(BusObject.BusObject):
         super(MyBusObject, self).__init__(path, False)   
         self.iface = bus_attachment.GetInterface(INTERFACE_NAME)
         self.AddInterface(self.iface)
-        self.SetAnnounceFlag(self.iface, AjAPI.AnnounceFlag.ANNOUNCED);
+        self.SetAnnounceFlag(self.iface, AjAPI.AnnounceFlag.ANNOUNCED)
         
         methodEntryStruct = BusObjectMethodEntry()
         methodEntryStruct.Member = self.iface.GetMember("Echo")
         methodEntryStruct.MethodHandler = MessageReceiver.MessageReceiverMethodHandlerFuncType(MyBusObject.Echo)
         
-        self.AddMethodHandlers(self, [methodEntryStruct]):
+        self.AddMethodHandlers(self, [methodEntryStruct])
     
     @staticmethod
     def Echo(member, msg):
         # Respond to remote method call `Echo` by returning the string back to the
         # sender.
         text = msg.GetArg(0).GetString()
-        print "Echo method called:", text
-        replyMsg = MsgArg.MsgArg()
-        replyMsg.SetString("Echoing ... " + text)
-
-
-#void Echo(const InterfaceDescription::Member* member, Message& msg) {
-#        QCC_UNUSED(member);
-
-#        printf("Echo method called: %s", msg->GetArg(0)->v_string.str);
-#        const MsgArg* arg((msg->GetArg(0)));
-#        QStatus status = MethodReply(msg, arg, 1);
-#        if (status != ER_OK) {
-#            printf("Failed to created MethodReply.\n");
-#        }
-#    }
-    
+        print "Server Echo method recieved:", text
+        replyArg = MsgArg.MsgArg()
+        replyArg.SetString("Echoing ... " + text)
         
+        this.MethodReplyArgs(msg, replyArg, 1)
+      
+    
 if __name__ == "__main__":
     
     # Install SIGINT handler so Ctrl + C deallocates memory properly
@@ -115,19 +81,14 @@ if __name__ == "__main__":
         print "Have you got the daemon running ?"
         sys.exit(1)
 
-        
-        
     opts = Session.SessionOpts(ALLJOYN_TRAFFIC_TYPE_MESSAGES,
                                     False,
                                     ALLJOYN_PROXIMITY_ANY,
                                     ALLJOYN_TRANSPORT_ANY)
     
-
-    alljoyn_sessionport sessionPort = ASSIGNED_SESSION_PORT;
-    
     listener = MySessionPortListener()
     
-    g_bus.BindSessionPort(session_port, opts, listener)
+    sessionPort = g_bus.BindSessionPort(ASSIGNED_SESSION_PORT, opts, listener)
     
  
     aboutData = AboutData.AboutData(language="en")
@@ -195,7 +156,7 @@ if __name__ == "__main__":
     try:
         aboutObj.Announce(sessionPort, aboutData)
         print "AboutObj Announce Succeeded."
-    except AlljoynPy.QStatusException ex:
+    except AlljoynPy.QStatusException as ex:
         print str(ex)
 
     # Perform the service asynchronously until the user signals for an exit 

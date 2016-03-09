@@ -508,8 +508,9 @@ class BusAttachment(AllJoynObject):
 
     def BindSessionPort(self, session_port, opts, listener):
         port = C.c_int(session_port)
-        return self._BindSessionPort(self.handle, C.byref(port), opts, listener.handle)  # int *,const int,int
-
+        self._BindSessionPort(self.handle, C.byref(port), opts, listener.handle)  # int *,const int,int
+        return port
+    
     def UnbindSessionPort(self, session_port):
         return self._UnbindSessionPort(self.handle, session_port)  # int
 

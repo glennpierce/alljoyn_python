@@ -128,12 +128,14 @@ class BusObject(AllJoynObject):
                  u'IsSecure': (u'alljoyn_busobject_issecure',
                                (u'int', C.c_int),
                                ((u'alljoyn_busobject', C.c_void_p),)),
-                 u'MethodReplyARGS': (u'alljoyn_busobject_methodreply_args',
+             
+                 u'MethodReplyArgs': (u'alljoyn_busobject_methodreply_args',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busobject', C.c_void_p),
-                                       (u'int', C.c_int),
-                                       (u'const int', C.c_int),
-                                       (u'int', C.c_int))),
+                                       (u'void*', C.c_void_p),
+                                       (u'void*', C.c_void_p),
+                                       (u'size_t', C.c_size_t))),
+                 
                  u'MethodReplyErr': (u'alljoyn_busobject_methodreply_err',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_busobject', C.c_void_p),
@@ -238,9 +240,10 @@ class BusObject(AllJoynObject):
         array = (C.c_char_p * len(entries))()
         array[:] = entries
         return self._AddMethodHandlers(self.handle, array, len(entries) # const alljoyn_busobject_methodentry *,int
-
-    def MethodReplyARGS(self, msg,args,numArgs):
-        return self._MethodReplyARGS(self.handle,msg,args,numArgs) # int,const int,int
+         
+    def MethodReplyArgs(self, msg, args, num_args):
+        # TODO Can we determine num_args here ?
+        return self._MethodReplyArgs(self.handle, msg, args, num_args) # int, const int, int
 
     def MethodReplyErr(self, msg,error,errorMessage):
         return self._MethodReplyErr(self.handle,msg,error,errorMessage) # int,const char *,const char *
