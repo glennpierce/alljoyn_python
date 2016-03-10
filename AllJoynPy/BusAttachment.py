@@ -1,22 +1,21 @@
- # Copyright Glenn Pierce. All rights reserved.
- #
- #    Permission to use, copy, modify, and/or distribute this software for any
- #    purpose with or without fee is hereby granted, provided that the above
- #    copyright notice and this permission notice appear in all copies.
- #
- #    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- #    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- #    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- #    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- #    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+# Copyright Glenn Pierce. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-    
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject
+from . import AllJoynMeta, AllJoynObject, InterfaceDescription
 # Wrapper for file BusAttachment.h
 
 # Typedefs
@@ -57,8 +56,8 @@ class BusAttachment(AllJoynObject):
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busattachment', C.c_void_p),
                                           (u'int *', POINTER(C.c_int)),
-                                          (u'const int', C.c_int),
-                                          (u'int', C.c_int))),
+                                          (u'const void*', C.c_void_p),
+                                          (u'void*', C.c_void_p))),
                  u'CancelAdvertiseName': (u'alljoyn_busattachment_canceladvertisename',
                                           (u'QStatus', C.c_uint),
                                           ((u'alljoyn_busattachment', C.c_void_p),
@@ -187,7 +186,7 @@ class BusAttachment(AllJoynObject):
                                           (u'const char *', C.c_char_p),
                                           ((u'const alljoyn_busattachment', C.c_void_p),)),
                  u'GetInterface': (u'alljoyn_busattachment_getinterface',
-                                   (u'const int', C.c_int),
+                                   (u'const void*', C.c_void_p),
                                    ((u'alljoyn_busattachment', C.c_void_p),
                                        (u'const char *', C.c_char_p))),
                  u'GetInterfaces': (u'alljoyn_busattachment_getinterfaces',
@@ -228,9 +227,9 @@ class BusAttachment(AllJoynObject):
                            (u'QStatus', C.c_uint),
                            ((u'alljoyn_busattachment', C.c_void_p),)),
 
-                 #QStatus AJ_CALL alljoyn_busattachment_joinsession(alljoyn_busattachment bus, const char* sessionHost,
-                 #alljoyn_sessionport sessionPort, alljoyn_sessionlistener listener,
-                 #alljoyn_sessionid* sessionId, alljoyn_sessionopts opts);
+                 # QStatus AJ_CALL alljoyn_busattachment_joinsession(alljoyn_busattachment bus, const char* sessionHost,
+                 # alljoyn_sessionport sessionPort, alljoyn_sessionlistener listener,
+                 # alljoyn_sessionid* sessionId, alljoyn_sessionopts opts);
                  u'JoinSession': (u'alljoyn_busattachment_joinsession',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_busattachment', C.c_void_p),
@@ -476,11 +475,8 @@ class BusAttachment(AllJoynObject):
         return self._CancelAdvertiseName(self.handle, name, transports)  # const char *,int
 
     def GetInterface(self, name):
-        return InterfaceDescription(self._GetInterface(self.handle, name))  # const char *
+        return InterfaceDescription.InterfaceDescription(self._GetInterface(self.handle, name))  # const char *
 
-    #QStatus AJ_CALL alljoyn_busattachment_joinsession(alljoyn_busattachment bus, const char* sessionHost,
-                          #alljoyn_sessionport sessionPort, alljoyn_sessionlistener listener,
-                          #alljoyn_sessionid* sessionId, alljoyn_sessionopts opts);
     def JoinSession(self, sessionHost, sessionPort, listener, opts):
         # const char *,int,int,int *,int
         session_id = C.c_uint()
@@ -492,10 +488,10 @@ class BusAttachment(AllJoynObject):
         return self._JoinSessionAsYNC(self.handle, sessionHost, sessionPort, listener, opts, callback, context)
 
     def RegisterBusObject(self, obj):
-        return self._RegisterBusObject(self.handle, obj)  # int
+        return self._RegisterBusObject(self.handle, obj.handle)  # int
 
     def RegisterBusObjectSecure(self, obj):
-        return self._RegisterBusObjectSecure(self.handle, obj)  # int
+        return self._RegisterBusObjectSecure(self.handle, obj.handle)  # int
 
     def UNREGISTERBUSOBJECT(self, object):
         return self._UNREGISTERBUSOBJECT(self.handle, object)  # int
@@ -508,9 +504,9 @@ class BusAttachment(AllJoynObject):
 
     def BindSessionPort(self, session_port, opts, listener):
         port = C.c_int(session_port)
-        self._BindSessionPort(self.handle, C.byref(port), opts, listener.handle)  # int *,const int,int
+        self._BindSessionPort(self.handle, C.byref(port), opts.handle, listener.handle)  # int *,const int,int
         return port
-    
+
     def UnbindSessionPort(self, session_port):
         return self._UnbindSessionPort(self.handle, session_port)  # int
 

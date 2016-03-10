@@ -13,7 +13,8 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-import sys, types
+import sys
+import types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
@@ -31,32 +32,33 @@ if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
 else:
     CallbackType = C.CFUNCTYPE
-    
-SessionPortListenerSessionJoinedFuncType = CallbackType(None, C.c_void_p, C.c_int, C.c_int, C.c_char_p) # context sessionPort id joiner
 
-SessionPortListenerAcceptSessionJoinerFuncType = CallbackType(C.c_ubyte, C.c_void_p, C.c_int, C.c_char_p, C.c_void_p) # context sessionPort joiner, opts
+SessionPortListenerSessionJoinedFuncType = CallbackType(
+    None, C.c_void_p, C.c_int, C.c_int, C.c_char_p)  # context sessionPort id joiner
+
+SessionPortListenerAcceptSessionJoinerFuncType = CallbackType(
+    C.c_ubyte, C.c_void_p, C.c_int, C.c_char_p, C.c_void_p)  # context sessionPort joiner, opts
 
 
 class SessionPortListenerCallBacks(C.Structure):
     _fields_ = [
-                ("AcceptSessionJoiner", POINTER(SessionPortListenerAcceptSessionJoinerFuncType)),
-                ("SessionJoined", POINTER(SessionPortListenerSessionJoinedFuncType)),
+        ("AcceptSessionJoiner", SessionPortListenerAcceptSessionJoinerFuncType),
+        ("SessionJoined", SessionPortListenerSessionJoinedFuncType),
     ]
 
 
-
 class SessionPortListener(AllJoynObject):
-    
+
     __metaclass__ = AllJoynMeta
-    
+
     _cmethods = {u'Create': (u'alljoyn_sessionportlistener_create',
-                     (u'alljoyn_sessionportlistener', C.c_void_p),
-                    ((u'const alljoyn_sessionportlistener_callbacks *', POINTER(SessionPortListenerCallBacks)),
-                     (u'const void *', C.c_void_p))),
-                 
+                             (u'alljoyn_sessionportlistener', C.c_void_p),
+                             ((u'const alljoyn_sessionportlistener_callbacks *', POINTER(SessionPortListenerCallBacks)),
+                                 (u'const void *', C.c_void_p))),
+
                  u'Destroy': (u'alljoyn_sessionportlistener_destroy', (u'void', None),
-                    ((u'alljoyn_sessionportlistener', C.c_void_p),))}
-    
+                              ((u'alljoyn_sessionportlistener', C.c_void_p),))}
+
     def __init__(self, callback_data=None):
 
         super(SessionPortListener, self).__init__()
@@ -65,16 +67,18 @@ class SessionPortListener(AllJoynObject):
 
         self.callback_data = callback_data
 
-        self.callback_structure.AcceptSessionJoiner = SessionPortListenerAcceptSessionJoinerFuncType(SessionListener._OnAcceptSessionJoinerCallBack)
-        
-        self.callback_structure.SessionJoined = SessionPortListenerSessionJoinedFuncType(SessionListener._OnSessionJoinedCallback)
-        
+        self.callback_structure.AcceptSessionJoiner = SessionPortListenerAcceptSessionJoinerFuncType(
+            SessionPortListener._OnAcceptSessionJoinerCallBack)
+
+        self.callback_structure.SessionJoined = SessionPortListenerSessionJoinedFuncType(
+            SessionPortListener._OnSessionJoinedCallback)
+
         self.handle = self._Create(C.byref(self.callback_structure), self.unique_id)
 
     def __del__(self):
         if self.handle:
             return self._Destroy(self.handle)
-        
+
     @staticmethod
     def _OnAcceptSessionJoinerCallBack(context, session_port, joiner, opts):
         self = AllJoynObject.unique_instances[context]
@@ -91,5 +95,5 @@ class SessionPortListener(AllJoynObject):
     def OnSessionJoinedCallback(self, callback_data, session_port, session_id, joiner):
         pass
 
-    
+
 SessionPortListener.bind_functions_to_cls()
