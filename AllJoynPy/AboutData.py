@@ -1,16 +1,16 @@
- # Copyright Glenn Pierce. All rights reserved.
- #
- #    Permission to use, copy, modify, and/or distribute this software for any
- #    purpose with or without fee is hereby granted, provided that the above
- #    copyright notice and this permission notice appear in all copies.
- #
- #    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- #    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- #    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- #    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- #    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+# Copyright Glenn Pierce. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import sys
 import types
@@ -24,7 +24,8 @@ from . import AllJoynMeta, AllJoynObject, MsgArg
 # Typedefs
 # struct _alljoyn_aboutdata_handle * alljoyn_aboutdata
 
-class AboutDataHandle(C.c_void_p): 
+
+class AboutDataHandle(C.c_void_p):
     pass
 
 if sys.platform == 'win32':
@@ -103,13 +104,13 @@ class AboutData(AllJoynObject):
                                     ((u'alljoyn_aboutdata', AboutDataHandle),
                                         (u'char **', POINTER(C.c_char_p)),
                                         (u'const char *', C.c_char_p))),
-                 
+
                  u'GetField': (u'alljoyn_aboutdata_getfield',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_aboutdata', AboutDataHandle), (u'const char *', C.c_char_p),
                                    (u'alljoyn_msgarg*', POINTER(MsgArg.MsgArgHandle)),
                                    (u'const char *', C.c_char_p))),
-                 
+
                  u'GetFieldSignature': (u'alljoyn_aboutdata_getfieldsignature',
                                         (u'const char *', C.c_char_p),
                                         ((u'alljoyn_aboutdata', AboutDataHandle),
@@ -118,6 +119,7 @@ class AboutData(AllJoynObject):
                  u'GetFields': (u'alljoyn_aboutdata_getfields', (u'int', C.c_int),
                                 ((u'alljoyn_aboutdata', AboutDataHandle), (u'const char **', POINTER(C.c_char_p)),
                                  (u'int', C.c_int))),
+
                  u'GetHardwareVersion': (u'alljoyn_aboutdata_gethardwareversion',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
@@ -259,7 +261,7 @@ class AboutData(AllJoynObject):
         return self._SetAppIdFromString(self.handle, appId)  # const char *
 
     def GetAppId(self, appId, num):
-        
+
         return self._GetAppId(self.handle, appId, num)  # int **,int *
 
     def SetDefaultLanguage(self, defaultLanguage):
@@ -269,7 +271,7 @@ class AboutData(AllJoynObject):
         defaultLanguage = C.c_char_p()
         self._GetDefaultLanguage(self.handle, C.byref(defaultLanguage))  # char **
         return defaultLanguage.value
-                                 
+
     def SetDeviceName(self, deviceName, language):
         return self._SetDeviceName(self.handle, deviceName, language)  # const char *,const char *
 
@@ -308,7 +310,7 @@ class AboutData(AllJoynObject):
         # array of allocated char*
         array = (C.c_char_p * size)()
         self._GetSupportedLanguages(self.handle, array, size)  # const char **,int
-        return [a for a in array]  
+        return [a for a in array]
 
     def SetDescription(self, description, language):
         return self._SetDescription(self.handle, description, language)  # const char *,const char *
@@ -346,27 +348,8 @@ class AboutData(AllJoynObject):
     def SetField(self, name, value, language):
         return self._SetField(self.handle, name, value, language)  # const char *,int,const char *
 
-
-
-#                  /**
-#  * Generic way to get a field.
-#  *
-#  * @param[in]  data     alljoyn_aboutdata object this call is made for
-#  * @param[in]  name     the name of the field to get
-#  * @param[out] value    alljoyn_msgarg holding a variant value that represents the field
-#  * @param[in]  language the IETF language tag specified by RFC 5646
-#  *                      If language is NULL the field for the default language will be returned.
-#  *
-#  * @return ER_OK on success
-#  */
-# extern AJ_API QStatus AJ_CALL alljoyn_aboutdata_getfield(alljoyn_aboutdata data,
-#                                                          const char* name,
-#                                                          alljoyn_msgarg* value,
-#                                                          const char* language);
     def GetField(self, name, language=None):
         handle = MsgArg.MsgArg._Create()
-        # const char *, alljoyn_msgarg *, const char *
-        #self._GetField(self.handle, name, C.byref(handle), language)
         self._GetField(self.handle, name, C.byref(handle), language)
         return MsgArg.MsgArg.FromHandle(handle)
 

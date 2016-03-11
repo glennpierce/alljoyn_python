@@ -87,11 +87,6 @@ class AboutObjectDescription(AllJoynObject):
         super(AboutObjectDescription, self).__init__()
 
         if msgarg:
-            
-            print "jshkhkhkjshfsd", msgarg, type(msgarg), msgarg.handle
-            
-            print "sig = ", msgarg.Signature()
-
             #self.handle = self._CreateFull(msgarg)
             self.handle = self._Create()
             self._CreateFromMsgARG(self.handle, msgarg.handle)
