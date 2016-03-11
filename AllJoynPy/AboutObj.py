@@ -33,28 +33,24 @@ class AboutObject(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
 
-    _cmethods = {u'Announce': (u'alljoyn_aboutobj_announce',
-                               (u'QStatus', 'C.c_uint'),
-                               ((u'alljoyn_aboutobj', 'C.c_void_p'),
-                                   (u'int', 'C.c_int'),
-                                   (u'int', 'C.c_int'))),
+    _cmethods = {u'Announce': (u'alljoyn_aboutobj_announce', (u'QStatus', C.c_uint), 
+                                 ((u'alljoyn_aboutobj', C.c_void_p), (u'int', C.c_int), (u'void*', C.c_void_p))),
+
                  u'AnnounceUsingDataListener': (u'alljoyn_aboutobj_announce_using_datalistener',
-                                                (u'QStatus', 'C.c_uint'),
-                                                ((u'alljoyn_aboutobj', 'C.c_void_p'),
-                                                    (u'int', 'C.c_int'),
-                                                    (u'int', 'C.c_int'))),
-                 u'Create': (u'alljoyn_aboutobj_create',
-                             (u'alljoyn_aboutobj', 'C.c_void_p'),
-                             ((u'void*', 'C.c_void_p'), (u'uint', 'C.c_uint'))),
-                 u'Destroy': (u'alljoyn_aboutobj_destroy',
-                              (u'void', None),
-                              ((u'alljoyn_aboutobj', 'C.c_void_p'),)),
-                 u'UnAnnounce': (u'alljoyn_aboutobj_unannounce',
-                                 (u'QStatus', 'C.c_uint'),
-                                 ((u'alljoyn_aboutobj', 'C.c_void_p'),))}
+                                                (u'QStatus', C.c_uint),
+                                                ((u'alljoyn_aboutobj', C.c_void_p),
+                                                    (u'int', C.c_int),
+                                                    (u'void*', C.c_void_p))),
+
+                 u'Create': (u'alljoyn_aboutobj_create',(u'alljoyn_aboutobj', C.c_void_p), ((u'void*', C.c_void_p), (u'uint', C.c_uint))),
+
+                 u'Destroy': (u'alljoyn_aboutobj_destroy', (u'void', None), ((u'alljoyn_aboutobj', C.c_void_p),)),
+
+                 u'UnAnnounce': (u'alljoyn_aboutobj_unannounce', (u'QStatus', C.c_uint), ((u'alljoyn_aboutobj', C.c_void_p),))
+                 }
 
     def __init__(self, bus, isAnnounced):
-        self.handle = self._Create(bus, isAnnounced)
+        self.handle = self._Create(bus.handle, isAnnounced.value)
 
     def __del__(self):
         return self._Destroy(self.handle)
@@ -62,10 +58,10 @@ class AboutObject(AllJoynObject):
     # Wrapper Methods
 
     def Announce(self, sessionPort, aboutData):
-        return self._Announce(self.handle, sessionPort, aboutData)  # int,int
+        return self._Announce(self.handle, sessionPort, aboutData.handle)  # int,int
 
     def AnnounceUsingDataListener(self, sessionPort, aboutListener):
-        return self._AnnounceUsingDataListener(self.handle, sessionPort, aboutListener)  # int,int
+        return self._AnnounceUsingDataListener(self.handle, sessionPort, aboutListener.handle)  # int,int
 
     def UnAnnounce(self):
         return self._UnAnnounce(self.handle)

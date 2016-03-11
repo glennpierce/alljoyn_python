@@ -27,6 +27,8 @@ from . import AllJoynMeta, AllJoynObject, MessageReceiver, InterfaceDescription
 # struct alljoyn_busobject_callbacks alljoyn_busobject_callbacks
 # struct alljoyn_busobject_methodentry alljoyn_busobject_methodentry
 
+class BusObjectHandle(C.c_void_p): 
+    pass
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
@@ -62,34 +64,34 @@ class BusObject(AllJoynObject):
 
     _cmethods = {u'AddInterface': (u'alljoyn_busobject_addinterface',
                                    (u'QStatus', C.c_uint),
-                                   ((u'alljoyn_busobject', C.c_void_p),
+                                   ((u'alljoyn_busobject', BusObjectHandle),
                                        (u'const void*', C.c_void_p))),
                  u'AddInterfaceAnnounced': (u'alljoyn_busobject_addinterface_announced',
                                             (u'QStatus', C.c_uint),
-                                            ((u'alljoyn_busobject', C.c_void_p),
+                                            ((u'alljoyn_busobject', BusObjectHandle),
                                                 (u'const int', C.c_int))),
                  u'AddMethodHandler': (u'alljoyn_busobject_addmethodhandler',
                                        (u'QStatus', C.c_uint),
-                                       ((u'alljoyn_busobject', C.c_void_p),
+                                       ((u'alljoyn_busobject', BusObjectHandle),
                                            (u'const int', C.c_int),
                                            (u'int', C.c_int),
                                            (u'void *', C.c_void_p))),
                  u'AddMethodHandlers': (u'alljoyn_busobject_addmethodhandlers',
                                         (u'QStatus', C.c_uint),
-                                        ((u'alljoyn_busobject', C.c_void_p),
+                                        ((u'alljoyn_busobject', BusObjectHandle),
                                             (u'const alljoyn_busobject_methodentry *',
                                              POINTER(BusObjectMethodEntry)),
                                             (u'size_t', C.c_size_t))),
                  u'CancelSessionLessMessage': (u'alljoyn_busobject_cancelsessionlessmessage',
                                                (u'QStatus', C.c_uint),
-                                               ((u'alljoyn_busobject', C.c_void_p),
+                                               ((u'alljoyn_busobject', BusObjectHandle),
                                                    (u'const int', C.c_int))),
                  u'CancelSessionLessMessageSerial': (u'alljoyn_busobject_cancelsessionlessmessage_serial',
                                                      (u'QStatus', C.c_uint),
-                                                     ((u'alljoyn_busobject', C.c_void_p),
+                                                     ((u'alljoyn_busobject', BusObjectHandle),
                                                          (u'int', C.c_int))),
                  u'Create': (u'alljoyn_busobject_create',
-                             (u'alljoyn_busobject', C.c_void_p),
+                             (u'alljoyn_busobject', BusObjectHandle),
                              ((u'const char *', C.c_char_p),
                                  (u'int', C.c_int),
                                  (u'const alljoyn_busobject_callbacks *',
@@ -97,67 +99,67 @@ class BusObject(AllJoynObject):
                                  (u'const void *', C.c_void_p))),
                  u'Destroy': (u'alljoyn_busobject_destroy',
                               (u'void', None),
-                              ((u'alljoyn_busobject', C.c_void_p),)),
+                              ((u'alljoyn_busobject', BusObjectHandle),)),
                  u'EmitPropertiesChanged': (u'alljoyn_busobject_emitpropertieschanged',
                                             (u'void', None),
-                                            ((u'alljoyn_busobject', C.c_void_p),
+                                            ((u'alljoyn_busobject', BusObjectHandle),
                                              (u'const char *', C.c_char_p),
                                              (u'const char **', POINTER(C.c_char_p)),
                                              (u'int', C.c_int),
                                              (u'int', C.c_int))),
                  u'EmitPropertyChanged': (u'alljoyn_busobject_emitpropertychanged',
                                           (u'void', None),
-                                          ((u'alljoyn_busobject', C.c_void_p),
+                                          ((u'alljoyn_busobject', BusObjectHandle),
                                            (u'const char *', C.c_char_p),
                                            (u'const char *', C.c_char_p),
                                            (u'int', C.c_int),
                                            (u'int', C.c_int))),
                  u'GetAnnouncedInterfaceNames': (u'alljoyn_busobject_getannouncedinterfacenames',
                                                  (u'int', C.c_int),
-                                                 ((u'alljoyn_busobject', C.c_void_p),
+                                                 ((u'alljoyn_busobject', BusObjectHandle),
                                                   (u'const char **', POINTER(C.c_char_p)),
                                                   (u'int', C.c_int))),
                  u'GetBusAttachment': (u'alljoyn_busobject_getbusattachment',
                                        (u'const int', C.c_int),
-                                       ((u'alljoyn_busobject', C.c_void_p),)),
+                                       ((u'alljoyn_busobject', BusObjectHandle),)),
                  u'GetName': (u'alljoyn_busobject_getname',
                               (u'int', C.c_int),
-                              ((u'alljoyn_busobject', C.c_void_p),
+                              ((u'alljoyn_busobject', BusObjectHandle),
                                (u'char *', C.c_char_p),
                                (u'int', C.c_int))),
                  u'GetPath': (u'alljoyn_busobject_getpath',
                               (u'const char *', C.c_char_p),
-                              ((u'alljoyn_busobject', C.c_void_p),)),
+                              ((u'alljoyn_busobject', BusObjectHandle),)),
                  u'IsSecure': (u'alljoyn_busobject_issecure',
                                (u'int', C.c_int),
-                               ((u'alljoyn_busobject', C.c_void_p),)),
+                               ((u'alljoyn_busobject', BusObjectHandle),)),
 
                  u'MethodReplyArgs': (u'alljoyn_busobject_methodreply_args',
                                       (u'QStatus', C.c_uint),
-                                      ((u'alljoyn_busobject', C.c_void_p),
+                                      ((u'alljoyn_busobject', BusObjectHandle),
                                        (u'void*', C.c_void_p),
                                        (u'void*', C.c_void_p),
                                        (u'size_t', C.c_size_t))),
 
                  u'MethodReplyErr': (u'alljoyn_busobject_methodreply_err',
                                      (u'QStatus', C.c_uint),
-                                     ((u'alljoyn_busobject', C.c_void_p),
+                                     ((u'alljoyn_busobject', BusObjectHandle),
                                       (u'int', C.c_int),
                                       (u'const char *', C.c_char_p),
                                       (u'const char *', C.c_char_p))),
                  u'MethodReplyStatus': (u'alljoyn_busobject_methodreply_status',
                                         (u'QStatus', C.c_uint),
-                                        ((u'alljoyn_busobject', C.c_void_p),
+                                        ((u'alljoyn_busobject', BusObjectHandle),
                                          (u'int', C.c_int),
                                          (u'QStatus', C.c_uint))),
                  u'SetAnnounceFlag': (u'alljoyn_busobject_setannounceflag',
                                       (u'QStatus', C.c_uint),
-                                      ((u'alljoyn_busobject', C.c_void_p),
+                                      ((u'alljoyn_busobject', BusObjectHandle),
                                        (u'void*', C.c_void_p),
                                        (u'int', C.c_int))),
                  u'Signal': (u'alljoyn_busobject_signal',
                              (u'QStatus', C.c_uint),
-                             ((u'alljoyn_busobject', C.c_void_p),
+                             ((u'alljoyn_busobject', BusObjectHandle),
                               (u'const char *', C.c_char_p),
                               (u'int', C.c_int),
                               (u'const int', C.c_int),
@@ -167,26 +169,37 @@ class BusObject(AllJoynObject):
                               (u'int', C.c_int),
                               (u'int', C.c_int)))}
 
-    def __init__(self, path, is_place_holder, callback_data=None):
-
+    def __init__(self):
         super(BusObject, self).__init__()
-
-        self.callback_structure = BusObjectCallBacks()
-
-        self.callback_data = callback_data
-
-        self.callback_structure.PropertyGet = BusObjectPropertyGetFuncType(BusObject._OnPropertyGetCallBack)
-        self.callback_structure.PropertySet = BusObjectPropertySetFuncType(BusObject._OnPropertySetCallback)
-        self.callback_structure.ObjectRegistered = BusObjectRegistrationFuncType(BusObject._OnObjectRegisteredCallBack)
-        self.callback_structure.ObjectUnregistered = BusObjectRegistrationFuncType(
-            BusObject._OnObjectUnregisteredCallBack)
-
-        self.handle = self._Create(path, int(is_place_holder), C.byref(self.callback_structure), self.unique_id)
-
+        self.handle = None
+        
     def __del__(self):
         if self.handle:
-            print "__del__"
             return self._Destroy(self.handle)
+
+    @classmethod
+    def FromPath(cls, path, is_place_holder, callback_data=None):
+        instance = cls()
+
+        instance.callback_structure = BusObjectCallBacks()
+
+        instance.callback_data = callback_data
+
+        instance.callback_structure.PropertyGet = BusObjectPropertyGetFuncType(BusObject._OnPropertyGetCallBack)
+        instance.callback_structure.PropertySet = BusObjectPropertySetFuncType(BusObject._OnPropertySetCallback)
+        instance.callback_structure.ObjectRegistered = BusObjectRegistrationFuncType(BusObject._OnObjectRegisteredCallBack)
+        instance.callback_structure.ObjectUnregistered = BusObjectRegistrationFuncType(
+            BusObject._OnObjectUnregisteredCallBack)
+
+        instance.handle = BusObject._Create(path, int(is_place_holder), C.byref(instance.callback_structure), instance.unique_id)
+
+        return instance
+
+    @classmethod
+    def FromHandle(cls, handle):
+        instance = cls()
+        instance.handle = handle
+        return instance
 
     @staticmethod
     def _OnPropertyGetCallBack(context, ifcName, propName, val):
@@ -201,12 +214,12 @@ class BusObject(AllJoynObject):
     @staticmethod
     def _OnObjectRegisteredCallBack(context):
         self = AllJoynObject.unique_instances[context]
-        self.OnObjectRegistered(self.callback_data)
+        self.OnObjectRegisteredCallBack(self.callback_data)
 
     @staticmethod
     def _OnObjectUnregisteredCallBack(context):
         self = AllJoynObject.unique_instances[context]
-        self.OnObjectUnRegistered(self.callback_data)
+        self.OnObjectUnRegisteredCallBack(self.callback_data)
 
     def OnPropertyGetCallBack(self, ifcName, propName, val):
         pass
@@ -214,10 +227,10 @@ class BusObject(AllJoynObject):
     def OnPropertySetCallBack(self, ifcName, propName, val):
         pass
 
-    def OnObjectRegisteredCallBack(self):
+    def OnObjectRegisteredCallBack(self, callback_data):
         pass
 
-    def OnObjectUnRegisteredCallBack(self):
+    def OnObjectUnRegisteredCallBack(self, callback_data):
         pass
 
     # Wrapper Methods
@@ -236,7 +249,6 @@ class BusObject(AllJoynObject):
         return self._GetName(self.handle, buffer, bufferSz)  # char *,int
 
     def AddInterface(self, iface):
-        print "type", type(iface.handle)
         return self._AddInterface(self.handle, iface.handle)  # const int
 
     def AddMethodHandler(self, member, handler, context):
@@ -245,17 +257,12 @@ class BusObject(AllJoynObject):
     def AddMethodHandlers(self, entries):
         array = (BusObjectMethodEntry * len(entries))()
         array[:] = entries
-        #print array, len(entries)
-        # const alljoyn_busobject_methodentry *,int
-        print "self.handle", self.handle
-        print "array", array, len(array)
-
         return self._AddMethodHandlers(self.handle, array, len(entries))
 
     def MethodReplyArgs(self, msg, args, num_args):
         # TODO Can we determine num_args here ?
         # int, const int, int
-        return self._MethodReplyArgs(self.handle, msg, args, num_args)
+        return self._MethodReplyArgs(self.handle, msg.handle, args.handle, num_args)
 
     def MethodReplyErr(self, msg, error, errorMessage):
         # int,const char *,const char *

@@ -21,35 +21,37 @@ from . import AllJoynMeta, AllJoynObject, MsgArg
 # Typedefs
 # struct _alljoyn_aboutproxy_handle * alljoyn_aboutproxy
 
+class AboutProxyHandle(C.c_void_p): 
+    pass
 
 class AboutProxy(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
 
     _cmethods = {u'Create': (u'alljoyn_aboutproxy_create',
-                             (u'alljoyn_aboutproxy', C.c_void_p),
+                             (u'alljoyn_aboutproxy', AboutProxyHandle),
                              ((u'void*', C.c_void_p),
                                  (u'const char *', C.c_char_p),
                                  (u'uint', C.c_uint))),
                  
                  u'Destroy': (u'alljoyn_aboutproxy_destroy',
                               (u'void', None),
-                              ((u'alljoyn_aboutproxy', C.c_void_p),)),
+                              ((u'alljoyn_aboutproxy', AboutProxyHandle),)),
 
                  u'GetAboutData': (u'alljoyn_aboutproxy_getaboutdata',
                                    (u'QStatus', C.c_uint),
-                                   ((u'alljoyn_aboutproxy', C.c_void_p),
+                                   ((u'alljoyn_aboutproxy', AboutProxyHandle),
                                        (u'const char *', C.c_char_p),
-                                       (u'void*', POINTER(MsgArg.AlljoynMsgArg)))),
+                                       (u'void*', MsgArg.MsgArgHandle))),
 
                  u'GetObjectDescription': (u'alljoyn_aboutproxy_getobjectdescription',
                                            (u'QStatus', C.c_uint),
-                                           ((u'alljoyn_aboutproxy', C.c_void_p),
-                                               (u'void*', (POINTER(MsgArg.AlljoynMsgArg))))),
+                                           ((u'alljoyn_aboutproxy', AboutProxyHandle),
+                                               (u'void*', (MsgArg.MsgArgHandle)))),
 
                  u'GetVersion': (u'alljoyn_aboutproxy_getversion',
                                  (u'QStatus', C.c_uint),
-                                 ((u'alljoyn_aboutproxy', C.c_void_p),
+                                 ((u'alljoyn_aboutproxy', AboutProxyHandle),
                                      (u'uint16 *', POINTER(C.c_ushort))))}
 
     def __init__(self, bus, busName, sessionId):

@@ -22,7 +22,7 @@ class MySessionListener(SessionListener.SessionListener):
         super(MySessionListener, self).__init__()
 
     def OnSessionLostCallBack(self, context, sessionId, reason):
-        print "SessionLost sessionId = %u, Reason = %d" % (sessionId, reason)
+        print "SessionLost sessionId = %u, Reason = %s" % (sessionId, reason)
 
 
 class MyAboutListener(AboutListener.AboutListener):
@@ -84,7 +84,6 @@ class MyAboutListener(AboutListener.AboutListener):
                                     Session.ALLJOYN_PROXIMITY_ANY,
                                     TransportMask.ALLJOYN_TRANSPORT_ANY)
 
-        print g_bus
         g_bus.EnableConcurrentCallBacks()
         sessionId = g_bus.JoinSession(busName, port, self.sessionListener, opts)
         print "SessionJoined sessionId = ", sessionId
@@ -134,59 +133,14 @@ class MyAboutListener(AboutListener.AboutListener):
                 print "Failed to introspect remote object."
                 
             arg = MsgArg.MsgArg()
-            arg.SetString("ECHO Echo echo...\n")
+            arg.SetString("ECHO Echo echo...")
             
             replyMsg = Message.Message(g_bus)
             
             proxyBusObject.MethodCall(INTERFACE_NAME, "Echo", arg, 1, replyMsg, 25000, 0)
-            
-#                alljoyn_proxybusobject_methodcall(proxyObject,
-#                                                  INTERFACE_NAME,
-#                                                  "Echo", arg,
-#                                                  1, replyMsg,
-#                                                  25000, 0);
-#                if (status != ER_OK) {
-#                    printf("Failed to call Echo method.\n");
-#                    return;
-#                }
-#
-#                char* echoReply;
-#                alljoyn_msgarg reply_msgarg =
-#                    alljoyn_message_getarg(replyMsg, 0);
-#                status = alljoyn_msgarg_get(reply_msgarg, "s", &echoReply);
-#                if (status != ER_OK) {
-#                    printf("Failed to read Echo method reply.\n");
-#                }
-#                printf("Echo method reply: %s\n", echoReply);
-#                alljoyn_message_destroy(replyMsg);
-#                alljoyn_msgarg_destroy(arg);
-#                alljoyn_proxybusobject_destroy(proxyObject);
-#            
-            
-            
-            
-            
-            
-            
-                # MsgArg arg("s", "ECHO Echo echo...\n");
-                # Message replyMsg(*g_bus);
-                # status = proxyObject.MethodCall(INTERFACE_NAME, "Echo", &arg, 1, replyMsg);
-                # if (status != ER_OK) {
-                    #printf("Failed to call Echo method.\n");
-                    # return;
-                #}
-                #char* echoReply;
-                # status = replyMsg->GetArg(0)->Get("s", &echoReply);
-                # if (status != ER_OK) {
-                    #printf("Failed to read Echo method reply.\n");
-                #}
-                #printf("Echo method reply: %s\n", echoReply);
-            #}
-        #} else {
-            #printf("BusAttachment is NULL\n");
-        #}
-        
-        pass
+    
+            print "Echo method reply:", replyMsg.GetArg(0).GetString()
+
 
 if __name__ == "__main__":
 

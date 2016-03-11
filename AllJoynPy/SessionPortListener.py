@@ -33,6 +33,9 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
+class SessionPortListenerHandle(C.c_void_p): 
+    pass
+
 SessionPortListenerSessionJoinedFuncType = CallbackType(
     None, C.c_void_p, C.c_int, C.c_int, C.c_char_p)  # context sessionPort id joiner
 
@@ -52,12 +55,12 @@ class SessionPortListener(AllJoynObject):
     __metaclass__ = AllJoynMeta
 
     _cmethods = {u'Create': (u'alljoyn_sessionportlistener_create',
-                             (u'alljoyn_sessionportlistener', C.c_void_p),
+                             (u'alljoyn_sessionportlistener', SessionPortListenerHandle),
                              ((u'const alljoyn_sessionportlistener_callbacks *', POINTER(SessionPortListenerCallBacks)),
                                  (u'const void *', C.c_void_p))),
 
                  u'Destroy': (u'alljoyn_sessionportlistener_destroy', (u'void', None),
-                              ((u'alljoyn_sessionportlistener', C.c_void_p),))}
+                              ((u'alljoyn_sessionportlistener', SessionPortListenerHandle),))}
 
     def __init__(self, callback_data=None):
 

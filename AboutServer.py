@@ -4,12 +4,11 @@
 from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
     QStatusException, AboutObjectDescription, Session, BusObject, \
     TransportMask, SessionListener, AboutProxy, ProxyBusObject, MessageReceiver, \
-    Message, SessionPortListener, AboutObject, AjAPI, InterfaceDescription
+    Message, SessionPortListener, AboutObj, AjAPI, InterfaceDescription
 import signal
 import time
 import sys
 
-timeout = 10
 ASSIGNED_SESSION_PORT = 900
 INTERFACE_NAME = "com.example.about.feature.interface.sample"
 
@@ -25,6 +24,7 @@ class MySessionPortListener(SessionPortListener.SessionPortListener):
         super(MySessionPortListener, self).__init__(callback_data=callback_data)
 
     def OnAcceptSessionJoinerCallBack(self, callback_data, session_port, joiner, opts):
+        print "pepper", session_port
         if session_port != ASSIGNED_SESSION_PORT:
             print "Rejecting join attempt on unexpected session port", session_port
             return False
@@ -34,33 +34,50 @@ class MySessionPortListener(SessionPortListener.SessionPortListener):
         print "Session Joined SessionId", session_id
 
 
-class MyBusObject(BusObject.BusObject):
+class MyBusObject(object):
     def __init__(self, bus_attachment, path, is_place_holder=False):
-        super(MyBusObject, self).__init__(path, is_place_holder)
+        
+        self.busObject = BusObject.BusObject.FromPath(path, is_place_holder, callback_data=None)
 
-        self.iface = bus_attachment.GetInterface(INTERFACE_NAME)
+        iface = bus_attachment.GetInterface(INTERFACE_NAME)
 
-        self.AddInterface(self.iface)
+        self.busObject.AddInterface(iface)
 
-        self.SetAnnounceFlag(self.iface, AjAPI.AnnounceFlag.Announced)
+        self.busObject.SetAnnounceFlag(iface, AjAPI.AnnounceFlag.Announced)
 
         methodEntryStruct = BusObject.BusObjectMethodEntry()
-        methodEntryStruct.Member = self.iface.GetMember("Echo")
+        methodEntryStruct.Member = iface.GetMember("Echo")
+
         methodEntryStruct.MethodHandler = MessageReceiver.MessageReceiverMethodHandlerFuncType(MyBusObject.Echo)
 
-        self.AddMethodHandlers([methodEntryStruct])
+        self.busObject.AddMethodHandlers([methodEntryStruct])
 
-        print "dddd"
-
-    def Echo(self, member, msg):
+    @staticmethod
+    def Echo(busobject_handle, member, msg):
         # Respond to remote method call `Echo` by returning the string back to the
         # sender.
-        text = msg.GetArg(0).GetString()
-        print "Server Echo method recieved:", text
-        replyArg = MsgArg.MsgArg()
-        replyArg.SetString("Echoing ... " + text)
+        print "first"
+        
+        print msg, type(msg)
 
-        self.MethodReplyArgs(msg, replyArg, 1)
+        message = Message.Message.FromHandle(msg)
+        
+        print "message", Message.Message._GetSignature(msg)
+        print "message", message.GetSignature()
+        print "message type", message.GetType()
+
+        msgarg = message.GetArg(0)
+        print "msgarg", msgarg
+        
+        text = msgarg.GetString()
+        print "Server Echo method recieved:", text
+        
+        # replyArg = MsgArg.MsgArg()
+        # replyArg.SetString("Echoing ... ")
+
+        # BusObject.BusObject.FromHandle(busobject_handle).MethodReplyArgs(message, replyArg, 1)
+          
+        print "done"
 
 
 if __name__ == "__main__":
@@ -142,18 +159,13 @@ if __name__ == "__main__":
 
     g_bus.CreateInterfacesFromXML(interface)
 
-    busObject = MyBusObject(g_bus, "/example/path")
+    myBusObject = MyBusObject(g_bus, "/example/path")
 
-    print "bob1"
-    #sys.exit(1)
-
-    g_bus.RegisterBusObject(busObject)
-
-    
+    g_bus.RegisterBusObject(myBusObject.busObject)
 
     # Announce about signal */
 
-    aboutObj = AboutObject.AboutObject(g_bus, AjAPI.AnnounceFlag.UnAnnounced)
+    aboutObj = AboutObj.AboutObject(g_bus, AjAPI.AnnounceFlag.UnAnnounced)
 
     # Note the ObjectDescription that is part of the Announce signal is found
     # automatically by introspecting the BusObjects registered with the bus
@@ -165,14 +177,9 @@ if __name__ == "__main__":
     except QStatusException as ex:
         print str(ex)
 
-    t = 0
     # Perform the service asynchronously until the user signals for an exit
     while s_interrupt is False:
         time.sleep(0.1)
-        t += 0.1
-
-        if t >= timeout:
-            break
 
     aboutObj.UnAnnounce()
 

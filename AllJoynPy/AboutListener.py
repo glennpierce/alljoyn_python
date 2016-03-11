@@ -11,13 +11,16 @@ from . import AllJoynMeta, AllJoynObject, MsgArg
 # void (*)(const void *, const char *, int, int, const int, const int) alljoyn_about_announced_ptr
 # struct alljoyn_aboutlistener_callback alljoyn_aboutlistener_callback
 
+class AboutListenerHandle(C.c_void_p): 
+    pass
+    
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
 else:
     CallbackType = C.CFUNCTYPE
 
 # context busName version port objectDescriptionArg aboutDataArg
-AboutAnnouncedFuncType = CallbackType(None, C.c_void_p, C.c_char_p, C.c_int, C.c_int, C.c_void_p, C.c_void_p)
+AboutAnnouncedFuncType = CallbackType(None, C.c_void_p, C.c_char_p, C.c_int, C.c_int, MsgArg.MsgArgHandle, MsgArg.MsgArgHandle)
 
 
 class AboutListenerCallBack(C.Structure):
@@ -30,11 +33,11 @@ class AboutListener(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
 
-    _cmethods = {u'Create': (u'alljoyn_aboutlistener_create', (u'alljoyn_aboutlistener', C.c_void_p),
+    _cmethods = {u'Create': (u'alljoyn_aboutlistener_create', (u'alljoyn_aboutlistener', AboutListenerHandle),
                              ((u'const alljoyn_aboutlistener_callback *', POINTER(AboutListenerCallBack)),
                               (u'const void *', C.c_void_p))),
                  u'Destroy': (u'alljoyn_aboutlistener_destroy', (u'void', None), 
-                            ((u'alljoyn_aboutlistener', C.c_void_p),))}
+                            ((u'alljoyn_aboutlistener', AboutListenerHandle),))}
 
     def __init__(self, callback_data=None):
         super(AboutListener, self).__init__()

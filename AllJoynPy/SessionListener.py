@@ -43,6 +43,9 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
+class SessionListenerHandle(C.c_void_p): 
+    pass
+    
 # typedef void (AJ_CALL * alljoyn_sessionlistener_sessionlost_ptr)(const
 # void* context, alljoyn_sessionid sessionId, alljoyn_sessionlostreason
 # reason);
@@ -73,12 +76,12 @@ class SessionListener(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
 
-    _cmethods = {u'Create': (u'alljoyn_sessionlistener_create', (u'alljoyn_sessionlistener', C.c_void_p),
+    _cmethods = {u'Create': (u'alljoyn_sessionlistener_create', (u'alljoyn_sessionlistener', SessionListenerHandle),
                              ((u'const alljoyn_sessionlistener_callbacks *', POINTER(SessionListenerCallBacks)),
                               (u'const void *', C.c_void_p))),
 
                  u'Destroy': (u'alljoyn_sessionlistener_destroy', (u'void', None), 
-                            ((u'alljoyn_sessionlistener', C.c_void_p),))}
+                            ((u'alljoyn_sessionlistener', SessionListenerHandle),))}
 
     def __init__(self, callback_data=None):
 
@@ -104,7 +107,7 @@ class SessionListener(AllJoynObject):
     # const void* context, alljoyn_sessionid sessionId, alljoyn_sessionlostreason reason)
     def _OnSessionLostCallBack(context, sessionId, reason):
         self = AllJoynObject.unique_instances[context]
-        self.OnSessionLostCallBack(self.callback_data, sessionId, reason)
+        self.OnSessionLostCallBack(self.callback_data, sessionId, SessionLostReason(reason))
 
     @staticmethod
     def _OnSessionMemberAddedCallback(context, sessionId, uniqueName):

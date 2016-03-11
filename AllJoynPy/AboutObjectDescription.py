@@ -14,7 +14,7 @@
 
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject
+from . import AllJoynMeta, AllJoynObject, MsgArg
 
 # Wrapper for file AboutObjectDescription.h
 
@@ -34,7 +34,7 @@ class AboutObjectDescription(AllJoynObject):
                  u'CreateFromMsgARG': (u'alljoyn_aboutobjectdescription_createfrommsgarg',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_aboutobjectdescription', C.c_void_p),
-                                           (u'const void*', C.c_void_p))),
+                                           (u'const void*', MsgArg.MsgArgHandle))),
 
                  u'CreateFull': (u'alljoyn_aboutobjectdescription_create_full',
                                  (u'alljoyn_aboutobjectdescription', C.c_void_p), ((u'const void*', C.c_void_p),)),
@@ -90,6 +90,8 @@ class AboutObjectDescription(AllJoynObject):
             
             print "jshkhkhkjshfsd", msgarg, type(msgarg), msgarg.handle
             
+            print "sig = ", msgarg.Signature()
+
             #self.handle = self._CreateFull(msgarg)
             self.handle = self._Create()
             self._CreateFromMsgARG(self.handle, msgarg.handle)

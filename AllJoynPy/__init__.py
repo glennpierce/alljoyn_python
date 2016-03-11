@@ -453,32 +453,6 @@ class AllJoynObject(object):
             raise QStatusException(text, status)
         return qstatus
 
-    # def bind_functions(self):
-
-    #     for callable_name, method in self._cmethods.items():
-    #         lib_function_name = method[0]
-    #         return_name = method[1][0]
-    #         return_type = eval(method[1][1]) if method[1][1] else None
-    #         args = method[2]
-
-    #         cargs = []
-    #         try:
-    #             cargs = [eval(a[1]) for a in args if a]
-    #         except:
-    #             print args
-    #             raise
-
-    #         cmethod = getattr(AllJoynObject._lib, lib_function_name)
-
-    #         if return_type:
-    #             cmethod.restype = AllJoynObject.QStatusToException if return_name == 'QStatus' else return_type
-    # print callable_name, cmethod.restype
-
-    #         if cargs:
-    #             cmethod.argtypes = cargs
-
-    #         setattr(self, '_' + callable_name, cmethod)
-
     @classmethod
     def bind_functions_to_cls(cls):
         for callable_name, method in cls._cmethods.items():
