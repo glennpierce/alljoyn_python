@@ -62,6 +62,10 @@ class AboutListener(AllJoynObject):
     @staticmethod
     def _OnAboutListenerCallBack(context, busName, version, port, objectDescriptionArg, aboutDataArg):
         self = AllJoynObject.unique_instances[context]
+
+        print "objectDescriptionArg", objectDescriptionArg, type(objectDescriptionArg)
+        print "aboutDataArg", aboutDataArg, type(aboutDataArg)
+
         self.OnAboutListenerCallBack(self.callback_data, busName, version, port, MsgArg.MsgArg.FromHandle(objectDescriptionArg), \
                                      MsgArg.MsgArg.FromHandle(aboutDataArg))
 

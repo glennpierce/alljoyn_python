@@ -17,7 +17,7 @@ import sys, types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject, MsgArg
+from . import AllJoynMeta, AllJoynObject, MsgArg, BusAttachment
 # Wrapper for file Message.h
 
 
@@ -62,15 +62,18 @@ class Message(AllJoynObject):
     
     _cmethods = {u'Create': (u'alljoyn_message_create',
              (u'alljoyn_message', MessageHandle) ,
-             ((u'alljoyn_busattachment', C.c_void_p),)),
+             ((u'alljoyn_busattachment', BusAttachment.BusAttachmentHandle),)),
+
              u'Description': (u'alljoyn_message_description',
                               (u'int', C.c_int),
                               ((u'alljoyn_message', MessageHandle) ,
                                (u'char *', C.c_char_p),
                                (u'int', C.c_int))),
+
              u'Destroy': (u'alljoyn_message_destroy',
                           (u'void', None),
                           ((u'alljoyn_message', MessageHandle) ,)),
+
              u'Eql': (u'alljoyn_message_eql',
                       (u'int', C.c_int),
                       ((u'const alljoyn_message', MessageHandle),
@@ -181,13 +184,18 @@ class Message(AllJoynObject):
 
     def __init__(self, bus_attachment=None):
         if bus_attachment:
+            assert type(bus_attachment.handle) == BusAttachment.BusAttachmentHandle
             self.handle = self._Create(bus_attachment.handle)
 
     def __del__(self):
-        self._Destroy(self.handle)
+        # Todo Getting seg fault with Destroy
+        #print "Message __del__ called"
+        #self._Destroy(self.handle)
+        pass
 
     @classmethod
     def FromHandle(cls, handle):
+        assert type(handle) == MessageHandle
         instance = cls()
         instance.handle = handle
         return instance

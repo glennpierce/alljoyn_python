@@ -15,7 +15,13 @@
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject, MessageReceiver, InterfaceDescription
+
+
+class BusObjectHandle(C.c_void_p): 
+    pass
+
+from . import AllJoynMeta, AllJoynObject, InterfaceDescription, MsgArg, Message
+from MessageReceiver import MessageReceiverMethodHandlerFuncType
 
 # Wrapper for file BusObject.h
 
@@ -26,9 +32,6 @@ from . import AllJoynMeta, AllJoynObject, MessageReceiver, InterfaceDescription
 # void (*)(const void *) alljoyn_busobject_object_registration_ptr
 # struct alljoyn_busobject_callbacks alljoyn_busobject_callbacks
 # struct alljoyn_busobject_methodentry alljoyn_busobject_methodentry
-
-class BusObjectHandle(C.c_void_p): 
-    pass
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
@@ -54,7 +57,7 @@ class BusObjectCallBacks(C.Structure):
 class BusObjectMethodEntry(C.Structure):
     _fields_ = [
         ("Member", POINTER(InterfaceDescription.InterfaceDescriptionMember)),
-        ("MethodHandler", MessageReceiver.MessageReceiverMethodHandlerFuncType)
+        ("MethodHandler", MessageReceiverMethodHandlerFuncType)
     ]
 
 
@@ -134,11 +137,12 @@ class BusObject(AllJoynObject):
                                (u'int', C.c_int),
                                ((u'alljoyn_busobject', BusObjectHandle),)),
 
+
                  u'MethodReplyArgs': (u'alljoyn_busobject_methodreply_args',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busobject', BusObjectHandle),
-                                       (u'void*', C.c_void_p),
-                                       (u'void*', C.c_void_p),
+                                       (u'void*', Message.MessageHandle),
+                                       (u'void*', MsgArg.MsgArgHandle),
                                        (u'size_t', C.c_size_t))),
 
                  u'MethodReplyErr': (u'alljoyn_busobject_methodreply_err',
@@ -197,6 +201,7 @@ class BusObject(AllJoynObject):
 
     @classmethod
     def FromHandle(cls, handle):
+        assert type(handle) == BusObjectHandle
         instance = cls()
         instance.handle = handle
         return instance
@@ -218,6 +223,7 @@ class BusObject(AllJoynObject):
 
     @staticmethod
     def _OnObjectUnregisteredCallBack(context):
+        print "_OnObjectUnregisteredCallBack"
         self = AllJoynObject.unique_instances[context]
         self.OnObjectUnRegisteredCallBack(self.callback_data)
 
@@ -260,8 +266,6 @@ class BusObject(AllJoynObject):
         return self._AddMethodHandlers(self.handle, array, len(entries))
 
     def MethodReplyArgs(self, msg, args, num_args):
-        # TODO Can we determine num_args here ?
-        # int, const int, int
         return self._MethodReplyArgs(self.handle, msg.handle, args.handle, num_args)
 
     def MethodReplyErr(self, msg, error, errorMessage):

@@ -24,7 +24,6 @@ class MySessionPortListener(SessionPortListener.SessionPortListener):
         super(MySessionPortListener, self).__init__(callback_data=callback_data)
 
     def OnAcceptSessionJoinerCallBack(self, callback_data, session_port, joiner, opts):
-        print "pepper", session_port
         if session_port != ASSIGNED_SESSION_PORT:
             print "Rejecting join attempt on unexpected session port", session_port
             return False
@@ -56,29 +55,17 @@ class MyBusObject(object):
     def Echo(busobject_handle, member, msg):
         # Respond to remote method call `Echo` by returning the string back to the
         # sender.
-        print "first"
-        
-        print msg, type(msg)
-
         message = Message.Message.FromHandle(msg)
-        
-        print "message", Message.Message._GetSignature(msg)
-        print "message", message.GetSignature()
-        print "message type", message.GetType()
-
         msgarg = message.GetArg(0)
-        print "msgarg", msgarg
         
         text = msgarg.GetString()
         print "Server Echo method recieved:", text
         
-        # replyArg = MsgArg.MsgArg()
-        # replyArg.SetString("Echoing ... ")
+        replyArg = MsgArg.MsgArg()
+        replyArg.SetString("Echoing back:" + text)
 
-        # BusObject.BusObject.FromHandle(busobject_handle).MethodReplyArgs(message, replyArg, 1)
+        print BusObject.BusObject.FromHandle(busobject_handle).MethodReplyArgs(message, replyArg, 1)
           
-        print "done"
-
 
 if __name__ == "__main__":
 
@@ -180,6 +167,8 @@ if __name__ == "__main__":
     # Perform the service asynchronously until the user signals for an exit
     while s_interrupt is False:
         time.sleep(0.1)
+
+    print "HERE .................................."
 
     aboutObj.UnAnnounce()
 

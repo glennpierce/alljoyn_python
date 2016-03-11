@@ -518,6 +518,7 @@ class MsgArg(AllJoynObject):
   
     @classmethod
     def FromHandle(cls, handle):
+        assert type(handle) == MsgArgHandle
         instance = cls()
         instance.handle = handle
 
@@ -721,20 +722,30 @@ class MsgArg(AllJoynObject):
         return self._GetStringArray(self.handle)
 
     def SetString(self, string):
+        return self._SetString(self.handle, C.create_string_buffer(string).raw)
 
-# u'SetString': (u'alljoyn_msgarg_set_string',
-#                                 (u'QStatus', C.c_uint),
-#                                 ((u'alljoyn_msgarg', MsgArgHandle),
-#                                  (u'const char *', C.c_char_p))),
+# /**
+#  * Get a string from an alljoyn_msgarg
+#  * @remark This function exists for development of other language bindings and may
+#  *         be changed or removed in future updates and should not be used for reading
+#  *         values from an alljoyn_msgarg.
+#  * @see alljoyn_msgarg_get.
+#  *
+#  * @param      arg  the alljoyn_msgarg to obtain the data from
+#  * @param[out] s    a pointer to the string
+#  *
+#  * @return
+#  *      - #ER_OK if the signature matched and alljoyn_msgarg was successfully unpacked.
+#  *      - #ER_BUS_SIGNATURE_MISMATCH if the signature did not match.
+#  *      - An error status otherwise
+#  */
+# extern AJ_API QStatus AJ_CALL alljoyn_msgarg_get_string(const alljoyn_msgarg arg, char** s);
 
-        return self._SetString(self.handle, string)
-
-        #return self.Set("s", [C.c_char_p], [string])
 
     def GetString(self):
         #buf = C.create_string_buffer(100)
         buf = C.c_char_p()
-        self._GetString(self.handle, C.byref(buf))
+        self._GetString(self.handle, buf)
         return buf.value
 
     # def GetVariant(self, v):

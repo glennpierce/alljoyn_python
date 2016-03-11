@@ -449,7 +449,6 @@ class AllJoynObject(object):
             AllJoynObject._lib.QCC_StatusText.restype = C.c_char_p
             AllJoynObject._lib.QCC_StatusText.argtypes = [C.c_uint32]
             text = AllJoynObject._lib.QCC_StatusText(status)
-            print "text", text
             raise QStatusException(text, status)
         return qstatus
 

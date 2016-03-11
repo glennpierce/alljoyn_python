@@ -15,15 +15,10 @@
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import InterfaceDescription
+
+import BusObject, Message, InterfaceDescription
 
 # Wrapper for file MessageReceiver.h
-
-# Typedefs
-# struct _alljoyn_busobject_handle * alljoyn_busobject
-# void (*)(alljoyn_busobject, const int *, int) alljoyn_messagereceiver_methodhandler_ptr
-# void (*)(int, void *) alljoyn_messagereceiver_replyhandler_ptr
-# void (*)(const int *, const char *, int) alljoyn_messagereceiver_signalhandler_ptr
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
@@ -31,10 +26,26 @@ else:
     CallbackType = C.CFUNCTYPE
 
 
+
+# typedef void (AJ_CALL * alljoyn_messagereceiver_methodhandler_ptr)(alljoyn_busobject bus,
+#                                                                    const alljoyn_interfacedescription_member* member,
+#                                                                    alljoyn_message message);
 MessageReceiverMethodHandlerFuncType = CallbackType(
-    None, C.c_void_p, POINTER(InterfaceDescription.InterfaceDescriptionMember), C.c_void_p)  # bus member message
+    None, BusObject.BusObjectHandle, POINTER(InterfaceDescription.InterfaceDescriptionMember), Message.MessageHandle)  # bus member message
 
+
+# typedef void (AJ_CALL * alljoyn_messagereceiver_signalhandler_ptr)(const alljoyn_interfacedescription_member* member,
+#                                                                    const char* srcPath, alljoyn_message message);
 MessageReceiverSignalHandlerFuncType = CallbackType(
-    None, POINTER(InterfaceDescription.InterfaceDescriptionMember), C.c_char_p, C.c_void_p)  # member srcPath message
+    None, POINTER(InterfaceDescription.InterfaceDescriptionMember), C.c_char_p, Message.MessageHandle)  # member srcPath message
 
-MessageReceiverReplyHandlerFuncType = CallbackType(None, C.c_void_p, C.c_void_p)  # message context
+
+# typedef void (AJ_CALL * alljoyn_messagereceiver_replyhandler_ptr)(alljoyn_message message, void* context);
+MessageReceiverReplyHandlerFuncType = CallbackType(None, Message.MessageHandle, C.c_void_p)  # message context
+
+
+
+
+
+
+
