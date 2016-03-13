@@ -87,7 +87,6 @@ class AboutObjectDescription(AllJoynObject):
         super(AboutObjectDescription, self).__init__()
 
         if msgarg:
-            #self.handle = self._CreateFull(msgarg)
             self.handle = self._Create()
             self._CreateFromMsgARG(self.handle, msgarg.handle)
         else:
@@ -99,7 +98,6 @@ class AboutObjectDescription(AllJoynObject):
 
     # Wrapper Methods
 
-    #@classmethod
     # def CreateFull(cls, msgarg):
     #    return self._CreateFull(msgarg)
 
@@ -112,19 +110,19 @@ class AboutObjectDescription(AllJoynObject):
     def GetPaths(self):
         count = self._GetPaths(self.handle, None, 0)
         array = (C.c_char_p * count)()
-        status = self._GetPaths(self.handle, array, count)  # const char **, int
+        self._GetPaths(self.handle, array, count)  # const char **, int
         return [str(a) for a in array]
 
     def GetInterfaces(self, path):
         count = self._GetInterfaces(self.handle, path, None, 0)
         array = (C.c_char_p * count)()
-        status = self._GetInterfaces(self.handle, path, array, count)  # const char **, int
+        self._GetInterfaces(self.handle, path, array, count)  # const char **, int
         return [str(a).strip() for a in array]
-   
+
     def GetInterfacePaths(self, interfaceName):
         count = self._GetInterfacePaths(self.handle, interfaceName, None, 0)
         array = (C.c_char_p * count)()
-        status = self._GetInterfacePaths(self.handle, interfaceName, array, count)  # const char *,const char **,int
+        self._GetInterfacePaths(self.handle, interfaceName, array, count)  # const char *,const char **,int
         return [str(a).strip() for a in array]
 
     def Clear(self):

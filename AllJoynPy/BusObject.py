@@ -68,11 +68,13 @@ class BusObject(AllJoynObject):
     _cmethods = {u'AddInterface': (u'alljoyn_busobject_addinterface',
                                    (u'QStatus', C.c_uint),
                                    ((u'alljoyn_busobject', BusObjectHandle),
-                                       (u'const void*', C.c_void_p))),
+                                       (u'const void*', InterfaceDescription.InterfaceDescriptionHandle))),
+
                  u'AddInterfaceAnnounced': (u'alljoyn_busobject_addinterface_announced',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busobject', BusObjectHandle),
                                                 (u'const int', C.c_int))),
+
                  u'AddMethodHandler': (u'alljoyn_busobject_addmethodhandler',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_busobject', BusObjectHandle),
@@ -176,7 +178,7 @@ class BusObject(AllJoynObject):
     def __init__(self):
         super(BusObject, self).__init__()
         self.handle = None
-        
+
     def __del__(self):
         if self.handle:
             return self._Destroy(self.handle)

@@ -11,7 +11,7 @@ import sys
 timeout = 10
 
 INTERFACE_NAME = "com.example.about.feature.interface.sample"
-
+#INTERFACE_NAME = "net.allplay.MediaPlayer"
 
 def signal_handler(signal, frame):
     s_interrupt = True
@@ -53,6 +53,8 @@ class MyAboutListener(AboutListener.AboutListener):
 
         g_bus = context
 
+        print "BusName", busName
+
         print "objectDescriptionArg", objectDescriptionArg, type(objectDescriptionArg)
         print "aboutDataArg", aboutDataArg, type(aboutDataArg)
         
@@ -85,6 +87,8 @@ class MyAboutListener(AboutListener.AboutListener):
                                     TransportMask.ALLJOYN_TRANSPORT_ANY)
 
         g_bus.EnableConcurrentCallBacks()
+
+        print "JoiningSession", "busName", busName, "port", port, "opts", opts
         sessionId = g_bus.JoinSession(busName, port, self.sessionListener, opts)
         print "SessionJoined sessionId = ", sessionId
 

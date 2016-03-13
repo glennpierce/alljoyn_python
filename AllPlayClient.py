@@ -8,11 +8,9 @@ import signal
 import time
 import sys
 
-timeout = 10
+timeout = 5
 
 INTERFACE_NAME = "net.allplay.MediaPlayer"
-
-
 
 # /About
 #             org.alljoyn.About
@@ -50,6 +48,8 @@ class MyAboutListener(AboutListener.AboutListener):
         g_bus = context
 
         objectDescription = AboutObjectDescription.AboutObjectDescription(objectDescriptionArg)
+
+        print objectDescription.GetPaths()
 
         aboutData = AboutData.AboutData(aboutDataArg, language="en")
 
@@ -89,7 +89,7 @@ class MyAboutListener(AboutListener.AboutListener):
         replyMsg = Message.Message(g_bus)
         proxyBusObject.MethodCall('net.allplay.MCU', "GetCurrentItemUrl", None, 0, replyMsg, 25000, 0)
         print "GetCurrentItemUrl:", replyMsg.GetArg(0).GetString()
-        
+
             # arg = MsgArg.MsgArg()
             # arg.SetString("ECHO Echo echo...")
             

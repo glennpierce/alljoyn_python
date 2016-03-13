@@ -1,0 +1,12 @@
+DBUS_NAME_FLAG_ALLOW_REPLACEMENT = 0x01       # RequestName input flag: Allow others to take ownership of this name 
+DBUS_NAME_FLAG_REPLACE_EXISTING  = 0x02       # RequestName input flag: Attempt to take ownership of name if already taken 
+DBUS_NAME_FLAG_DO_NOT_QUEUE      = 0x04       # RequestName input flag: Fail if name cannot be immediately obtained 
+DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER   = 1   # RequestName reply: Name was successfully obtained 
+DBUS_REQUEST_NAME_REPLY_IN_QUEUE        = 2   # RequestName reply: Name is already owned, request for name has been queued 
+DBUS_REQUEST_NAME_REPLY_EXISTS          = 3   # RequestName reply: Name is already owned and DO_NOT_QUEUE was specified in request 
+DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER   = 4   # RequestName reply: Name is already owned by this endpoint 
+DBUS_RELEASE_NAME_REPLY_RELEASED      = 1     # ReleaseName reply: Name was released 
+DBUS_RELEASE_NAME_REPLY_NON_EXISTENT  = 2     # ReleaseName reply: Name does not exist 
+DBUS_RELEASE_NAME_REPLY_NOT_OWNER     = 3     # ReleaseName reply: Request to release name that is not owned by this endpoint 
+DBUS_START_REPLY_SUCCESS          = 1         # StartServiceByName reply: Service is started 
+DBUS_START_REPLY_ALREADY_RUNNING  = 2         # StartServiceByName reply: Service is already running 

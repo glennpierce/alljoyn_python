@@ -13,11 +13,9 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import sys
-import types
 import ctypes as C
 from ctypes import POINTER
-from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject, Message, BusAttachment
+from . import AllJoynMeta, AllJoynObject, Message, BusAttachment, InterfaceDescription
 
 # Wrapper for file ProxyBusObject.h
 
@@ -61,7 +59,7 @@ class ProxyBusObject(AllJoynObject):
                  u'AddInterface': (u'alljoyn_proxybusobject_addinterface',
                                    (u'QStatus', C.c_uint),
                                    ((u'alljoyn_proxybusobject', ProxyBusHandle),
-                                       (u'const int', C.c_int))),
+                                       (u'const void*', InterfaceDescription.InterfaceDescriptionHandle))),
                  u'AddInterfaceByName': (u'alljoyn_proxybusobject_addinterface_by_name',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_proxybusobject', ProxyBusHandle),
@@ -294,7 +292,7 @@ class ProxyBusObject(AllJoynObject):
         return self._Destroy(self.handle)
 
     def AddInterface(self, iface):
-        return self._AddInterface(self.handle, iface)  # const int
+        return self._AddInterface(self.handle, iface.handle)  # const int
 
     def AddInterfaceByName(self, name):
         return self._AddInterfaceByName(self.handle, name)  # const char *

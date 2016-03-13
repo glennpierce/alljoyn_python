@@ -15,7 +15,7 @@
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject, InterfaceDescription
+from . import AllJoynMeta, AllJoynObject, InterfaceDescription, BusListener
 # Wrapper for file BusAttachment.h
 
 # Typedefs
@@ -23,9 +23,11 @@ from . import AllJoynMeta, AllJoynObject, InterfaceDescription
 # void (*)(int, int, const int, void *) alljoyn_busattachment_joinsessioncb_ptr
 # void (*)(int, int, void *) alljoyn_busattachment_setlinktimeoutcb_ptr
 
-class BusAttachmentHandle(C.c_void_p): 
+
+class BusAttachmentHandle(C.c_void_p):
     pass
-    
+
+
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
 else:
@@ -110,7 +112,7 @@ class BusAttachment(AllJoynObject):
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busattachment', BusAttachmentHandle),
                                           (u'const char *', C.c_char_p),
-                                          (u'int *', POINTER(C.c_int)))),
+                                          (u'int *', POINTER(InterfaceDescription.InterfaceDescriptionHandle)))),
                  u'CreateInterfaceSecure': (u'alljoyn_busattachment_createinterface_secure',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
@@ -189,14 +191,14 @@ class BusAttachment(AllJoynObject):
                                           (u'const char *', C.c_char_p),
                                           ((u'const alljoyn_busattachment', C.c_void_p),)),
                  u'GetInterface': (u'alljoyn_busattachment_getinterface',
-                                   (u'const void*', C.c_void_p),
+                                   (u'const void*', InterfaceDescription.InterfaceDescriptionHandle),
                                    ((u'alljoyn_busattachment', BusAttachmentHandle),
                                        (u'const char *', C.c_char_p))),
                  u'GetInterfaces': (u'alljoyn_busattachment_getinterfaces',
-                                    (u'int', C.c_int),
+                                    (u'size_t', C.c_size_t),
                                     ((u'const alljoyn_busattachment', C.c_void_p),
-                                        (u'const int *', POINTER(C.c_int)),
-                                        (u'int', C.c_int))),
+                                        (u'const void *', POINTER(InterfaceDescription.InterfaceDescriptionHandle)),
+                                        (u'size_t', C.c_size_t))),
                  u'GetKeyExpiration': (u'alljoyn_busattachment_getkeyexpiration',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_busattachment', BusAttachmentHandle),
@@ -272,7 +274,7 @@ class BusAttachment(AllJoynObject):
                  u'RegisterBusListener': (u'alljoyn_busattachment_registerbuslistener',
                                           (u'void', None),
                                           ((u'alljoyn_busattachment', BusAttachmentHandle),
-                                              (u'int', C.c_int))),
+                                              (u'void*', BusListener.BusListenerHandle))),
                  u'RegisterBusObject': (u'alljoyn_busattachment_registerbusobject',
                                         (u'QStatus', C.c_uint),
                                         ((u'alljoyn_busattachment', BusAttachmentHandle),
@@ -417,14 +419,8 @@ class BusAttachment(AllJoynObject):
 
     # Wrapper Methods
 
-    def Create(self, allowRemoteMessages):
-        return self._Create(self.handle, allowRemoteMessages)  # int
-
     def CreateConcurrency(self, allowRemoteMessages, concurrency):
         return self._CreateConcurrency(self.handle, allowRemoteMessages, concurrency)  # int,int
-
-    def Destroy(self):
-        return self._Destroy(self.handle)
 
     def Start(self):
         return self._Start(self.handle)
@@ -444,8 +440,10 @@ class BusAttachment(AllJoynObject):
     def EnableConcurrentCallBacks(self):
         return self._EnableConcurrentCallbacks(self.handle)
 
-    def CreateInterface(self, name, iface):
-        return self._CreateInterface(self.handle, name, iface)  # const char *,int *
+    def CreateInterface(self, name):
+        iface = InterfaceDescription.InterfaceDescriptionHandle()
+        self._CreateInterface(self.handle, name, C.byref(iface))  # const char *,int *
+        return InterfaceDescription.InterfaceDescription(iface)
 
     def CreateInterfaceSecure(self, name, iface, secPolicy):
         return self._CreateInterfaceSecure(self.handle, name, iface, secPolicy)  # const char *,int *,int
@@ -454,7 +452,7 @@ class BusAttachment(AllJoynObject):
         return self._Connect(self.handle, connectSpec)  # const char *
 
     def RegisterBusListener(self, listener):
-        return self._RegisterBusListener(self.handle, listener)  # int
+        return self._RegisterBusListener(self.handle, listener.handle)  # int
 
     def UNREGISTERBUSLISTENER(self, listener):
         return self._UNREGISTERBUSLISTENER(self.handle, listener)  # int
@@ -491,8 +489,6 @@ class BusAttachment(AllJoynObject):
         return self._JoinSessionAsYNC(self.handle, sessionHost, sessionPort, listener, opts, callback, context)
 
     def RegisterBusObject(self, obj):
-        print "self.handle", self.handle, type(self.handle)
-        print "obj", obj, type(obj), type(obj.handle)
         return self._RegisterBusObject(self.handle, obj.handle)  # int
 
     def RegisterBusObjectSecure(self, obj):
@@ -661,8 +657,6 @@ class BusAttachment(AllJoynObject):
     def WhoImplementsInterfaces(self, interfaces):
         array = (C.c_char_p * len(interfaces))()
         array[:] = interfaces
-        #lib.external_C(array, len(interfaces))
-        # implementsInterfaces, numberInterfaces
         return self._WhoImplementsInterfaces(self.handle, array, len(interfaces))  # const char **,int
 
     def WhoImplementsInterface(self, implementsInterface):

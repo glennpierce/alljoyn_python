@@ -63,21 +63,47 @@ class InterfaceDescriptionProperty(C.Structure):
     ]
 
 
+class InterfaceDescriptionHandle(C.c_void_p):
+    pass
+
+
 class InterfaceDescription(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
 
     _cmethods = {u'Activate': (u'alljoyn_interfacedescription_activate',
                                (u'void', None),
-                               ((u'alljoyn_interfacedescription', C.c_void_p),)),
+                               ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),)),
                  u'AddAnnotation': (u'alljoyn_interfacedescription_addannotation',
                                     (u'QStatus', C.c_uint),
-                                    ((u'alljoyn_interfacedescription', C.c_void_p),
+                                    ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                         (u'const char *', C.c_char_p),
                                         (u'const char *', C.c_char_p))),
+
+                 #                  /**
+                 #  * Add a member to the interface.
+                 #  *
+                 #  * @param iface       Interface on which to add the member.
+                 #  * @param type        Message type.
+                 #  * @param name        Name of member.
+                 #  * @param inputSig    Signature of input parameters or NULL for none.
+                 #  * @param outSig      Signature of output parameters or NULL for none.
+                 #  * @param argNames    Comma separated list of input and then output arg names used in annotation XML.
+                 #  * @param annotation  Annotation flags.
+                 #  *
+                 #  * @return
+                 # *      - #ER_OK if successful
+                 # *      - #ER_BUS_MEMBER_ALREADY_EXISTS if member already exists
+                 #  */
+                 # extern AJ_API QStatus AJ_CALL alljoyn_interfacedescription_addmember(alljoyn_interfacedescription iface, alljoyn_messagetype type,
+                 #                                                                      const char* name, const char* inputSig, const char* outSig,
+                 # const char* argNames, uint8_t annotation);
+
+                 # /**
+
                  u'AddMember': (u'alljoyn_interfacedescription_addmember',
                                 (u'QStatus', C.c_uint),
-                                ((u'alljoyn_interfacedescription', C.c_void_p),
+                                ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                     (u'int', C.c_int),
                                     (u'const char *', C.c_char_p),
                                     (u'const char *', C.c_char_p),
@@ -86,13 +112,13 @@ class InterfaceDescription(AllJoynObject):
                                     (u'int', C.c_int))),
                  u'AddMemberAnnotation': (u'alljoyn_interfacedescription_addmemberannotation',
                                           (u'QStatus', C.c_uint),
-                                          ((u'alljoyn_interfacedescription', C.c_void_p),
+                                          ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                               (u'const char *', C.c_char_p),
                                               (u'const char *', C.c_char_p),
                                               (u'const char *', C.c_char_p))),
                  u'AddMethod': (u'alljoyn_interfacedescription_addmethod',
                                 (u'QStatus', C.c_uint),
-                                ((u'alljoyn_interfacedescription', C.c_void_p),
+                                ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                     (u'const char *', C.c_char_p),
                                     (u'const char *', C.c_char_p),
                                     (u'const char *', C.c_char_p),
@@ -101,19 +127,19 @@ class InterfaceDescription(AllJoynObject):
                                     (u'const char *', C.c_char_p))),
                  u'AddProperty': (u'alljoyn_interfacedescription_addproperty',
                                   (u'QStatus', C.c_uint),
-                                  ((u'alljoyn_interfacedescription', C.c_void_p),
+                                  ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                       (u'const char *', C.c_char_p),
                                       (u'const char *', C.c_char_p),
                                       (u'int', C.c_int))),
                  u'AddPropertyAnnotation': (u'alljoyn_interfacedescription_addpropertyannotation',
                                             (u'QStatus', C.c_uint),
-                                            ((u'alljoyn_interfacedescription', C.c_void_p),
+                                            ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                                 (u'const char *', C.c_char_p),
                                                 (u'const char *', C.c_char_p),
                                                 (u'const char *', C.c_char_p))),
                  u'AddSignal': (u'alljoyn_interfacedescription_addsignal',
                                 (u'QStatus', C.c_uint),
-                                ((u'alljoyn_interfacedescription', C.c_void_p),
+                                ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                     (u'const char *', C.c_char_p),
                                     (u'const char *', C.c_char_p),
                                     (u'const char *', C.c_char_p),
@@ -125,13 +151,13 @@ class InterfaceDescription(AllJoynObject):
                               (u'const alljoyn_interfacedescription', C.c_void_p))),
                  u'GetAnnotation': (u'alljoyn_interfacedescription_getannotation',
                                     (u'int', C.c_int),
-                                    ((u'alljoyn_interfacedescription', C.c_void_p),
+                                    ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                      (u'const char *', C.c_char_p),
                                      (u'char *', C.c_char_p),
                                      (u'int *', POINTER(C.c_int)))),
                  u'GetAnnotationAtIndex': (u'alljoyn_interfacedescription_getannotationatindex',
                                            (u'void', None),
-                                           ((u'alljoyn_interfacedescription', C.c_void_p),
+                                           ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                             (u'int', C.c_int),
                                             (u'char *', C.c_char_p),
                                             (u'int *', POINTER(C.c_int)),
@@ -139,7 +165,7 @@ class InterfaceDescription(AllJoynObject):
                                             (u'int *', POINTER(C.c_int)))),
                  u'GetAnnotationsCount': (u'alljoyn_interfacedescription_getannotationscount',
                                           (u'int', C.c_int),
-                                          ((u'alljoyn_interfacedescription', C.c_void_p),)),
+                                          ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),)),
                  u'GetMember': (u'alljoyn_interfacedescription_getmember',
                                 (u'int', C.c_int),
                                 ((u'const alljoyn_interfacedescription', C.c_void_p),
@@ -148,7 +174,7 @@ class InterfaceDescription(AllJoynObject):
                                   POINTER(InterfaceDescriptionMember)))),
                  u'GetMemberAnnotation': (u'alljoyn_interfacedescription_getmemberannotation',
                                           (u'int', C.c_int),
-                                          ((u'alljoyn_interfacedescription', C.c_void_p),
+                                          ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                            (u'const char *', C.c_char_p),
                                            (u'const char *', C.c_char_p),
                                            (u'char *', C.c_char_p),
@@ -161,7 +187,7 @@ class InterfaceDescription(AllJoynObject):
                                   (u'int', C.c_int))),
                  u'GetMethod': (u'alljoyn_interfacedescription_getmethod',
                                 (u'int', C.c_int),
-                                ((u'alljoyn_interfacedescription', C.c_void_p),
+                                ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                  (u'const char *', C.c_char_p),
                                  (u'alljoyn_interfacedescription_member *',
                                   POINTER(InterfaceDescriptionMember)))),
@@ -182,7 +208,7 @@ class InterfaceDescription(AllJoynObject):
                                     POINTER(InterfaceDescriptionProperty)))),
                  u'GetPropertyAnnotation': (u'alljoyn_interfacedescription_getpropertyannotation',
                                             (u'int', C.c_int),
-                                            ((u'alljoyn_interfacedescription', C.c_void_p),
+                                            ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                              (u'const char *', C.c_char_p),
                                              (u'const char *', C.c_char_p),
                                              (u'char *', C.c_char_p),
@@ -193,13 +219,13 @@ class InterfaceDescription(AllJoynObject):
                                           C.c_void_p),)),
                  u'GetSignal': (u'alljoyn_interfacedescription_getsignal',
                                 (u'int', C.c_int),
-                                ((u'alljoyn_interfacedescription', C.c_void_p),
+                                ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                  (u'const char *', C.c_char_p),
                                  (u'alljoyn_interfacedescription_member *',
                                   POINTER(InterfaceDescriptionMember)))),
                  u'HasMember': (u'alljoyn_interfacedescription_hasmember',
                                 (u'int', C.c_int),
-                                ((u'alljoyn_interfacedescription', C.c_void_p),
+                                ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                  (u'const char *', C.c_char_p),
                                  (u'const char *', C.c_char_p),
                                  (u'const char *', C.c_char_p))),
@@ -329,9 +355,9 @@ class InterfaceDescription(AllJoynObject):
         self._GetMember(self.handle, name, C.byref(member))  # const char *, alljoyn_interfacedescription_member *
         return C.pointer(member)
 
-    def AddMember(self, type, name, inputSig, outSig, argNames, annotation):
+    def AddMember(self, message_type, name, inputSig, outSig, argNames, annotation):
         # int,const char *,const char *,const char *,const char *,int
-        return self._AddMember(self.handle, type, name, inputSig, outSig, argNames, annotation)
+        return self._AddMember(self.handle, message_type.value, name, inputSig, outSig, argNames, annotation)
 
     def AddMemberAnnotation(self, member, name, value):
         return self._AddMemberAnnotation(self.handle, member, name, value)  # const char *,const char *,const char *
