@@ -175,36 +175,28 @@ class BusObject(AllJoynObject):
                               (u'int', C.c_int),
                               (u'int', C.c_int)))}
 
-    def __init__(self):
+    def __init__(self, path, is_place_holder=False, callback_data=None):
         super(BusObject, self).__init__()
-        self.handle = None
+        self.callback_structure = BusObjectCallBacks()
+
+        self.callback_data = callback_data
+
+        self.callback_structure.PropertyGet = BusObjectPropertyGetFuncType(BusObject._OnPropertyGetCallBack)
+        self.callback_structure.PropertySet = BusObjectPropertySetFuncType(BusObject._OnPropertySetCallback)
+        self.callback_structure.ObjectRegistered = BusObjectRegistrationFuncType(BusObject._OnObjectRegisteredCallBack)
+        self.callback_structure.ObjectUnregistered = BusObjectRegistrationFuncType(
+            BusObject._OnObjectUnregisteredCallBack)
+
+        self.handle = BusObject._Create(path, int(is_place_holder), C.byref(self.callback_structure), self.unique_id)
 
     def __del__(self):
         if self.handle:
             return self._Destroy(self.handle)
 
     @classmethod
-    def FromPath(cls, path, is_place_holder, callback_data=None):
-        instance = cls()
-
-        instance.callback_structure = BusObjectCallBacks()
-
-        instance.callback_data = callback_data
-
-        instance.callback_structure.PropertyGet = BusObjectPropertyGetFuncType(BusObject._OnPropertyGetCallBack)
-        instance.callback_structure.PropertySet = BusObjectPropertySetFuncType(BusObject._OnPropertySetCallback)
-        instance.callback_structure.ObjectRegistered = BusObjectRegistrationFuncType(BusObject._OnObjectRegisteredCallBack)
-        instance.callback_structure.ObjectUnregistered = BusObjectRegistrationFuncType(
-            BusObject._OnObjectUnregisteredCallBack)
-
-        instance.handle = BusObject._Create(path, int(is_place_holder), C.byref(instance.callback_structure), instance.unique_id)
-
-        return instance
-
-    @classmethod
     def FromHandle(cls, handle):
         assert type(handle) == BusObjectHandle
-        instance = cls()
+        instance = cls(BusObject._GetPath(handle), False)
         instance.handle = handle
         return instance
 

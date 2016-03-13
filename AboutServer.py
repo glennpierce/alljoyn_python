@@ -33,23 +33,22 @@ class MySessionPortListener(SessionPortListener.SessionPortListener):
         print "Session Joined SessionId", session_id
 
 
-class MyBusObject(object):
+class MyBusObject(BusObject.BusObject):
     def __init__(self, bus_attachment, path, is_place_holder=False):
-        
-        self.busObject = BusObject.BusObject.FromPath(path, is_place_holder, callback_data=None)
+        super(MyBusObject, self).__init__(path, is_place_holder)
 
         iface = bus_attachment.GetInterface(INTERFACE_NAME)
 
-        self.busObject.AddInterface(iface)
+        self.AddInterface(iface)
 
-        self.busObject.SetAnnounceFlag(iface, AjAPI.AnnounceFlag.Announced)
+        self.SetAnnounceFlag(iface, AjAPI.AnnounceFlag.Announced)
 
         methodEntryStruct = BusObject.BusObjectMethodEntry()
         methodEntryStruct.Member = iface.GetMember("Echo")
 
         methodEntryStruct.MethodHandler = MessageReceiver.MessageReceiverMethodHandlerFuncType(MyBusObject.Echo)
 
-        self.busObject.AddMethodHandlers([methodEntryStruct])
+        self.AddMethodHandlers([methodEntryStruct])
 
     @staticmethod
     def Echo(busobject_handle, member, msg):
@@ -57,15 +56,14 @@ class MyBusObject(object):
         # sender.
         message = Message.Message.FromHandle(msg)
         msgarg = message.GetArg(0)
-        
+
         text = msgarg.GetString()
         print "Server Echo method recieved:", text
-        
+
         replyArg = MsgArg.MsgArg()
         replyArg.SetString("Echoing back:" + text)
 
         print BusObject.BusObject.FromHandle(busobject_handle).MethodReplyArgs(message, replyArg, 1)
-          
 
 if __name__ == "__main__":
 
@@ -148,7 +146,7 @@ if __name__ == "__main__":
 
     myBusObject = MyBusObject(g_bus, "/example/path")
 
-    g_bus.RegisterBusObject(myBusObject.busObject)
+    g_bus.RegisterBusObject(myBusObject)
 
     # Announce about signal */
 

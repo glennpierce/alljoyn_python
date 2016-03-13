@@ -22,24 +22,22 @@ def signal_handler(signal, frame):
     s_interrupt = True
 
 
-class BasicServiceObject(object):
+class BasicServiceObject(BusObject.BusObject):
     def __init__(self, bus_attachment, path):
-        super(BasicServiceObject, self).__init__()
-
-        self.busObject = BusObject.BusObject.FromPath(path, False)
+        super(BasicServiceObject, self).__init__(path)
 
         iface = bus_attachment.GetInterface(INTERFACE_NAME)
 
-        self.busObject.AddInterface(iface)
+        self.AddInterface(iface)
 
-        self.busObject.SetAnnounceFlag(iface, AjAPI.AnnounceFlag.Announced)
+        self.SetAnnounceFlag(iface, AjAPI.AnnounceFlag.Announced)
 
         methodEntryStruct = BusObject.BusObjectMethodEntry()
         methodEntryStruct.Member = iface.GetMember("cat")
 
         methodEntryStruct.MethodHandler = MessageReceiver.MessageReceiverMethodHandlerFuncType(BasicServiceObject.cat)
 
-        self.busObject.AddMethodHandlers([methodEntryStruct])
+        self.AddMethodHandlers([methodEntryStruct])
 
     @staticmethod
     def cat(busobject_handle, member, msg):
@@ -83,7 +81,7 @@ class BasicServiceBus(BusAttachment.BusAttachment):
         self.CreateBasicServiceInterface()
         self.basicServiceObject = BasicServiceObject(self, SERVICE_PATH)
          
-        self.RegisterBusObject(self.basicServiceObject.busObject)
+        self.RegisterBusObject(self.basicServiceObject)
 
         self.Start()
 
