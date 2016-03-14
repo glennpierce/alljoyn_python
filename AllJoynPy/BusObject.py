@@ -195,7 +195,8 @@ class BusObject(AllJoynObject):
 
     def __del__(self):
         if self.handle:
-            return self._Destroy(self.handle)
+            pass
+            #self._Destroy(self.handle)
 
     @classmethod
     def FromHandle(cls, handle):

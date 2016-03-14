@@ -94,7 +94,7 @@ class BusListener(AllJoynObject):
 
     def __del__(self):
         if self.handle:
-            return self._Destroy(self.handle)
+            self._Destroy(self.handle)
 
     # Wrapper Methods
 
