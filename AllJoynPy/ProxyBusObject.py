@@ -19,17 +19,6 @@ from . import AllJoynMeta, AllJoynObject, Message, BusAttachment, InterfaceDescr
 
 # Wrapper for file ProxyBusObject.h
 
-# Typedefs
-# struct _alljoyn_proxybusobject_handle * alljoyn_proxybusobject
-# struct _alljoyn_busattachment_handle * alljoyn_busattachment
-# void (*)(int, alljoyn_proxybusobject, void *) alljoyn_proxybusobject_listener_introspectcb_ptr
-# void (*)(int, alljoyn_proxybusobject, const int, void *) alljoyn_proxybusobject_listener_getpropertycb_ptr
-# void (*)(int, alljoyn_proxybusobject, const int, void *) alljoyn_proxybusobject_listener_getallpropertiescb_ptr
-# void (*)(int, alljoyn_proxybusobject, void *) alljoyn_proxybusobject_listener_setpropertycb_ptr
-# void (*)(alljoyn_proxybusobject, const char *, const int, const int,
-# void *) alljoyn_proxybusobject_listener_propertieschanged_ptr
-
-
 class ProxyBusHandle(C.c_void_p):
     pass
 

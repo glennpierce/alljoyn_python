@@ -196,6 +196,7 @@ class BusObject(AllJoynObject):
     def __del__(self):
         if self.handle:
             pass
+            # Todo When can this be called
             #self._Destroy(self.handle)
 
     @classmethod

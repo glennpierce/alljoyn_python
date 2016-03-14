@@ -29,13 +29,6 @@ class SecurityPolicy(Enum):
     AJ_IFC_SECURITY_OFF = 2
 
 
-# Typedefs
-# struct _alljoyn_interfacedescription_handle * alljoyn_interfacedescription
-# enum alljoyn_interfacedescription_securitypolicy alljoyn_interfacedescription_securitypolicy
-# struct alljoyn_interfacedescription_member alljoyn_interfacedescription_member
-# struct alljoyn_interfacedescription_property alljoyn_interfacedescription_property
-
-
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
 else:
@@ -79,27 +72,6 @@ class InterfaceDescription(AllJoynObject):
                                     ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                         (u'const char *', C.c_char_p),
                                         (u'const char *', C.c_char_p))),
-
-                 #                  /**
-                 #  * Add a member to the interface.
-                 #  *
-                 #  * @param iface       Interface on which to add the member.
-                 #  * @param type        Message type.
-                 #  * @param name        Name of member.
-                 #  * @param inputSig    Signature of input parameters or NULL for none.
-                 #  * @param outSig      Signature of output parameters or NULL for none.
-                 #  * @param argNames    Comma separated list of input and then output arg names used in annotation XML.
-                 #  * @param annotation  Annotation flags.
-                 #  *
-                 #  * @return
-                 # *      - #ER_OK if successful
-                 # *      - #ER_BUS_MEMBER_ALREADY_EXISTS if member already exists
-                 #  */
-                 # extern AJ_API QStatus AJ_CALL alljoyn_interfacedescription_addmember(alljoyn_interfacedescription iface, alljoyn_messagetype type,
-                 #                                                                      const char* name, const char* inputSig, const char* outSig,
-                 # const char* argNames, uint8_t annotation);
-
-                 # /**
 
                  u'AddMember': (u'alljoyn_interfacedescription_addmember',
                                 (u'QStatus', C.c_uint),
@@ -343,14 +315,6 @@ class InterfaceDescription(AllJoynObject):
         return self._GetAnnotationAtIndex(self.handle, index, name, name_size, value, value_size)
 
     def GetMember(self, name):
-
-          # u'GetMember': (u'alljoyn_interfacedescription_getmember',
-          #                       (u'int', C.c_int),
-          #                       ((u'const alljoyn_interfacedescription', C.c_void_p),
-          #                        (u'const char *', C.c_char_p),
-          #                        (u'alljoyn_interfacedescription_member *',
-          #                         POINTER(InterfaceDescriptionMember)))),
-
         member = InterfaceDescriptionMember()
         self._GetMember(self.handle, name, C.byref(member))  # const char *, alljoyn_interfacedescription_member *
         return C.pointer(member)

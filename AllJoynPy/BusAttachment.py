@@ -365,31 +365,31 @@ class BusAttachment(AllJoynObject):
                  u'Stop': (u'alljoyn_busattachment_stop',
                            (u'QStatus', C.c_uint),
                            ((u'alljoyn_busattachment', BusAttachmentHandle),)),
-                 u'UNREGISTERABOUTLISTENER': (u'alljoyn_busattachment_unregisteraboutlistener',
+                 u'UnRegisterAboutListener': (u'alljoyn_busattachment_unregisteraboutlistener',
                                               (u'void', None),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                   (u'int', C.c_int))),
-                 u'UNREGISTERALLABOUTLISTENERS': (u'alljoyn_busattachment_unregisterallaboutlisteners',
+                 u'UnRegisterAllAboutListeners': (u'alljoyn_busattachment_unregisterallaboutlisteners',
                                                   (u'void', None),
                                                   ((u'alljoyn_busattachment', BusAttachmentHandle),)),
-                 u'UNREGISTERALLHANDLERS': (u'alljoyn_busattachment_unregisterallhandlers',
+                 u'UnRegisterAllHandlers': (u'alljoyn_busattachment_unregisterallhandlers',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),)),
-                 u'UNREGISTERBUSLISTENER': (u'alljoyn_busattachment_unregisterbuslistener',
+                 u'UnRegisterBusListener': (u'alljoyn_busattachment_unregisterbuslistener',
                                             (u'void', None),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                 (u'int', C.c_int))),
-                 u'UNREGISTERBUSOBJECT': (u'alljoyn_busattachment_unregisterbusobject',
+                 u'UnRegisterBusObject': (u'alljoyn_busattachment_unregisterbusobject',
                                           (u'void', None),
                                           ((u'alljoyn_busattachment', BusAttachmentHandle),
                                               (u'int', C.c_int))),
-                 u'UNREGISTERSIGNALHANDLER': (u'alljoyn_busattachment_unregistersignalhandler',
+                 u'UnRegisterSignalHandler': (u'alljoyn_busattachment_unregistersignalhandler',
                                               (u'QStatus', C.c_uint),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                   (u'int', C.c_int),
                                                   (u'const int', C.c_int),
                                                   (u'const char *', C.c_char_p))),
-                 u'UNREGISTERSIGNALHANDLERWITHRULE': (u'alljoyn_busattachment_unregistersignalhandlerwithrule',
+                 u'UnRegisterSignalHandlerWithRule': (u'alljoyn_busattachment_unregistersignalhandlerwithrule',
                                                       (u'QStatus', C.c_uint),
                                                       ((u'alljoyn_busattachment',
                                                         C.c_void_p),
@@ -454,8 +454,8 @@ class BusAttachment(AllJoynObject):
     def RegisterBusListener(self, listener):
         return self._RegisterBusListener(self.handle, listener.handle)  # int
 
-    def UNREGISTERBUSLISTENER(self, listener):
-        return self._UNREGISTERBUSLISTENER(self.handle, listener)  # int
+    def UnRegisterBusListener(self, listener):
+        return self._UnRegisterBusListener(self.handle, listener)  # int
 
     def FindAdvertisedName(self, namePrefix):
         return self._FindAdvertisedName(self.handle, namePrefix)  # const char *
@@ -494,8 +494,8 @@ class BusAttachment(AllJoynObject):
     def RegisterBusObjectSecure(self, obj):
         return self._RegisterBusObjectSecure(self.handle, obj.handle)  # int
 
-    def UNREGISTERBUSOBJECT(self, object):
-        return self._UNREGISTERBUSOBJECT(self.handle, object)  # int
+    def UnRegisterBusObject(self, object):
+        return self._UnRegisterBusObject(self.handle, object)  # int
 
     def RequestName(self, requestedName, flags):
         return self._RequestName(self.handle, requestedName, flags)  # const char *,int
@@ -569,15 +569,15 @@ class BusAttachment(AllJoynObject):
         # int,const int,const char *
         return self._RegisterSignalHandlerWithRule(self.handle, signal_handler, member, matchRule)
 
-    def UNREGISTERSIGNALHANDLER(self, signal_handler, member, srcPath):
-        return self._UNREGISTERSIGNALHANDLER(self.handle, signal_handler, member, srcPath)  # int,const int,const char *
+    def UnRegisterSignalHandler(self, signal_handler, member, srcPath):
+        return self._UnRegisterSignalHandler(self.handle, signal_handler, member, srcPath)  # int,const int,const char *
 
-    def UNREGISTERSIGNALHANDLERWITHRULE(self, signal_handler, member, matchRule):
+    def UnRegisterSignalHandlerWithRule(self, signal_handler, member, matchRule):
         # int,const int,const char *
-        return self._UNREGISTERSIGNALHANDLERWITHRULE(self.handle, signal_handler, member, matchRule)
+        return self._UnRegisterSignalHandlerWithRule(self.handle, signal_handler, member, matchRule)
 
-    def UNREGISTERALLHANDLERS(self):
-        return self._UNREGISTERALLHANDLERS(self.handle)
+    def UnRegisterAllHandlers(self):
+        return self._UnRegisterAllHandlers(self.handle)
 
     def RegisterKeysToreListener(self, listener):
         return self._RegisterKeysToreListener(self.handle, listener)  # int
@@ -647,11 +647,11 @@ class BusAttachment(AllJoynObject):
     def RegisterAboutListener(self, aboutListener):
         return self._RegisterAboutListener(self.handle, aboutListener.handle)  # alljoyn_aboutlistener
 
-    def UNREGISTERABOUTLISTENER(self, aboutListener):
-        return self._UNREGISTERABOUTLISTENER(self.handle, aboutListener)  # int
+    def UnRegisterAboutListener(self, aboutListener):
+        return self._UnRegisterAboutListener(self.handle, aboutListener)  # int
 
-    def UNREGISTERALLABOUTLISTENERS(self):
-        return self._UNREGISTERALLABOUTLISTENERS(self.handle)
+    def UnRegisterAllAboutListeners(self):
+        return self._UnRegisterAllAboutListeners(self.handle)
 
     # def WhoImplementsInterfaces(self, implementsInterfaces, numberInterfaces):
     def WhoImplementsInterfaces(self, interfaces):

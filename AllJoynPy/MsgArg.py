@@ -536,21 +536,6 @@ class MsgArg(AllJoynObject):
     def ArrayCreate(self):
         return self._ArrayCreate(self.handle)
 
-
-# /**
-#  * Obtain a single alljoyn_msgarg element from an array of alljoyn_msgarg elements
-#  * @remark This function exists for development of other language bindings and may
-#  *         be changed or removed in future updates and should not be used for reading
-#  *         values from an alljoyn_msgarg.
-#  * @see alljoyn_msgarg_set
-#  * @see alljoyn_msgarg_get.
-#  *
-#  * @param      arg      The alljoyn_msgarg that contains the array element
-#  * @param      index    The index value for the individual alljoyn_msgarg
-#  * @param[out] element  The alljoyn_msgarg located at the index
-#  */
-# extern AJ_API void AJ_CALL   alljoyn_msgarg_get_array_element(const alljoyn_msgarg arg, size_t index, alljoyn_msgarg* element);
-
     def ArrayElement(self, index):
         return MsgArg.FromHandle(self._ArrayElement(self.handle, index)) 
 
@@ -728,24 +713,6 @@ class MsgArg(AllJoynObject):
 
     def SetString(self, string):
         return self._SetString(self.handle, C.create_string_buffer(string).raw)
-
-# /**
-#  * Get a string from an alljoyn_msgarg
-#  * @remark This function exists for development of other language bindings and may
-#  *         be changed or removed in future updates and should not be used for reading
-#  *         values from an alljoyn_msgarg.
-#  * @see alljoyn_msgarg_get.
-#  *
-#  * @param      arg  the alljoyn_msgarg to obtain the data from
-#  * @param[out] s    a pointer to the string
-#  *
-#  * @return
-#  *      - #ER_OK if the signature matched and alljoyn_msgarg was successfully unpacked.
-#  *      - #ER_BUS_SIGNATURE_MISMATCH if the signature did not match.
-#  *      - An error status otherwise
-#  */
-# extern AJ_API QStatus AJ_CALL alljoyn_msgarg_get_string(const alljoyn_msgarg arg, char** s);
-
 
     def GetString(self):
         #buf = C.create_string_buffer(100)

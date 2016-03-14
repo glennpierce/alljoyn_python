@@ -30,13 +30,6 @@ class SessionLostReason(Enum):
     ALLJOYN_SESSIONLOST_LINK_TIMEOUT = 4
     ALLJOYN_SESSIONLOST_REASON_OTHER = 5
 
-# Typedefs
-# enum alljoyn_sessionlostreason alljoyn_sessionlostreason
-# struct _alljoyn_sessionlistener_handle * alljoyn_sessionlistener
-# void (*)(const void *, int, alljoyn_sessionlostreason) alljoyn_sessionlistener_sessionlost_ptr
-# void (*)(const void *, int, const char *) alljoyn_sessionlistener_sessionmemberadded_ptr
-# void (*)(const void *, int, const char *) alljoyn_sessionlistener_sessionmemberremoved_ptr
-# struct alljoyn_sessionlistener_callbacks alljoyn_sessionlistener_callbacks
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
