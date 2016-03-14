@@ -15,7 +15,7 @@ OBJECT_PATH = "/net/allplay/MediaPlayer"
 
 
 class MyBusListener(BusListener.BusListener):
-    def __init__(self, callback_data=None):
+    def __init__(self, context=None):
         super(MyBusListener, self).__init__()
 
     def OnListenerRegisteredCallBack(self, context, bus):

@@ -75,40 +75,22 @@ class BusListener(AllJoynObject):
                               (u'void', None),
                               ((u'alljoyn_buslistener', BusListenerHandle),))}
 
-    def __init__(self, callback_data=None):
+    def __init__(self, context=None):
 
         super(BusListener, self).__init__()
 
         self.callback_structure = BusListenerCallBacks()
 
-        self.callback_data = callback_data
+        self.callback_structure.ListenerRegistered = self._OnListenerRegisteredCallBack()
+        self.callback_structure.ListenerUnregistered = self._OnListenerUnregisteredCallback()
+        self.callback_structure.FoundAdvertisedName = self._OnFoundAdvertisedNameCallBack()
+        self.callback_structure.LostAdvertisedName = self._OnLostAdvertisedNameCallBack()
+        self.callback_structure.NameOwnerChanged = self._OnNameOwnerChangedCallBack()
+        self.callback_structure.BusStopping = self._OnBusStoppingCallBack()
+        self.callback_structure.BusDisconnected = self._OnBusDisconnectedCallBack()
+        self.callback_structure.PropertyChanged = self._OnPropertyChangedCallBack()
 
-        self.callback_structure.ListenerRegistered = BusListenerListenerRegisteredFuncType(
-            BusListener._OnListenerRegisteredCallBack)
-
-        self.callback_structure.ListenerUnregistered = BusListenerListenerUnregisteredFuncType(
-            BusListener._OnListenerUnregisteredCallback)
-
-        self.callback_structure.FoundAdvertisedName = BusListenerFoundAdvertisedNameFuncType(
-            BusListener._OnFoundAdvertisedNameCallBack)
-
-        self.callback_structure.LostAdvertisedName = BusListenerLostAdvertisedNameFuncType(
-            BusListener._OnLostAdvertisedNameCallBack)
-
-        self.callback_structure.NameOwnerChanged = BusListenerNameOwnerChangedFuncType(
-            BusListener._OnNameOwnerChangedCallBack)
-
-        self.callback_structure.BusStopping = BusListenerBusStoppingFuncType(
-            BusListener._OnBusStoppingCallBack)
-
-        self.callback_structure.BusDisconnected = BusListenerBusDisconnectedFuncType(
-            BusListener._OnBusDisconnectedCallBack)
-
-        self.callback_structure.PropertyChanged = BusListenerBusPropChangedFuncType(
-            BusListener._OnPropertyChangedCallBack)
-
-        print "self.unique_id", self.unique_id
-        self.handle = self._Create(C.byref(self.callback_structure), self.unique_id)
+        self.handle = self._Create(C.byref(self.callback_structure), context)
 
     def __del__(self):
         if self.handle:
@@ -116,46 +98,45 @@ class BusListener(AllJoynObject):
 
     # Wrapper Methods
 
-    @staticmethod
-    def _OnListenerRegisteredCallBack(context, bus):
-        print "context", context, "bus", bus
-        self = AllJoynObject.unique_instances[context]
-        self.OnListenerRegisteredCallBack(self.callback_data, bus)
+    def _OnListenerRegisteredCallBack(self):
+        def func(context, bus):
+          self.OnListenerRegisteredCallBack(context, bus)
+        return BusListenerListenerRegisteredFuncType(func)
 
-    @staticmethod
-    def _OnListenerUnregisteredCallback(context):
-        self = AllJoynObject.unique_instances[context]
-        self.OnListenerUnregisteredCallback(self.callback_data)
+    def _OnListenerUnregisteredCallback(self):
+        def func(context):
+          self.OnListenerUnregisteredCallback(context)
+        return BusListenerListenerUnregisteredFuncType(func)
 
-    @staticmethod
-    def _OnFoundAdvertisedNameCallBack(context, name, transport, name_prefix):
-        self = AllJoynObject.unique_instances[context]
-        self.OnFoundAdvertisedNameCallBack(self.callback_data, name, transport, name_prefix)
+    def _OnFoundAdvertisedNameCallBack(self):
+        def func(context, name, transport, name_prefix):
+          self.OnFoundAdvertisedNameCallBack(context, name, transport, name_prefix)
+        return BusListenerFoundAdvertisedNameFuncType(func)
+   
+    def _OnLostAdvertisedNameCallBack(self):
+        def func(context, name, transport, name_prefix):
+          self.OnLostAdvertisedNameCallBack(context, name, transport, name_prefix)
+        return BusListenerLostAdvertisedNameFuncType(func)
+   
+    def _OnNameOwnerChangedCallBack(self):
+        def func(context, bus_name, previous_owner, new_owner):
+          self.OnNameOwnerChangedCallBack(context, bus_name, previous_owner, new_owner)
+        return BusListenerNameOwnerChangedFuncType(func)
 
-    @staticmethod
-    def _OnLostAdvertisedNameCallBack(context, name, transport, name_prefix):
-        self = AllJoynObject.unique_instances[context]
-        self.OnLostAdvertisedNameCallBack(self.callback_data, name, transport, name_prefix)
+    def _OnBusStoppingCallBack(self):
+        def func(context):
+          self.OnBusStoppingCallBack(context)
+        return BusListenerBusStoppingFuncType(func)
 
-    @staticmethod
-    def _OnNameOwnerChangedCallBack(context, bus_name, previous_owner, new_owner):
-        self = AllJoynObject.unique_instances[context]
-        self.OnNameOwnerChangedCallBack(self.callback_data, bus_name, previous_owner, new_owner)
+    def _OnBusDisconnectedCallBack(self):
+        def func(context):
+          self.OnBusDisconnectedCallBack(context)
+        return BusListenerBusDisconnectedFuncType(func)
 
-    @staticmethod
-    def _OnBusStoppingCallBack(context):
-        self = AllJoynObject.unique_instances[context]
-        self.OnBusStoppingCallBack(self.callback_data)
-
-    @staticmethod
-    def _OnBusDisconnectedCallBack(context):
-        self = AllJoynObject.unique_instances[context]
-        self.OnBusDisconnectedCallBack(self.callback_data)
-
-    @staticmethod
-    def _OnPropertyChangedCallBack(context, property_name, property_value):
-        self = AllJoynObject.unique_instances[context]
-        self.OnPropertyChangedCallBack(self.callback_data, property_name, property_value)
+    def _OnPropertyChangedCallBack(self):
+        def func(context, property_name, property_value):
+          self.OnPropertyChangedCallBack(context, property_name, property_value)
+        return BusListenerBusPropChangedFuncType(func)
 
     def OnListenerRegisteredCallBack(self, context, bus):
         pass

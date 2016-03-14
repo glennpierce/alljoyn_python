@@ -12,7 +12,7 @@
 #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import sys
+import sys, traceback
 import ctypes as C
 from ctypes import POINTER
 
@@ -38,11 +38,14 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
+
 BusObjectRegistrationFuncType = CallbackType(None, C.c_void_p)  # context
+
 BusObjectPropertyGetFuncType = CallbackType(
-    C.c_uint, C.c_void_p, C.c_char_p, C.c_char_p, C.c_void_p, C.c_void_p)  # context, ifcName, propName, val
+    C.c_uint, C.c_void_p, C.c_char_p, C.c_char_p, MsgArg.MsgArgHandle)  # context, ifcName, propName, val
+
 BusObjectPropertySetFuncType = CallbackType(
-    C.c_uint, C.c_void_p, C.c_char_p, C.c_char_p, C.c_void_p, C.c_void_p)  # context, ifcName, propName, val
+    C.c_uint, C.c_void_p, C.c_char_p, C.c_char_p, MsgArg.MsgArgHandle)  # context, ifcName, propName, val
 
 
 class BusObjectCallBacks(C.Structure):
@@ -51,6 +54,8 @@ class BusObjectCallBacks(C.Structure):
         ("PropertySet", BusObjectPropertySetFuncType),
         ("ObjectRegistered", BusObjectRegistrationFuncType),
         ("ObjectUnregistered", BusObjectRegistrationFuncType)
+
+        #("Instance", C.c_void_p),
     ]
 
 
@@ -175,19 +180,18 @@ class BusObject(AllJoynObject):
                               (u'int', C.c_int),
                               (u'int', C.c_int)))}
 
-    def __init__(self, path, is_place_holder=False, callback_data=None):
+    def __init__(self, path, is_place_holder=False, context=None, setup_callbacks=True):
         super(BusObject, self).__init__()
-        self.callback_structure = BusObjectCallBacks()
 
-        self.callback_data = callback_data
+        if setup_callbacks:
+          self.callback_structure = BusObjectCallBacks()
 
-        self.callback_structure.PropertyGet = BusObjectPropertyGetFuncType(BusObject._OnPropertyGetCallBack)
-        self.callback_structure.PropertySet = BusObjectPropertySetFuncType(BusObject._OnPropertySetCallback)
-        self.callback_structure.ObjectRegistered = BusObjectRegistrationFuncType(BusObject._OnObjectRegisteredCallBack)
-        self.callback_structure.ObjectUnregistered = BusObjectRegistrationFuncType(
-            BusObject._OnObjectUnregisteredCallBack)
+          self.callback_structure.PropertyGet = self._OnPropertyGetCallBack()
+          self.callback_structure.PropertySet = self._OnPropertySetCallback()
+          self.callback_structure.ObjectRegistered = self._OnObjectRegisteredCallBack()
+          self.callback_structure.ObjectUnregistered = self._OnObjectUnregisteredCallBack()
 
-        self.handle = BusObject._Create(path, int(is_place_holder), C.byref(self.callback_structure), self.unique_id)
+          self.handle = BusObject._Create(path, int(is_place_holder), C.byref(self.callback_structure), context)
 
     def __del__(self):
         if self.handle:
@@ -196,41 +200,40 @@ class BusObject(AllJoynObject):
     @classmethod
     def FromHandle(cls, handle):
         assert type(handle) == BusObjectHandle
-        instance = cls(BusObject._GetPath(handle), False)
+        instance = cls(BusObject._GetPath(handle), False, None, setup_callbacks=False)
         instance.handle = handle
         return instance
 
-    @staticmethod
-    def _OnPropertyGetCallBack(context, ifcName, propName, val):
-        self = AllJoynObject.unique_instances[context]
-        self.OnPropertyGetCallBack(self.callback_data, ifcName, propName, val)
+    def _OnPropertyGetCallBack(self):
+        def func(context, ifcName, propName, val):
+          self.OnPropertyGetCallBack(context, ifcName, propName, val)
+        return BusObjectPropertyGetFuncType(func)
 
-    @staticmethod
-    def _OnPropertySetCallback(context, ifcName, propName, val):
-        self = AllJoynObject.unique_instances[context]
-        self.OnPropertySetCallBack(self.callback_data, ifcName, propName, val)
+    def _OnPropertySetCallback(self):
+        def func(context, ifcName, propName, val):
+          self.OnPropertySetCallback(context, ifcName, propName, val)
+        return BusObjectPropertySetFuncType(func)
 
-    @staticmethod
-    def _OnObjectRegisteredCallBack(context):
-        self = AllJoynObject.unique_instances[context]
-        self.OnObjectRegisteredCallBack(self.callback_data)
+    def _OnObjectRegisteredCallBack(self):
+        def func(context):
+          self.OnObjectRegisteredCallBack(context)
+        return BusObjectRegistrationFuncType(func)
 
-    @staticmethod
-    def _OnObjectUnregisteredCallBack(context):
-        print "_OnObjectUnregisteredCallBack"
-        self = AllJoynObject.unique_instances[context]
-        self.OnObjectUnRegisteredCallBack(self.callback_data)
-
-    def OnPropertyGetCallBack(self, ifcName, propName, val):
+    def _OnObjectUnregisteredCallBack(self):
+        def func(context):
+          self.OnObjectUnRegisteredCallBack(context)
+        return BusObjectRegistrationFuncType(func)
+  
+    def OnPropertyGetCallBack(self, context, ifcName, propName, val):
         pass
 
-    def OnPropertySetCallBack(self, ifcName, propName, val):
+    def OnPropertySetCallBack(self, context, ifcName, propName, val):
         pass
 
-    def OnObjectRegisteredCallBack(self, callback_data):
+    def OnObjectRegisteredCallBack(self, context):
         pass
 
-    def OnObjectUnRegisteredCallBack(self, callback_data):
+    def OnObjectUnRegisteredCallBack(self, context):
         pass
 
     # Wrapper Methods

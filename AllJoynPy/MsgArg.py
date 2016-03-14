@@ -13,7 +13,7 @@
  #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
     
-import sys
+import sys, traceback
 import types
 import ctypes as C
 from ctypes import POINTER
@@ -142,7 +142,7 @@ class MsgArg(AllJoynObject):
                                    ((u'const char *', C.c_char_p),)),
 
                  u'Destroy': (u'alljoyn_msgarg_destroy', (u'void', None),
-                              ((u'alljoyn_msgarg', POINTER(MsgArgHandle)),)),
+                              ((u'alljoyn_msgarg', MsgArgHandle),)),
 
                  u'Equal': (u'alljoyn_msgarg_equal',
                             (u'int', C.c_int),
@@ -513,8 +513,9 @@ class MsgArg(AllJoynObject):
 
     def __del__(self):
         if self.handle:
-            pass
-            # self._Destroy(self.handle)
+          pass
+          #print traceback.print_stack()
+          #self._Destroy(self.handle)
   
     @classmethod
     def FromHandle(cls, handle):
@@ -524,6 +525,10 @@ class MsgArg(AllJoynObject):
 
         return instance
         
+
+    def Destroy(self):
+      self._Destroy(self.handle)
+
     # Wrapper Methods
     def CreateAndSet(self):
         return self._CreateAndSet(self.handle)

@@ -21,13 +21,6 @@ from enum import Enum, unique
 from . import AllJoynMeta, AllJoynObject
 # Wrapper for file SessionPortListener.h
 
-# Typedefs
-# struct _alljoyn_sessionportlistener_handle * alljoyn_sessionportlistener
-# int (int *) QCC_BOOL
-# void (*)(const void *, int, int, const char *) alljoyn_sessionportlistener_sessionjoined_ptr
-# struct alljoyn_sessionportlistener_callbacks alljoyn_sessionportlistener_callbacks
-
-
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
 else:
@@ -36,12 +29,11 @@ else:
 class SessionPortListenerHandle(C.c_void_p): 
     pass
 
-SessionPortListenerSessionJoinedFuncType = CallbackType(
-    None, C.c_void_p, C.c_int, C.c_int, C.c_char_p)  # context sessionPort id joiner
-
 SessionPortListenerAcceptSessionJoinerFuncType = CallbackType(
-    C.c_ubyte, C.c_void_p, C.c_int, C.c_char_p, C.c_void_p)  # context sessionPort joiner, opts
+    C.c_int, C.c_void_p, C.c_ushort, C.c_char_p, C.c_void_p)  # context sessionPort joiner, opts
 
+SessionPortListenerSessionJoinedFuncType = CallbackType(
+    None, C.c_void_p, C.c_ushort, C.c_uint, C.c_char_p)  # context sessionPort id joiner
 
 class SessionPortListenerCallBacks(C.Structure):
     _fields_ = [
@@ -62,40 +54,35 @@ class SessionPortListener(AllJoynObject):
                  u'Destroy': (u'alljoyn_sessionportlistener_destroy', (u'void', None),
                               ((u'alljoyn_sessionportlistener', SessionPortListenerHandle),))}
 
-    def __init__(self, callback_data=None):
+    def __init__(self, context=None):
 
         super(SessionPortListener, self).__init__()
 
         self.callback_structure = SessionPortListenerCallBacks()
 
-        self.callback_data = callback_data
+        self.callback_structure.AcceptSessionJoiner = self._OnAcceptSessionJoinerCallBack()
+        self.callback_structure.SessionJoined = self._OnSessionJoinedCallback()
 
-        self.callback_structure.AcceptSessionJoiner = SessionPortListenerAcceptSessionJoinerFuncType(
-            SessionPortListener._OnAcceptSessionJoinerCallBack)
-
-        self.callback_structure.SessionJoined = SessionPortListenerSessionJoinedFuncType(
-            SessionPortListener._OnSessionJoinedCallback)
-
-        self.handle = self._Create(C.byref(self.callback_structure), self.unique_id)
+        self.handle = self._Create(C.byref(self.callback_structure), context)
 
     def __del__(self):
         if self.handle:
             return self._Destroy(self.handle)
 
-    @staticmethod
-    def _OnAcceptSessionJoinerCallBack(context, session_port, joiner, opts):
-        self = AllJoynObject.unique_instances[context]
-        return self.OnAcceptSessionJoinerCallBack(self.callback_data, session_port, joiner, opts)
+    def _OnAcceptSessionJoinerCallBack(self):
+        def func(context, session_port, joiner, opts):
+          return self.OnAcceptSessionJoinerCallBack(context, session_port, joiner, opts)
+        return SessionPortListenerAcceptSessionJoinerFuncType(func)
 
-    @staticmethod
-    def _OnSessionJoinedCallback(context, session_port, session_id, joiner):
-        self = AllJoynObject.unique_instances[context]
-        self.OnSessionJoinedCallback(self.callback_data, session_port, session_id, joiner)
+    def _OnSessionJoinedCallback(self):
+        def func(context, session_port, session_id, joiner):
+          self.OnSessionJoinedCallback(context, session_port, session_id, joiner)
+        return SessionPortListenerSessionJoinedFuncType(func)
 
-    def OnAcceptSessionJoinerCallBack(self, callback_data, session_port, joiner, opts):
-        pass
+    def OnAcceptSessionJoinerCallBack(self, context, session_port, joiner, opts):
+        return 1
 
-    def OnSessionJoinedCallback(self, callback_data, session_port, session_id, joiner):
+    def OnSessionJoinedCallback(self, context, session_port, session_id, joiner):
         pass
 
 

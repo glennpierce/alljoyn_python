@@ -43,9 +43,9 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
-class SessionListenerHandle(C.c_void_p): 
+class SessionListenerHandle(C.c_void_p):
     pass
-    
+
 # typedef void (AJ_CALL * alljoyn_sessionlistener_sessionlost_ptr)(const
 # void* context, alljoyn_sessionid sessionId, alljoyn_sessionlostreason
 # reason);
@@ -83,41 +83,36 @@ class SessionListener(AllJoynObject):
                  u'Destroy': (u'alljoyn_sessionlistener_destroy', (u'void', None), 
                             ((u'alljoyn_sessionlistener', SessionListenerHandle),))}
 
-    def __init__(self, callback_data=None):
+    def __init__(self, context=None):
 
         super(SessionListener, self).__init__()
 
         self.callback_structure = SessionListenerCallBacks()
 
-        self.callback_data = callback_data
+        self.callback_structure.SessionLost = self._OnSessionLostCallBack()
+        self.callback_structure.SessionMemberAdded = self._OnSessionMemberAddedCallback()    
+        self.callback_structure.SessionMemberRemoved = self._OnSessionMemberRemovedCallBack()
 
-        self.callback_structure.SessionLost = SessionListenerSessionLostFuncType(SessionListener._OnSessionLostCallBack)
-        self.callback_structure.SessionMemberAdded = SessionListenerSessionMemberAddedFuncType(
-            SessionListener._OnSessionMemberAddedCallback)
-        self.callback_structure.SessionMemberRemoved = SessionListenerSessionMemberRemovedFuncType(
-            SessionListener._OnSessionMemberRemovedCallBack)
-
-        self.handle = self._Create(C.byref(self.callback_structure), self.unique_id)
+        self.handle = self._Create(C.byref(self.callback_structure), None)
 
     def __del__(self):
         if self.handle:
             return self._Destroy(self.handle)
 
-    @staticmethod
-    # const void* context, alljoyn_sessionid sessionId, alljoyn_sessionlostreason reason)
-    def _OnSessionLostCallBack(context, sessionId, reason):
-        self = AllJoynObject.unique_instances[context]
-        self.OnSessionLostCallBack(self.callback_data, sessionId, SessionLostReason(reason))
+    def _OnSessionLostCallBack(self):
+        def func(context, sessionId, reason):
+          self.OnSessionLostCallBack(context, sessionId, SessionLostReason(reason))
+        return SessionListenerSessionLostFuncType(func)
 
-    @staticmethod
-    def _OnSessionMemberAddedCallback(context, sessionId, uniqueName):
-        self = AllJoynObject.unique_instances[context]
-        self.OnSessionMemberAddedCallback(self.callback_data, sessionId, uniqueName)
+    def _OnSessionMemberAddedCallback(self):
+        def func(context, sessionId, uniqueName):
+          self.OnSessionMemberAddedCallback(context, sessionId, uniqueName)
+        return SessionListenerSessionMemberAddedFuncType(func)
 
-    @staticmethod
-    def _OnSessionMemberRemovedCallBack(context, sessionId, uniqueName):
-        self = AllJoynObject.unique_instances[context]
-        self.OnSessionMemberRemovedCallBack(self.callback_data, sessionId, uniqueName)
+    def _OnSessionMemberRemovedCallBack(self):
+        def func(context, sessionId, uniqueName):
+          self.OnSessionMemberRemovedCallBack(ccontext, sessionId, uniqueName)
+        return SessionListenerSessionMemberRemovedFuncType(func)
 
     def OnSessionLostCallBack(self, context, sessionId, reason):
         pass

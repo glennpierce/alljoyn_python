@@ -20,16 +20,16 @@ def signal_handler(signal, frame):
 
 
 class MySessionPortListener(SessionPortListener.SessionPortListener):
-    def __init__(self, callback_data=None):
-        super(MySessionPortListener, self).__init__(callback_data=callback_data)
+    def __init__(self, context=None):
+        super(MySessionPortListener, self).__init__(context=context)
 
-    def OnAcceptSessionJoinerCallBack(self, callback_data, session_port, joiner, opts):
+    def OnAcceptSessionJoinerCallBack(self, context, session_port, joiner, opts):
         if session_port != ASSIGNED_SESSION_PORT:
             print "Rejecting join attempt on unexpected session port", session_port
             return False
         return True
 
-    def OnSessionJoinedCallback(self, callback_data, session_port, session_id, joiner):
+    def OnSessionJoinedCallback(self, context, session_port, session_id, joiner):
         print "Session Joined SessionId", session_id
 
 

@@ -448,13 +448,8 @@ class AllJoynObject(object):
         #self.lib = getattr(functForLoad, "/usr/lib64/" + libName)
         _lib = getattr(functForLoad, "liballjoyn_c.so")
 
-    unique_id_count = 0
-    unique_instances = {}
-
     def __init__(self):
-        self.unique_id = AllJoynObject.unique_id_count
-        AllJoynObject.unique_id_count += 1
-        AllJoynObject.unique_instances[self.unique_id] = self
+        pass
 
     @staticmethod
     def QStatusToException(status):
@@ -465,6 +460,10 @@ class AllJoynObject(object):
             text = AllJoynObject._lib.QCC_StatusText(status)
             raise QStatusException(text, status)
         return qstatus
+
+    @staticmethod
+    def Boolean(result):
+        return int(result)
 
     @classmethod
     def bind_functions_to_cls(cls):

@@ -26,9 +26,10 @@ class MySessionListener(SessionListener.SessionListener):
 
 
 class MyAboutListener(AboutListener.AboutListener):
-    def __init__(self, callback_data=None):
-        super(MyAboutListener, self).__init__(callback_data=callback_data)
+    def __init__(self, bus_attachment, context=None):
+        super(MyAboutListener, self).__init__(context=context)
         self.sessionListener = MySessionListener()
+        self.bus_attachment = bus_attachment
 
     # Print out the fields found in the AboutData. Only fields with known signatures
     # are printed out.  All others will be treated as an unknown field.
@@ -50,8 +51,6 @@ class MyAboutListener(AboutListener.AboutListener):
                 print "User Defined Value\tSignature: ", tmp.Signature()
 
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
-
-        g_bus = context
 
         print "BusName", busName
 
@@ -86,13 +85,13 @@ class MyAboutListener(AboutListener.AboutListener):
                                     Session.ALLJOYN_PROXIMITY_ANY,
                                     TransportMask.ALLJOYN_TRANSPORT_ANY)
 
-        g_bus.EnableConcurrentCallBacks()
+        self.bus_attachment.EnableConcurrentCallBacks()
 
         print "JoiningSession", "busName", busName, "port", port, "opts", opts
-        sessionId = g_bus.JoinSession(busName, port, self.sessionListener, opts)
+        sessionId = self.bus_attachment.JoinSession(busName, port, self.sessionListener, opts)
         print "SessionJoined sessionId = ", sessionId
 
-        aboutProxy = AboutProxy.AboutProxy(g_bus, busName, sessionId)
+        aboutProxy = AboutProxy.AboutProxy(self.bus_attachment, busName, sessionId)
 
         objArg = aboutProxy.GetObjectDescription()
         print "*********************************************************************************"
@@ -139,7 +138,7 @@ class MyAboutListener(AboutListener.AboutListener):
             arg = MsgArg.MsgArg()
             arg.SetString("ECHO Echo echo...")
             
-            replyMsg = Message.Message(g_bus)
+            replyMsg = Message.Message(self.bus_attachment)
             
             proxyBusObject.MethodCall(INTERFACE_NAME, "Echo", arg, 1, replyMsg, 25000, 0)
     

@@ -26,26 +26,12 @@ else:
     CallbackType = C.CFUNCTYPE
 
 
-
-# typedef void (AJ_CALL * alljoyn_messagereceiver_methodhandler_ptr)(alljoyn_busobject bus,
-#                                                                    const alljoyn_interfacedescription_member* member,
-#                                                                    alljoyn_message message);
 MessageReceiverMethodHandlerFuncType = CallbackType(
     None, BusObject.BusObjectHandle, POINTER(InterfaceDescription.InterfaceDescriptionMember), Message.MessageHandle)  # bus member message
 
 
-# typedef void (AJ_CALL * alljoyn_messagereceiver_signalhandler_ptr)(const alljoyn_interfacedescription_member* member,
-#                                                                    const char* srcPath, alljoyn_message message);
 MessageReceiverSignalHandlerFuncType = CallbackType(
     None, POINTER(InterfaceDescription.InterfaceDescriptionMember), C.c_char_p, Message.MessageHandle)  # member srcPath message
 
 
-# typedef void (AJ_CALL * alljoyn_messagereceiver_replyhandler_ptr)(alljoyn_message message, void* context);
 MessageReceiverReplyHandlerFuncType = CallbackType(None, Message.MessageHandle, C.c_void_p)  # message context
-
-
-
-
-
-
-

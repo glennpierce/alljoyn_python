@@ -180,7 +180,7 @@ class Message(AllJoynObject):
     def __del__(self):
         # Todo Getting seg fault with Destroy
         # print "Message __del__ called"
-        # self._Destroy(self.handle)
+        #self._Destroy(self.handle)
         pass
 
     @classmethod
