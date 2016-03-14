@@ -68,7 +68,7 @@ class AboutData(AllJoynObject):
                                ((u'alljoyn_aboutdata', AboutDataHandle),
                                    (u'int **', POINTER(POINTER(C.c_int))),
                                    (u'int *', POINTER(C.c_int)))),
-                 u'GetAPPNAME': (u'alljoyn_aboutdata_getappname',
+                 u'GetAppName': (u'alljoyn_aboutdata_getappname',
                                  (u'QStatus', C.c_uint),
                                  ((u'alljoyn_aboutdata', AboutDataHandle),
                                      (u'char **', POINTER(C.c_char_p)),

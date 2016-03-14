@@ -19,9 +19,8 @@ from . import AllJoynMeta, AllJoynObject
 
 # Wrapper for file AboutObj.h
 
-# Typedefs
-# struct _alljoyn_aboutobj_handle * alljoyn_aboutobj
-
+class AboutObjectHandle(C.c_void_p): 
+    pass
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
@@ -33,20 +32,20 @@ class AboutObject(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
 
-    _cmethods = {u'Announce': (u'alljoyn_aboutobj_announce', (u'QStatus', C.c_uint), 
-                                 ((u'alljoyn_aboutobj', C.c_void_p), (u'int', C.c_int), (u'void*', C.c_void_p))),
+    _cmethods = {u'Announce': (u'alljoyn_aboutobj_announce', (u'QStatus', C.c_uint),
+                               (((u'alljoyn_aboutobj', AboutObjectHandle)), (u'int', C.c_int), (u'void*', C.c_void_p))),
 
                  u'AnnounceUsingDataListener': (u'alljoyn_aboutobj_announce_using_datalistener',
                                                 (u'QStatus', C.c_uint),
-                                                ((u'alljoyn_aboutobj', C.c_void_p),
+                                                (((u'alljoyn_aboutobj', AboutObjectHandle)),
                                                     (u'int', C.c_int),
                                                     (u'void*', C.c_void_p))),
 
-                 u'Create': (u'alljoyn_aboutobj_create',(u'alljoyn_aboutobj', C.c_void_p), ((u'void*', C.c_void_p), (u'uint', C.c_uint))),
+                 u'Create': (u'alljoyn_aboutobj_create', ((u'alljoyn_aboutobj', AboutObjectHandle)), ((u'void*', C.c_void_p), (u'uint', C.c_uint))),
 
-                 u'Destroy': (u'alljoyn_aboutobj_destroy', (u'void', None), ((u'alljoyn_aboutobj', C.c_void_p),)),
+                 u'Destroy': (u'alljoyn_aboutobj_destroy', (u'void', None), (((u'alljoyn_aboutobj', AboutObjectHandle)),)),
 
-                 u'UnAnnounce': (u'alljoyn_aboutobj_unannounce', (u'QStatus', C.c_uint), ((u'alljoyn_aboutobj', C.c_void_p),))
+                 u'UnAnnounce': (u'alljoyn_aboutobj_unannounce', (u'QStatus', C.c_uint), (((u'alljoyn_aboutobj', AboutObjectHandle)),))
                  }
 
     def __init__(self, bus, isAnnounced):

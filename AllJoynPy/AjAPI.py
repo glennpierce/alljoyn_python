@@ -13,7 +13,6 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-import sys
 import ctypes as C
 from enum import Enum, unique
 from . import AllJoynMeta, AllJoynObject
@@ -25,17 +24,6 @@ from . import AllJoynMeta, AllJoynObject
 class AnnounceFlag(Enum):
     UnAnnounced = 0
     Announced = 1
-
-
-# Typedefs
-# int QCC_BOOL
-# enum alljoyn_about_announceflag alljoyn_about_announceflag
-
-
-if sys.platform == 'win32':
-    CallbackType = C.WINFUNCTYPE
-else:
-    CallbackType = C.CFUNCTYPE
 
 
 class Unity(AllJoynObject):

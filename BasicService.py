@@ -53,9 +53,24 @@ class BasicServiceObject(BusObject.BusObject):
         replyArg.Destroy()
 
 
-class MyListener(SessionBusListener.SessionBusListener):
+# class MyListener(SessionBusListener.SessionBusListener):
+#     def __init__(self, context=None):
+#         super(MyListener, self).__init__(context=context)
+
+#     def OnAcceptSessionJoinerCallBack(self, context, session_port, joiner, opts):
+#         if session_port != SERVICE_PORT:
+#             print "Rejecting join attempt on unexpected session port", session_port
+#             return False
+#         return True
+
+#     def OnNameOwnerChangedCallBack(self, context, bus_name, previous_owner, new_owner):
+#         if new_owner and bus_name == SERVICE_NAME:
+#             print "NameOwnerChanged: name=%s, oldOwner=%s, newOwner=%s." % (bus_name, previous_owner, new_owner)
+
+
+class MySessionPortListener(SessionPortListener.SessionPortListener):
     def __init__(self, context=None):
-        super(MyListener, self).__init__(context=context)
+        super(MySessionPortListener, self).__init__(context=context)
 
     def OnAcceptSessionJoinerCallBack(self, context, session_port, joiner, opts):
         if session_port != SERVICE_PORT:
@@ -63,9 +78,16 @@ class MyListener(SessionBusListener.SessionBusListener):
             return False
         return True
 
+
+class MyBusListener(BusListener.BusListener):
+    def __init__(self):
+        super(MyBusListener, self).__init__()
+
     def OnNameOwnerChangedCallBack(self, context, bus_name, previous_owner, new_owner):
         if new_owner and bus_name == SERVICE_NAME:
             print "NameOwnerChanged: name=%s, oldOwner=%s, newOwner=%s." % (bus_name, previous_owner, new_owner)
+
+
 
 
 def CreateBasicServiceInterface(bus_attachment):
@@ -81,14 +103,17 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    myListener = MyListener()
+    #myListener = MyListener()
+    myBusListener = MyBusListener()
 
     g_bus = BusAttachment.BusAttachment("myApp", True) 
 
-    g_bus.RegisterBusListener(myListener.busListener)
+    #g_bus.RegisterBusListener(myListener.busListener)
+    g_bus.RegisterBusListener(myBusListener)
     
     CreateBasicServiceInterface(g_bus)
 
+    mySessionPortListener = MySessionPortListener()
     basicServiceObject = BasicServiceObject(g_bus, SERVICE_PATH)
          
     g_bus.RegisterBusObject(basicServiceObject)
@@ -106,7 +131,9 @@ if __name__ == "__main__":
                                Session.ALLJOYN_PROXIMITY_ANY,
                                TransportMask.ALLJOYN_TRANSPORT_ANY)
 
-    g_bus.BindSessionPort(SERVICE_PORT, opts, myListener.sessionPortListener)
+
+    #g_bus.BindSessionPort(SERVICE_PORT, opts, myListener.sessionPortListener)
+    g_bus.BindSessionPort(SERVICE_PORT, opts, mySessionPortListener)
     
 
     # Advertise this service on the bus.

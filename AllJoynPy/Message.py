@@ -42,11 +42,6 @@ class MessageType(Enum):
     ALLJOYN_MESSAGE_SIGNAL = 4
 
 
-# Typedefs
-# struct _alljoyn_message_handle * alljoyn_message
-# struct _alljoyn_busattachment_handle * alljoyn_busattachment
-# enum alljoyn_messagetype alljoyn_messagetype
-
 class Message(AllJoynObject):
 
     __metaclass__ = AllJoynMeta
@@ -69,20 +64,6 @@ class Message(AllJoynObject):
                           (u'int', C.c_int),
                           ((u'const alljoyn_message', MessageHandle),
                               (u'const alljoyn_message', MessageHandle))),
-
-
-                 # /**
-                 #  * Return a specific argument.
-                 #  *
-                 #  * @param msg   The alljoyn_message from which to extract an argument.
-                 #  * @param argN  The index of the argument to get.
-                 #  *
-                 #  * @return
-                 #  *      - The argument
-                 #  *      - NULL if unmarshal failed or there is not such argument.
-                 #  */
-                 # extern AJ_API const alljoyn_msgarg AJ_CALL alljoyn_message_getarg(alljoyn_message msg, size_t argN);
-
 
                  u'GetArg': (u'alljoyn_message_getarg',
                              (u'const int', MsgArg.MsgArgHandle),
@@ -213,8 +194,8 @@ class Message(AllJoynObject):
     def IsEncrypted(self):
         return self._IsEncrypted(self.handle)
 
-    def GetAUTHMECHANISM(self):
-        return self._GetAUTHMECHANISM(self.handle)
+    def GetAuthMechanism(self):
+        return self._GetAuthMechanism(self.handle)
 
     def GetType(self):
         return MessageType(self._GetType(self.handle))
@@ -270,11 +251,11 @@ class Message(AllJoynObject):
     def GetTimesTamp(self):
         return self._GetTimesTamp(self.handle)
 
-    def EQL(self, other):
-        return self._EQL(self.handle, other)  # const alljoyn_message
+    def Eql(self, other):
+        return self._Eql(self.handle, other)  # const alljoyn_message
 
-    def SetEndIANESS(self):
-        return self._SetEndIANESS(self.handle)
+    def SetEndianess(self):
+        return self._SetEndianess(self.handle)
 
 
 Message.bind_functions_to_cls()

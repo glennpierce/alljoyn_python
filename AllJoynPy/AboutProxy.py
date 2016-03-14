@@ -18,9 +18,6 @@ from . import AllJoynMeta, AllJoynObject, MsgArg
 
 # Wrapper for file AboutProxy.h
 
-# Typedefs
-# struct _alljoyn_aboutproxy_handle * alljoyn_aboutproxy
-
 class AboutProxyHandle(C.c_void_p): 
     pass
 
@@ -33,7 +30,7 @@ class AboutProxy(AllJoynObject):
                              ((u'void*', C.c_void_p),
                                  (u'const char *', C.c_char_p),
                                  (u'uint', C.c_uint))),
-                 
+
                  u'Destroy': (u'alljoyn_aboutproxy_destroy',
                               (u'void', None),
                               ((u'alljoyn_aboutproxy', AboutProxyHandle),)),
@@ -76,6 +73,6 @@ class AboutProxy(AllJoynObject):
         version = C.c_ushort()
         self._GetVersion(self.handle, C.byref(version))  # int *
         return version.value
-        
+
 
 AboutProxy.bind_functions_to_cls()
