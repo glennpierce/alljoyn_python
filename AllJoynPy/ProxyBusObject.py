@@ -154,18 +154,19 @@ class ProxyBusObject(AllJoynObject):
                  u'IsValid': (u'alljoyn_proxybusobject_isvalid',
                               (u'int', C.c_int),
                               ((u'alljoyn_proxybusobject', ProxyBusHandle),)),
+
                  u'MethodCall': (u'alljoyn_proxybusobject_methodcall',
                                  (u'QStatus', C.c_uint),
                                  ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                      (u'const char *', C.c_char_p),  # iface_name
                                      (u'const char *', C.c_char_p),  # method_name
-                                     (u'const void*', C.c_void_p,  # args
+                                     (u'const void*', MsgArg.MsgArgHandle,  # args
                                       (u'int', C.c_int),        # number arguments
                                       (u'void*', Message.MessageHandle),   # reply_msg
                                       (u'int', C.c_int),    # timeout
                                       (u'int', C.c_int)))),  # flags
 
-                 u'MethodCallAsYNC': (u'alljoyn_proxybusobject_methodcallasync',
+                 u'MethodCallAsync': (u'alljoyn_proxybusobject_methodcallasync',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                           (u'const char *', C.c_char_p),
@@ -176,7 +177,7 @@ class ProxyBusObject(AllJoynObject):
                                           (u'void *', C.c_void_p),
                                           (u'int', C.c_int),
                                           (u'int', C.c_int))),
-                 u'MethodCallAsYNCMEMBER': (u'alljoyn_proxybusobject_methodcallasync_member',
+                 u'MethodCallAsyncMember': (u'alljoyn_proxybusobject_methodcallasync_member',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                                 (u'const int', C.c_int),
@@ -195,6 +196,8 @@ class ProxyBusObject(AllJoynObject):
                                            (u'int', C.c_int),
                                            (u'int', C.c_int),
                                            (u'int', C.c_int))),
+
+
                  u'MethodCallMemberNoReply': (u'alljoyn_proxybusobject_methodcall_member_noreply',
                                               (u'QStatus', C.c_uint),
                                               ((u'alljoyn_proxybusobject', ProxyBusHandle),
@@ -202,19 +205,22 @@ class ProxyBusObject(AllJoynObject):
                                                   (u'const int', C.c_int),
                                                   (u'int', C.c_int),
                                                   (u'int', C.c_int))),
+
                  u'MethodCallNoReply': (u'alljoyn_proxybusobject_methodcall_noreply',
                                         (u'QStatus', C.c_uint),
                                         ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                             (u'const char *', C.c_char_p),
                                             (u'const char *', C.c_char_p),
-                                            (u'const int', C.c_int),
-                                            (u'int', C.c_int),
-                                            (u'int', C.c_int))),
-                 u'ParSexML': (u'alljoyn_proxybusobject_parsexml',
+                                            (u'const void*', MsgArg.MsgArgHandle),
+                                            (u'int', C.c_size_t),
+                                            (u'uint', C.c_uint))),
+
+                 u'ParseXml': (u'alljoyn_proxybusobject_parsexml',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                    (u'const char *', C.c_char_p),
                                    (u'const char *', C.c_char_p))),
+
                  u'RegisterPropertiesChangedListener': (u'alljoyn_proxybusobject_registerpropertieschangedlistener',
                                                         (u'QStatus', C.c_uint),
                                                         ((u'alljoyn_proxybusobject',
@@ -335,39 +341,39 @@ class ProxyBusObject(AllJoynObject):
         # const char *,const char
         return self._SetPropertyAsYNC(self.handle, iface, property, value, callback, timeout, context)
 
-    def MethodCall(self, ifaceName, methodName, arg, numArgs, replyMsg, timeout, flags):
+    def MethodCall(self, ifaceName, methodName, args, numArgs, replyMsg, timeout, flags):
         # array = None
         # if len(args) > 0:
         #     array = (MsgArg.MsgArgHandle * len(args))()
         #     array[:] = [a.handle for a in args]
         #     print "array", array
         # reply_handle = replyMsg or None
-        arg_handle = arg.handle or None
-        reply_handle = replyMsg or None
+        args_handle = args.handle if args else None
+        reply_handle = replyMsg.handle if replyMsg else None
         # const char *,const char *,const int,int,int,int,int
-        return self._MethodCall(self.handle, ifaceName, methodName, arg_handle, numArgs, reply_handle, timeout, flags)
+        return self._MethodCall(self.handle, ifaceName, methodName, args_handle, numArgs, reply_handle, timeout, flags)
 
     def MethodCallMember(self, method, args, numArgs, replyMsg, timeout, flags):
         # const int,const int,int,int,int,int
         return self._MethodCallMember(self.handle, method, args, numArgs, replyMsg, timeout, flags)
 
     def MethodCallNoReply(self, ifaceName, methodName, args, numArgs, flags):
-        # const char *,const char *,const int,int,int
-        return self._MethodCallNoReply(self.handle, ifaceName, methodName, args, numArgs, flags)
+        args_handle = args.handle or None
+        return self._MethodCallNoReply(self.handle, ifaceName, methodName, args_handle, numArgs, flags)
 
     def MethodCallMemberNoReply(self, method, args, numArgs, flags):
         return self._MethodCallMemberNoReply(self.handle, method, args, numArgs, flags)  # const int,const int,int,int
 
-    def MethodCallAsYNC(self, ifaceName, methodName, replyFunc, args, numArgs, context, timeout, flags):
+    def MethodCallAsync(self, ifaceName, methodName, replyFunc, args, numArgs, context, timeout, flags):
         # const char *,const char *,int,const int,int,void *,int,int
-        return self._MethodCallAsYNC(self.handle, ifaceName, methodName, replyFunc, args, numArgs, context, timeout, flags)
+        return self._MethodCallAsync(self.handle, ifaceName, methodName, replyFunc, args, numArgs, context, timeout, flags)
 
-    def MethodCallAsYNCMEMBER(self, method, replyFunc, args, numArgs, context, timeout, flags):
+    def MethodCallAsyncMember(self, method, replyFunc, args, numArgs, context, timeout, flags):
         # const int,int,const int,int,void *,int,int
-        return self._MethodCallAsYNCMEMBER(self.handle, method, replyFunc, args, numArgs, context, timeout, flags)
+        return self._MethodCallAsyncMember(self.handle, method, replyFunc, args, numArgs, context, timeout, flags)
 
-    def ParSexML(self, xml, identifier):
-        return self._ParSexML(self.handle, xml, identifier)  # const char *,const char *
+    def ParseXml(self, xml, identifier):
+        return self._ParseXml(self.handle, xml, identifier)  # const char *,const char *
 
     def SecureConnection(self, forceAuth):
         return self._SecureConnection(self.handle, forceAuth)  # int

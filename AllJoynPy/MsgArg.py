@@ -671,8 +671,9 @@ class MsgArg(AllJoynObject):
     
     @classmethod
     def _ArraySet(cls, handle, num_args, signature, ctypes_list, argument_list):
-        # QStatus alljoyn_msgarg_array_set(alljoyn_msgarg args, size_t* numArgs, const char* signature, ...);
         # expects list of args as ctypes and the arguments themselves
+
+        # QStatus alljoyn_msgarg_array_set(alljoyn_msgarg args, size_t* numArgs, const char* signature, ...);
 
         if len(ctypes_list) != len(argument_list):
             raise AttributeError("Wrong number of parameters") 
@@ -680,7 +681,6 @@ class MsgArg(AllJoynObject):
         method = AllJoynObject._lib.alljoyn_msgarg_array_set
         method.restype = C.c_uint
         size = C.c_size_t(num_args)
-        print "size", size
         method.argtypes = ([MsgArgHandle, POINTER(C.c_size_t), C.c_char_p] + ctypes_list)
         arguments = [handle, C.byref(size), signature] + argument_list
         return AllJoynObject.QStatusToException(method(*arguments))
