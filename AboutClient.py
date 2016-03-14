@@ -10,8 +10,8 @@ import sys
 
 timeout = 10
 
-INTERFACE_NAME = "com.example.about.feature.interface.sample"
-#INTERFACE_NAME = "net.allplay.MediaPlayer"
+#INTERFACE_NAME = "com.example.about.feature.interface.sample"
+INTERFACE_NAME = "net.allplay.MediaPlayer"
 
 def signal_handler(signal, frame):
     s_interrupt = True
@@ -131,7 +131,7 @@ class MyAboutListener(AboutListener.AboutListener):
            
             print "proxyBusObject", proxyBusObject
             try:
-                proxyBusObject.IntroSpectRemoteObject()
+                proxyBusObject.IntrospectRemoteObject()
             except QStatusException, ex:
                 print "Failed to introspect remote object."
                 

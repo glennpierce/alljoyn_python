@@ -261,7 +261,6 @@ class AboutData(AllJoynObject):
         return self._SetAppIdFromString(self.handle, appId)  # const char *
 
     def GetAppId(self, appId, num):
-
         return self._GetAppId(self.handle, appId, num)  # int **,int *
 
     def SetDefaultLanguage(self, defaultLanguage):
@@ -275,32 +274,42 @@ class AboutData(AllJoynObject):
     def SetDeviceName(self, deviceName, language):
         return self._SetDeviceName(self.handle, deviceName, language)  # const char *,const char *
 
-    def GetDeviceName(self, deviceName, language):
-        return self._GetDeviceName(self.handle, deviceName, language)  # char **,const char *
+    def GetDeviceName(self, language="en"):
+        deviceName = C.c_char_p()
+        self._GetDeviceName(self.handle, C.byref(deviceName), language)  # char **,const char *
+        return deviceName.value
 
     def SetDeviceId(self, device_id):
         return self._SetDeviceId(self.handle, device_id)  # const char *
 
     def GetDeviceId(self, deviceId):
-        return self._GetDeviceId(self.handle, deviceId)  # char **
+        deviceId = C.c_char_p()
+        self._GetDeviceId(self.handle, C.byref(deviceId))  # char **
+        return deviceId.value
 
     def SetAppName(self, appName, language):
         return self._SetAppName(self.handle, appName, language)  # const char *,const char *
 
-    def GetAppName(self, app_name, language):
-        return self._GetAppName(self.handle, app_name, language)  # char **,const char *
+    def GetAppName(self, language="en"):
+        app_name = C.c_char_p()
+        self._GetAppName(self.handle, C.byref(app_name))  # char **
+        return app_name.value
 
     def SetManufacturer(self, manufacturer, language):
         return self._SetManufacturer(self.handle, manufacturer, language)  # const char *,const char *
 
-    def GetManufacturer(self, manufacturer, language):
-        return self._GetManufacturer(self.handle, manufacturer, language)  # char **,const char *
+    def GetManufacturer(self, language="en"):
+        manufacturer = C.c_char_p()
+        self._GetManufacturer(self.handle, C.byref(manufacturer))  # char **
+        return manufacturer.value
 
     def SetModelNumber(self, modelNumber):
         return self._SetModelNumber(self.handle, modelNumber)  # const char *
 
-    def GetModelNumber(self, modelNumber):
-        return self._GetModelNumber(self.handle, modelNumber)  # char **
+    def GetModelNumber(self):
+        modelNumber = C.c_char_p()
+        self._GetModelNumber(self.handle, C.byref(modelNumber))  # char **
+        return modelNumber.value
 
     def SetSupportedLanguage(self, language):
         return self._SetSupportedLanguage(self.handle, language)  # const char *
@@ -315,35 +324,47 @@ class AboutData(AllJoynObject):
     def SetDescription(self, description, language):
         return self._SetDescription(self.handle, description, language)  # const char *,const char *
 
-    def GetDescription(self, description, language):
-        return self._GetDescription(self.handle, description, language)  # char **,const char *
+    def GetDescription(self, language="en"):
+        description = C.c_char_p()
+        self._GetDescription(self.handle, C.byref(description))  # char **
+        return description.value
 
     def SetDateOfManufacture(self, date_of_manufacture):
         return self._SetDateOfManufacture(self.handle, date_of_manufacture)  # const char *
 
-    def GetDateOfManufacture(self, dateOfManufacture):
-        return self._GetDateOfManufacture(self.handle, dateOfManufacture)  # char **
+    def GetDateOfManufacture(self):
+        date_of_manufacture = C.c_char_p()
+        self._GetDateOfManufacture(self.handle, C.byref(date_of_manufacture))  # char **
+        return date_of_manufacture.value
 
     def SetSoftwareVersion(self, software_version):
         return self._SetSoftwareVersion(self.handle, software_version)  # const char *
 
-    def GetSoftwareVersion(self, softwareVersion):
-        return self._GetSoftwareVersion(self.handle, softwareVersion)  # char **
+    def GetSoftwareVersion(self, software_version):
+        software_version = C.c_char_p()
+        self._GetSoftwareVersion(self.handle, C.byref(software_version))  # char **
+        return software_version.value
 
-    def GetAJSoftwareVersion(self, ajSoftwareVersion):
-        return self._GetAJSoftwareVersion(self.handle, ajSoftwareVersion)  # char **
+    def GetAJSoftwareVersion(self, aj_software_version):
+        aj_software_version = C.c_char_p()
+        self._GetAJSoftwareVersion(self.handle, C.byref(aj_software_version))  # char **
+        return aj_software_version.value
 
     def SetHardwareVersion(self, hardware_version):
         return self._SetHardwareVersion(self.handle, hardware_version)  # const char *
 
-    def GetHardwareVersion(self, hardwareVersion):
-        return self._GetHardwareVersion(self.handle, hardwareVersion)  # char **
+    def GetHardwareVersion(self, hardware_version):
+        hardware_version = C.c_char_p()
+        self._GetHardwareVersion(self.handle, C.byref(hardware_version))  # char **
+        return hardware_version.value
 
     def SetSupportURL(self, support_url):
         return self._SetSupportURL(self.handle, support_url)  # const char *
 
-    def GetSupportURL(self, supportUrl):
-        return self._GetSupportURL(self.handle, supportUrl)  # char **
+    def GetSupportURL(self, support_url):
+        support_url = C.c_char_p()
+        self._GetSupportURL(self.handle, C.byref(support_url))  # char **
+        return support_url.value
 
     def SetField(self, name, value, language):
         return self._SetField(self.handle, name, value, language)  # const char *,int,const char *

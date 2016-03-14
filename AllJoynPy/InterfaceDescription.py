@@ -208,12 +208,14 @@ class InterfaceDescription(AllJoynObject):
                                   (u'int', C.c_int),
                                   ((u'const alljoyn_interfacedescription', C.c_void_p),
                                    (u'const char *', C.c_char_p))),
-                 u'IntroSpecT': (u'alljoyn_interfacedescription_introspect',
-                                 (u'int', C.c_int),
-                                 ((u'const alljoyn_interfacedescription', C.c_void_p),
+
+                 u'Introspect': (u'alljoyn_interfacedescription_introspect',
+                                 (u'size_t', C.c_size_t),
+                                 ((u'const alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                   (u'char *', C.c_char_p),
-                                  (u'int', C.c_int),
-                                  (u'int', C.c_int))),
+                                  (u'size_t', C.c_size_t),
+                                  (u'size_t', C.c_size_t))),
+
                  u'IsSecure': (u'alljoyn_interfacedescription_issecure',
                                (u'int', C.c_int),
                                ((u'const alljoyn_interfacedescription', C.c_void_p),)),
@@ -243,7 +245,7 @@ class InterfaceDescription(AllJoynObject):
                                                 (u'int', C.c_int),
                                                 ((u'alljoyn_interfacedescription_member',
                                                   POINTER(InterfaceDescriptionMember)),)),
-                 u'ProPertYeQL': (u'alljoyn_interfacedescription_property_eql',
+                 u'PropertyEql': (u'alljoyn_interfacedescription_property_eql',
                                   (u'int', C.c_int),
                                   ((u'const alljoyn_interfacedescription_property',
                                     POINTER(InterfaceDescriptionProperty)),
@@ -375,8 +377,11 @@ class InterfaceDescription(AllJoynObject):
     def GetName(self):
         return self._GetName(self.handle)
 
-    def IntroSpecT(self, str, buf, indent):
-        return self._IntroSpecT(self.handle, str, buf, indent)  # char *,int,int
+    def Introspect(self, indent=2):
+        size = self._Introspect(self.handle, None, 0, indent)  # char *,int,int
+        buf = C.create_string_buffer(size)
+        self._Introspect(self.handle, buf, size, indent)  # char *,int,int
+        return buf.value
 
     def IsSecure(self):
         return self._IsSecure(self.handle)
@@ -390,8 +395,8 @@ class InterfaceDescription(AllJoynObject):
     def MemberEQL(self, other):
         return self._MemberEQL(self.handle, other)  # const alljoyn_interfacedescription_member
 
-    def ProPertYeQL(self, other):
-        return self._ProPertYeQL(self.handle, other)  # const alljoyn_interfacedescription_property
+    def PropertyEql(self, other):
+        return self._PropertyEql(self.handle, other)  # const alljoyn_interfacedescription_property
 
 
 InterfaceDescription.bind_functions_to_cls()

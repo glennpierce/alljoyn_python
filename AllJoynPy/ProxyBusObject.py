@@ -15,9 +15,10 @@
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject, Message, BusAttachment, InterfaceDescription
+from . import AllJoynMeta, AllJoynObject, Message, BusAttachment, InterfaceDescription, MsgArg
 
 # Wrapper for file ProxyBusObject.h
+
 
 class ProxyBusHandle(C.c_void_p):
     pass
@@ -99,7 +100,7 @@ class ProxyBusObject(AllJoynObject):
                                       (u'alljoyn_proxybusobject *', POINTER(C.c_void_p)),
                                       (u'int', C.c_int))),
                  u'GetInterface': (u'alljoyn_proxybusobject_getinterface',
-                                   (u'const int', C.c_int),
+                                   (u'const void*', InterfaceDescription.InterfaceDescriptionHandle),
                                    ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                        (u'const char *', C.c_char_p))),
                  u'GetInterfaces': (u'alljoyn_proxybusobject_getinterfaces',
@@ -138,10 +139,10 @@ class ProxyBusObject(AllJoynObject):
                                           (u'int', C.c_int),
                                           ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                               (u'const char *', C.c_char_p))),
-                 u'IntroSpectRemoteObject': (u'alljoyn_proxybusobject_introspectremoteobject',
+                 u'IntrospectRemoteObject': (u'alljoyn_proxybusobject_introspectremoteobject',
                                              (u'QStatus', C.c_uint),
                                              ((u'alljoyn_proxybusobject', ProxyBusHandle),)),
-                 u'IntroSpectRemoteObjectASync': (u'alljoyn_proxybusobject_introspectremoteobjectasync',
+                 u'IntrospectRemoteObjectASync': (u'alljoyn_proxybusobject_introspectremoteobjectasync',
                                                   (u'QStatus', C.c_uint),
                                                   ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                                       (u'alljoyn_proxybusobject_listener_introspectcb_ptr',
@@ -298,12 +299,12 @@ class ProxyBusObject(AllJoynObject):
     def RemoveChild(self, path):
         return self._RemoveChild(self.handle, path)  # const char *
 
-    def IntroSpectRemoteObject(self):
-        return self._IntroSpectRemoteObject(self.handle)
+    def IntrospectRemoteObject(self):
+        return self._IntrospectRemoteObject(self.handle)
 
-    def IntroSpectRemoteObjectASync(self, callback, context):
+    def IntrospectRemoteObjectASync(self, callback, context):
         # alljoyn_proxybusobject_listener_introspectcb_ptr,void *
-        return self._IntroSpectRemoteObjectASync(self.handle, callback, context)
+        return self._IntrospectRemoteObjectASync(self.handle, callback, context)
 
     def GetProperty(self, iface, property, value):
         return self._GetProperty(self.handle, iface, property, value)  # const char *,const char *,int
@@ -334,10 +335,17 @@ class ProxyBusObject(AllJoynObject):
         # const char *,const char
         return self._SetPropertyAsYNC(self.handle, iface, property, value, callback, timeout, context)
 
-    def MethodCall(self, ifaceName, methodName, args, numArgs, replyMsg, timeout, flags):
-        arg_handle = args.handle if args else None
+    def MethodCall(self, ifaceName, methodName, arg, numArgs, replyMsg, timeout, flags):
+        # array = None
+        # if len(args) > 0:
+        #     array = (MsgArg.MsgArgHandle * len(args))()
+        #     array[:] = [a.handle for a in args]
+        #     print "array", array
+        # reply_handle = replyMsg or None
+        arg_handle = arg.handle or None
+        reply_handle = replyMsg or None
         # const char *,const char *,const int,int,int,int,int
-        return self._MethodCall(self.handle, ifaceName, methodName, arg_handle, numArgs, replyMsg.handle, timeout, flags)
+        return self._MethodCall(self.handle, ifaceName, methodName, arg_handle, numArgs, reply_handle, timeout, flags)
 
     def MethodCallMember(self, method, args, numArgs, replyMsg, timeout, flags):
         # const int,const int,int,int,int,int
@@ -368,7 +376,7 @@ class ProxyBusObject(AllJoynObject):
         return self._SecureConnectionAsYNC(self.handle, forceAuth)  # int
 
     def GetInterface(self, iface):
-        return self._GetInterface(self.handle, iface)  # const char *
+        return InterfaceDescription.InterfaceDescription(self._GetInterface(self.handle, iface))  # const char *
 
     def GetInterfaces(self, ifaces, numIfaces):
         return self._GetInterfaces(self.handle, ifaces, numIfaces)  # const int *,int

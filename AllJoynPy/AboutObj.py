@@ -19,7 +19,7 @@ from . import AllJoynMeta, AllJoynObject
 
 # Wrapper for file AboutObj.h
 
-class AboutObjectHandle(C.c_void_p): 
+class AboutObjectHandle(C.c_void_p):
     pass
 
 if sys.platform == 'win32':

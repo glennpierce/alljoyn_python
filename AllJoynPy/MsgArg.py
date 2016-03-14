@@ -93,11 +93,11 @@ class MsgArg(AllJoynObject):
                                    (u'int', C.c_int),
                                    (u'const char *', C.c_char_p))),
 
-                 u'ArraySet': (u'alljoyn_msgarg_array_set',
-                               (u'QStatus', C.c_uint),
-                               ((u'alljoyn_msgarg', MsgArgHandle),
-                                   (u'int *', POINTER(C.c_int)),
-                                   (u'const char *', C.c_char_p))),
+                 # u'ArraySet': (u'alljoyn_msgarg_array_set',
+                 #               (u'QStatus', C.c_uint),
+                 #               ((u'alljoyn_msgarg', MsgArgHandle),
+                 #                   (u'size_t *', POINTER(C.c_size_t)),
+                 #                   (u'const char *', C.c_char_p))),
 
                  u'ArraySetOffset': (u'alljoyn_msgarg_array_set_offset',
                                      (u'QStatus', C.c_uint),
@@ -395,7 +395,7 @@ class MsgArg(AllJoynObject):
                  
                  u'SetInt64': (u'alljoyn_msgarg_set_int64',
                                (u'QStatus', C.c_uint),
-                               ((u'alljoyn_msgarg', MsgArgHandle), (u'int', C.c_int))),
+                               ((u'alljoyn_msgarg', MsgArgHandle), (u'int', C.c_longlong))),
                  
                  u'SetUInt64': (u'alljoyn_msgarg_set_uint64',
                                 (u'QStatus', C.c_uint),
@@ -533,8 +533,11 @@ class MsgArg(AllJoynObject):
     def CreateAndSet(self):
         return self._CreateAndSet(self.handle)
 
-    def ArrayCreate(self):
-        return self._ArrayCreate(self.handle)
+    @classmethod
+    def ArrayCreate(cls, number_of_elements):
+        instance = cls()
+        instance.handle = MsgArg._ArrayCreate(number_of_elements)
+        return instance
 
     def ArrayElement(self, index):
         return MsgArg.FromHandle(self._ArrayElement(self.handle, index)) 
@@ -548,9 +551,7 @@ class MsgArg(AllJoynObject):
     def Equal(self, rhv):
         return self._Equal(self.handle, rhv)  # alljoyn_msgarg
 
-    def ArraySet(self, numArgs, signature):
-        return self._ArraySet(self.handle, numArgs, signature)  # int *,const char *
-
+  
     def ArrayGet(self, numArgs, signature):
         return self._ArrayGet(self.handle, numArgs, signature)  # int,const char *
 
@@ -649,6 +650,9 @@ class MsgArg(AllJoynObject):
             else:
                 raise AttributeError("GetSingleCompleteValue only supports simple types and arrays of simple types")
         
+
+    
+
     @classmethod
     def _Set(cls, handle, signature, ctypes_list, argument_list):
         # expects list of args as ctypes and the arguments themselves
@@ -665,6 +669,26 @@ class MsgArg(AllJoynObject):
     def Set(self, signature, ctypes_list, argument_list):
         return self._Set(self.handle, signature, ctypes_list, argument_list)
     
+    @classmethod
+    def _ArraySet(cls, handle, num_args, signature, ctypes_list, argument_list):
+        # QStatus alljoyn_msgarg_array_set(alljoyn_msgarg args, size_t* numArgs, const char* signature, ...);
+        # expects list of args as ctypes and the arguments themselves
+
+        if len(ctypes_list) != len(argument_list):
+            raise AttributeError("Wrong number of parameters") 
+
+        method = AllJoynObject._lib.alljoyn_msgarg_array_set
+        method.restype = C.c_uint
+        size = C.c_size_t(num_args)
+        print "size", size
+        method.argtypes = ([MsgArgHandle, POINTER(C.c_size_t), C.c_char_p] + ctypes_list)
+        arguments = [handle, C.byref(size), signature] + argument_list
+        return AllJoynObject.QStatusToException(method(*arguments))
+
+    def ArraySet(self, num_args, signature, ctypes_list, argument_list):
+        return self._ArraySet(self.handle, num_args, signature, ctypes_list, argument_list)  
+
+
     @classmethod
     def _Get(cls, handle, signature, ctypes_list, argument_list):
         # expects list of args as ctypes and the arguments themselves
@@ -753,6 +777,8 @@ class MsgArg(AllJoynObject):
     def GetMember(self, index):
         return self._GetMember(self.handle, index)  # int
 
+    def SetInt64(self, value):
+        return self._SetInt64(self.handle, value)
 
 MsgArg.bind_functions_to_cls()
 
