@@ -76,11 +76,11 @@ class MyAboutListener(AboutListener.AboutListener):
             for interface in aboutObjectDescription.GetInterfaces(path):
                 print "\t\t", interface
 
-        proxyBusObject = ProxyBusObject.ProxyBusObject(g_bus, busName, '/net/allplay/MediaPlayer', sessionId)
+        proxyBusObject = ProxyBusObject.ProxyBusObject(g_bus, busName, '/About', sessionId)
            
         try:
             proxyBusObject.IntrospectRemoteObject()
-            iface = proxyBusObject.GetInterface("net.allplay.MCU")
+            iface = proxyBusObject.GetInterface("org.alljoyn.About")
             print iface.Introspect()
         except QStatusException, ex:
             print "Failed to introspect remote object."

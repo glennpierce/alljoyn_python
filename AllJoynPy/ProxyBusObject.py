@@ -111,12 +111,7 @@ class ProxyBusObject(AllJoynObject):
                  u'GetPath': (u'alljoyn_proxybusobject_getpath',
                               (u'const char *', C.c_char_p),
                               ((u'alljoyn_proxybusobject', ProxyBusHandle),)),
-                 u'GetProperty': (u'alljoyn_proxybusobject_getproperty',
-                                  (u'QStatus', C.c_uint),
-                                  ((u'alljoyn_proxybusobject', ProxyBusHandle),
-                                      (u'const char *', C.c_char_p),
-                                      (u'const char *', C.c_char_p),
-                                      (u'int', C.c_int))),
+                 
                  u'GetPropertyAsync': (u'alljoyn_proxybusobject_getpropertyasync',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_proxybusobject', ProxyBusHandle),
@@ -244,13 +239,22 @@ class ProxyBusObject(AllJoynObject):
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                                 (u'int', C.c_int))),
+
                  u'SetProperty': (u'alljoyn_proxybusobject_setproperty',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                       (u'const char *', C.c_char_p),
                                       (u'const char *', C.c_char_p),
-                                      (u'int', C.c_int))),
-                 u'SetPropertyAsYNC': (u'alljoyn_proxybusobject_setpropertyasync',
+                                      (u'void*', MsgArg.MsgArgHandle))),
+
+                 u'GetProperty': (u'alljoyn_proxybusobject_getproperty',
+                                  (u'QStatus', C.c_uint),
+                                  ((u'alljoyn_proxybusobject', ProxyBusHandle),
+                                      (u'const char *', C.c_char_p),
+                                      (u'const char *', C.c_char_p),
+                                      (u'void*', MsgArg.MsgArgHandle))),
+
+                 u'SetPropertyAsync': (u'alljoyn_proxybusobject_setpropertyasync',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                            (u'const char *', C.c_char_p),
@@ -312,13 +316,6 @@ class ProxyBusObject(AllJoynObject):
         # alljoyn_proxybusobject_listener_introspectcb_ptr,void *
         return self._IntrospectRemoteObjectASync(self.handle, callback, context)
 
-    def GetProperty(self, iface, property, value):
-        return self._GetProperty(self.handle, iface, property, value)  # const char *,const char *,int
-
-    def GetPropertyAsync(self, iface, property, callback, timeout, context):
-        # const char *,const char *,alljoyn_proxybusobject_listener_getpropertycb_ptr,int,void *
-        return self._GetPropertyAsync(self.handle, iface, property, callback, timeout, context)
-
     def GetAllProperties(self, iface, values):
         return self._GetAllProperties(self.handle, iface, values)  # const char *,int
 
@@ -327,7 +324,14 @@ class ProxyBusObject(AllJoynObject):
         return self._GetAllPropertiesAsYNC(self.handle, iface, callback, timeout, context)
 
     def SetProperty(self, iface, property, value):
-        return self._SetProperty(self.handle, iface, property, value)  # const char *,const char *,int
+        return self._SetProperty(self.handle, iface, property, value.handle)  # const char *,const char *,int
+
+    def GetProperty(self, iface, property, value):
+        return self._GetProperty(self.handle, iface, property, value.handle)  # const char *,const char *,int
+
+    def GetPropertyAsync(self, iface, property, callback, timeout, context):
+        # const char *,const char *,alljoyn_proxybusobject_listener_getpropertycb_ptr,int,void *
+        return self._GetPropertyAsync(self.handle, iface, property, callback, timeout, context)
 
     def RegisterPropertiesChangedListener(self, iface, properties, numProperties, callback, context):
         # const char *,const char **,int,alljoyn_proxybusobject_listener_propertieschanged_ptr,void *
@@ -337,17 +341,11 @@ class ProxyBusObject(AllJoynObject):
         # const char *,alljoyn_proxybusobject_listener_propertieschanged_ptr
         return self._UnregisterPropertiesChangedListener(self.handle, iface, callback)
 
-    def SetPropertyAsYNC(self, iface, property, value, callback, timeout, context):
+    def SetPropertyAsync(self, iface, property, value, callback, timeout, context):
         # const char *,const char
-        return self._SetPropertyAsYNC(self.handle, iface, property, value, callback, timeout, context)
+        return self._SetPropertyAsync(self.handle, iface, property, value, callback, timeout, context)
 
     def MethodCall(self, ifaceName, methodName, args, numArgs, replyMsg, timeout, flags):
-        # array = None
-        # if len(args) > 0:
-        #     array = (MsgArg.MsgArgHandle * len(args))()
-        #     array[:] = [a.handle for a in args]
-        #     print "array", array
-        # reply_handle = replyMsg or None
         args_handle = args.handle if args else None
         reply_handle = replyMsg.handle if replyMsg else None
         # const char *,const char *,const int,int,int,int,int
@@ -358,7 +356,7 @@ class ProxyBusObject(AllJoynObject):
         return self._MethodCallMember(self.handle, method, args, numArgs, replyMsg, timeout, flags)
 
     def MethodCallNoReply(self, ifaceName, methodName, args, numArgs, flags):
-        args_handle = args.handle or None
+        args_handle = args.handle if args else None
         return self._MethodCallNoReply(self.handle, ifaceName, methodName, args_handle, numArgs, flags)
 
     def MethodCallMemberNoReply(self, method, args, numArgs, flags):

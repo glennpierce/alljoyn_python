@@ -20,6 +20,17 @@ from enum import Enum, unique
 from . import AllJoynMeta, AllJoynObject
 
 # Wrapper for file InterfaceDescription.h
+ALLJOYN_PROP_ACCESS_READ = 1  # Read Access type
+ALLJOYN_PROP_ACCESS_WRITE = 2  # Write Access type
+ALLJOYN_PROP_ACCESS_RW = 3  # Read-Write Access type
+
+
+ALLJOYN_MEMBER_ANNOTATE_NO_REPLY = 1  # No reply annotate flag
+ALLJOYN_MEMBER_ANNOTATE_DEPRECATED = 2  # Deprecated annotate flag
+ALLJOYN_MEMBER_ANNOTATE_SESSIONCAST = 4  # Sessioncast annotate flag
+ALLJOYN_MEMBER_ANNOTATE_SESSIONLESS = 8  # Sessionless annotate flag
+ALLJOYN_MEMBER_ANNOTATE_UNICAST = 16  # Unicast annotate flag
+ALLJOYN_MEMBER_ANNOTATE_GLOBAL_BROADCAST = 32  # Global broadcast annotate flag
 
 
 @unique
@@ -97,12 +108,14 @@ class InterfaceDescription(AllJoynObject):
                                     (u'const char *', C.c_char_p),
                                     (u'int', C.c_int),
                                     (u'const char *', C.c_char_p))),
+
                  u'AddProperty': (u'alljoyn_interfacedescription_addproperty',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                       (u'const char *', C.c_char_p),
                                       (u'const char *', C.c_char_p),
                                       (u'int', C.c_int))),
+
                  u'AddPropertyAnnotation': (u'alljoyn_interfacedescription_addpropertyannotation',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),

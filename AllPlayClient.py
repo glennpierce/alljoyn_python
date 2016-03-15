@@ -80,7 +80,7 @@ class MyAboutListener(AboutListener.AboutListener):
         proxyBusObject = ProxyBusObject.ProxyBusObject(self.bus, busName, '/net/allplay/MediaPlayer', sessionId)
            
         try:
-            proxyBusObject.IntroSpectRemoteObject()
+            proxyBusObject.IntrospectRemoteObject()
         except QStatusException, ex:
             print "Failed to introspect remote object."
                 

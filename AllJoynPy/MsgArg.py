@@ -74,15 +74,6 @@ class MsgArg(AllJoynObject):
                                   (u'alljoyn_msgarg', MsgArgHandle),
                                   ((u'int', C.c_int),)),
 
-# /**
-#  * when working with an array of message arguments this will return the nth item
-#  * in the array.
-#  * @param arg   the alljoyn_msgarg that contains an array of msgargs
-#  * @param index the index number of the element we wish to access.
-#  *
-#  * @return the individual alljoyn_msgarg specified by the index
-#  */
-# extern AJ_API alljoyn_msgarg AJ_CALL alljoyn_msgarg_array_element(alljoyn_msgarg arg, size_t index);
                  u'ArrayElement': (u'alljoyn_msgarg_array_element',
                                    (u'alljoyn_msgarg', MsgArgHandle),
                                    ((u'alljoyn_msgarg', MsgArgHandle), (u'size_t', C.c_size_t))),
@@ -698,9 +689,10 @@ class MsgArg(AllJoynObject):
 
         method = AllJoynObject._lib.alljoyn_msgarg_get
         method.restype = C.c_uint
-        method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
+        method.argtypes = ([MsgArgHandle, C.c_char_p] + ctypes_list)
         arguments = [handle, signature] + argument_list
         return AllJoynObject.QStatusToException(method(*arguments))
+
 
 #  *
 #  * @param arg         The alljoyn_msgarg we are reading from
@@ -777,8 +769,19 @@ class MsgArg(AllJoynObject):
     def GetMember(self, index):
         return self._GetMember(self.handle, index)  # int
 
+    def SetBool(self, value):
+        return self._SetBool(self.handle, value)
+
+    def GetBool(self):
+        value = C.c_byte()
+        self._GetBool(self.handle, C.byref(value))
+        return value.value
+
     def SetInt64(self, value):
         return self._SetInt64(self.handle, value)
+
+    def SetDouble(self, value):
+        return self._SetDouble(self.handle, value)
 
 MsgArg.bind_functions_to_cls()
 
