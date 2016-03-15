@@ -52,6 +52,24 @@ class AllPlayer(object):
 
         iface.Activate()
 
+
+        # u'GetSignal': (u'alljoyn_interfacedescription_getsignal',
+        #                         (u'int', C.c_int),
+        #                         ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
+        #                          (u'const char *', C.c_char_p),
+        #                          (u'alljoyn_interfacedescription_member *', POINTER(InterfaceDescriptionMember)))),
+
+        # self.bus.RegisterSignalHandler(signal_handler, member, None):
+        
+
+#<signal name="OnZoneChanged">
+#       <arg name="zoneId" type="s" direction="out"/>
+#       <arg name="timestamp" type="i" direction="out"/>
+#       <arg name="slaves" type="a{si}" direction="out"/>
+#     </signal>
+
+
+
     def GetMuteStatus(self):
         proxyBusObject = ProxyBusObject.ProxyBusObject(self.bus, SERVICE_NAME, SERVICE_PATH, self.session_id)
         iface = self.bus.GetInterface("org.alljoyn.Control.Volume")

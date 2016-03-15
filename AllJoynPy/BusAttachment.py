@@ -16,6 +16,8 @@ import sys
 import ctypes as C
 from ctypes import POINTER
 from . import AllJoynMeta, AllJoynObject, InterfaceDescription, BusListener
+#from MessageReceiver import MessageReceiverSignalHandlerFuncType
+
 # Wrapper for file BusAttachment.h
 
 # Typedefs
@@ -287,12 +289,24 @@ class BusAttachment(AllJoynObject):
                                                (u'QStatus', C.c_uint),
                                                ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                    (u'int', C.c_int))),
+
                  u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                 (u'int', C.c_int),
                                                 (u'const int', C.c_int),
                                                 (u'const char *', C.c_char_p))),
+
+                 # u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
+                 #                        (u'QStatus', C.c_uint),
+                 #                        ((u'alljoyn_busattachment', BusAttachmentHandle),
+                 #                            (u'int', MessageReceiverSignalHandlerFuncType),
+                 #                            (u'const int', InterfaceDescription.InterfaceDescriptionMember),
+                 #                            (u'const char *', C.c_char_p))),
+
+
+
+
                  u'RegisterSignalHandlerWithRule': (u'alljoyn_busattachment_registersignalhandlerwithrule',
                                                     (u'QStatus', C.c_uint),
                                                     ((u'alljoyn_busattachment',
