@@ -51,6 +51,7 @@ class AboutListener(AllJoynObject):
     _cmethods = {u'Create': (u'alljoyn_aboutlistener_create', (u'alljoyn_aboutlistener', AboutListenerHandle),
                              ((u'const alljoyn_aboutlistener_callback *', POINTER(AboutListenerCallBack)),
                               (u'const void *', C.c_void_p))),
+
                  u'Destroy': (u'alljoyn_aboutlistener_destroy', (u'void', None), 
                             ((u'alljoyn_aboutlistener', AboutListenerHandle),))}
 

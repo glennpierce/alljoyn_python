@@ -35,8 +35,9 @@ class MySessionListener(SessionListener.SessionListener):
 
 
 class MyAboutListener(AboutListener.AboutListener):
-    def __init__(self, callback_data=None):
-        super(MyAboutListener, self).__init__(callback_data=callback_data)
+    def __init__(self, bus_attachment, context=None):
+        super(MyAboutListener, self).__init__(context=context)
+        self.bus = bus_attachment
         self.sessionListener = MySessionListener()
 
    
@@ -44,8 +45,6 @@ class MyAboutListener(AboutListener.AboutListener):
     def OnAboutListenerCallBack(self, context, busName, version, port, objectDescriptionArg, aboutDataArg):
 
         global s_interrupt
-
-        g_bus = context
 
         objectDescription = AboutObjectDescription.AboutObjectDescription(objectDescriptionArg)
 
@@ -64,10 +63,10 @@ class MyAboutListener(AboutListener.AboutListener):
                                    Session.ALLJOYN_PROXIMITY_ANY,
                                    TransportMask.ALLJOYN_TRANSPORT_ANY)
 
-        g_bus.EnableConcurrentCallBacks()
-        sessionId = g_bus.JoinSession(busName, port, self.sessionListener, opts)
+        self.bus.EnableConcurrentCallBacks()
+        sessionId = self.bus.JoinSession(busName, port, self.sessionListener, opts)
 
-        aboutProxy = AboutProxy.AboutProxy(g_bus, busName, sessionId)
+        aboutProxy = AboutProxy.AboutProxy(self.bus, busName, sessionId)
 
         objArg = aboutProxy.GetObjectDescription()
 
@@ -78,7 +77,7 @@ class MyAboutListener(AboutListener.AboutListener):
             for interface in aboutObjectDescription.GetInterfaces(path):
                 print "\t\t", interface
 
-        proxyBusObject = ProxyBusObject.ProxyBusObject(g_bus, busName, '/net/allplay/MediaPlayer', sessionId)
+        proxyBusObject = ProxyBusObject.ProxyBusObject(self.bus, busName, '/net/allplay/MediaPlayer', sessionId)
            
         try:
             proxyBusObject.IntroSpectRemoteObject()
@@ -86,14 +85,14 @@ class MyAboutListener(AboutListener.AboutListener):
             print "Failed to introspect remote object."
                 
 
-        replyMsg = Message.Message(g_bus)
+        replyMsg = Message.Message(self.bus)
         proxyBusObject.MethodCall('net.allplay.MCU', "GetCurrentItemUrl", None, 0, replyMsg, 25000, 0)
         print "GetCurrentItemUrl:", replyMsg.GetArg(0).GetString()
 
             # arg = MsgArg.MsgArg()
             # arg.SetString("ECHO Echo echo...")
             
-        #replyMsg = Message.Message(g_bus)    
+        #replyMsg = Message.Message(self.bus)    
         #proxyBusObject.MethodCall('net.allplay.MCU', "GetCurrentItemUrl", arg, 1, replyMsg, 25000, 0)
         #print "GetCurrentItemUrl:", replyMsg.GetArg(0).GetString()
 
