@@ -3,7 +3,7 @@
 from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
     QStatusException, AboutObjectDescription, Session, \
     TransportMask, SessionListener, AboutProxy, ProxyBusObject, \
-    Message, BusListener, BusAttachment, InterfaceDescription
+    Message, BusListener, BusAttachment, InterfaceDescription, MessageReceiver
 import signal
 import time
 import sys
@@ -62,7 +62,9 @@ class AllPlayer(object):
         iface = self.bus.GetInterface("net.allplay.ZoneManager")
         proxyBusObject.AddInterface(iface)
 
-        #proxyBusObject.GetSignal()
+        interfaceMember = iface.GetSignal('OnZoneChanged')
+ 
+        print "interfaceMember", interfaceMember.Signature
 
         # u'GetSignal': (u'alljoyn_interfacedescription_getsignal',
         #                         (u'int', C.c_int),
@@ -70,7 +72,9 @@ class AllPlayer(object):
         #                          (u'const char *', C.c_char_p),
         #                          (u'alljoyn_interfacedescription_member *', POINTER(InterfaceDescriptionMember)))),
 
-        #self.bus.RegisterSignalHandler(signal_handler, member, None):
+
+
+        self.bus.RegisterSignalHandler(MessageReceiver.MessageReceiverSignalHandlerFuncType(AllPlayer.OnZoneChanged), interfaceMember, None)
         
 
 #<signal name="OnZoneChanged">
@@ -80,7 +84,34 @@ class AllPlayer(object):
 #     </signal>
 
 
-  
+    @staticmethod
+    def OnZoneChanged(member, srcpath, message):
+        print "OnZoneChanged"
+        print member, srcpath, message
+        print vars(member)
+        args = Message.Message.FromHandle(message).GetArgs()
+        print "args", args
+        slaves = args[2]
+
+        # Todo Tidy up MsgArg code. Could there be a way to dynamically create types based on the dbus signature ?
+        num = C.c_uint()
+        entries = MsgArg.MsgArg()
+        slaves.Get("a{si}", [C.POINTER(C.c_uint), C.POINTER(MsgArg.MsgArgHandle)], [C.byref(num), C.byref(entries.handle)])
+       
+        for i in range(num.value):
+            key = C.c_char_p()
+            value = C.c_int()
+            element = entries.ArrayElement(i)
+            
+            try:
+                element.Get("{si}", [C.POINTER(C.c_char_p), C.c_int_p], [C.byref(key), C.byref(value)])
+                print key.value, ":", value.value
+            except QStatusException as ex:
+                pass
+
+
+        #print [a.GetString() for a in args if a.Signature() == 's']
+
 
     def GetMuteStatus(self):
         proxyBusObject = ProxyBusObject.ProxyBusObject(self.bus, SERVICE_NAME, SERVICE_PATH, self.session_id)
@@ -249,6 +280,12 @@ if __name__ == "__main__":
         #print allplayer.CallGetCurrentItemUrl() #, allplayer.device_details.items()
         print allplayer.device_details.items()
         print allplayer.GetMuteStatus()
+
+
+
+
+    while True:
+        time.sleep(0.5)
 
         #allplayer.AdjustVolumePercent(0.0)
         #allplayer.PlayUrl()

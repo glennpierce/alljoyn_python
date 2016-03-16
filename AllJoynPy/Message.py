@@ -70,8 +70,8 @@ class Message(AllJoynObject):
                  u'GetArgs': (u'alljoyn_message_getargs',
                               (u'void', None),
                               ((u'alljoyn_message', MessageHandle),
-                                  (u'int *', POINTER(C.c_int)),
-                                  (u'int *', POINTER(C.c_int)))),
+                                  (u'size_t *', POINTER(C.c_size_t)),
+                                  (u'int *', POINTER(MsgArgHandle)))),
                  u'GetAuthMechanism': (u'alljoyn_message_getauthmechanism',
                                        (u'const char *', C.c_char_p),
                                        ((u'alljoyn_message', MessageHandle),)),
@@ -198,8 +198,12 @@ class Message(AllJoynObject):
     def GetType(self):
         return MessageType(self._GetType(self.handle))
 
-    def GetARGS(self, numArgs, args):
-        return self._GetARGS(self.handle, numArgs, args)  # int *,int *
+    def GetArgs(self):
+        size = C.c_size_t()
+        # Todo Assume array of size 10 . Not sure I can pass None / Null here to get size first
+        array = (MsgArgHandle * 10)()
+        self._GetArgs(self.handle, C.byref(size), C.cast(array, C.POINTER(MsgArgHandle)))
+        return [MsgArg.MsgArg.FromHandle(a) for a in array[:size.value]]
 
     def GetArg(self, arg_index):
         return MsgArg.MsgArg.FromHandle(self._GetArg(self.handle, arg_index))  # int

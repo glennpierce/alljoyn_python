@@ -127,7 +127,7 @@ class InterfaceDescription(AllJoynObject):
                                     (u'const char *', C.c_char_p),
                                     (u'int', C.c_ubyte),
                                     (u'const char *', C.c_char_p))),
-                 
+
                  u'EQL': (u'alljoyn_interfacedescription_eql',
                           (u'int', C.c_int),
                           ((u'const alljoyn_interfacedescription', C.c_void_p),
@@ -360,8 +360,10 @@ class InterfaceDescription(AllJoynObject):
         # const char *,const char *,const char *,int,const char *
         return self._AddSignal(self.handle, name, sig, argNames, annotation, accessPerms)
 
-    def GetSignal(self, name, member):
-        return self._GetSignal(self.handle, name, member)  # const char *,alljoyn_interfacedescription_member *
+    def GetSignal(self, name):
+        im = InterfaceDescriptionMember()
+        self._GetSignal(self.handle, name, C.byref(im))  # const char *,alljoyn_interfacedescription_member *
+        return im
 
     def GetProperty(self, name, property):
         return self._GetProperty(self.handle, name, property)  # const char *,alljoyn_interfacedescription_property *
