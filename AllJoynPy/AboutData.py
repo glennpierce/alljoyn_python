@@ -17,16 +17,13 @@ import types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject, MsgArg
+from . import *
+import MsgArg
 
 # Wrapper for file AboutData.h
 
 # Typedefs
 # struct _alljoyn_aboutdata_handle * alljoyn_aboutdata
-
-
-class AboutDataHandle(C.c_void_p):
-    pass
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE

@@ -14,12 +14,11 @@
 
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject, MsgArg
+from . import *
+import MsgArg
 
 # Wrapper for file AboutProxy.h
 
-class AboutProxyHandle(C.c_void_p): 
-    pass
 
 class AboutProxy(AllJoynObject):
 

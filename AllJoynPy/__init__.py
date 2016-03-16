@@ -21,6 +21,48 @@ import sys
 from enum import Enum, unique
 
 
+class BusAttachmentHandle(C.c_void_p):
+    pass
+
+class AboutDataHandle(C.c_void_p):
+    pass
+
+class AboutListenerHandle(C.c_void_p): 
+    pass
+
+class AboutObjectHandle(C.c_void_p):
+    pass
+
+class AboutProxyHandle(C.c_void_p): 
+    pass
+
+class BusListenerHandle(C.c_void_p):
+    pass
+
+class BusObjectHandle(C.c_void_p): 
+    pass
+
+class InterfaceDescriptionHandle(C.c_void_p):
+    pass
+
+class MessageHandle(C.c_void_p):
+    pass
+
+class MsgArgHandle(C.c_void_p): 
+    pass
+
+class ProxyBusHandle(C.c_void_p):
+    pass
+
+class SessionOptsHandle(C.c_void_p): 
+    pass
+
+class SessionListenerHandle(C.c_void_p):
+    pass
+
+class SessionPortListenerHandle(C.c_void_p): 
+    pass
+
 @unique
 class QStatus(Enum):
     ER_OK = 0x0  # Success.

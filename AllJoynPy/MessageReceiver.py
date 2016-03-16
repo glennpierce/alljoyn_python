@@ -16,7 +16,8 @@ import sys
 import ctypes as C
 from ctypes import POINTER
 
-import BusObject, Message, InterfaceDescription
+from . import *
+import InterfaceDescription
 
 # Wrapper for file MessageReceiver.h
 
@@ -27,11 +28,11 @@ else:
 
 
 MessageReceiverMethodHandlerFuncType = CallbackType(
-    None, BusObject.BusObjectHandle, POINTER(InterfaceDescription.InterfaceDescriptionMember), Message.MessageHandle)  # bus member message
+    None, BusObjectHandle, POINTER(InterfaceDescription.InterfaceDescriptionMember), MessageHandle)  # bus member message
 
 
 MessageReceiverSignalHandlerFuncType = CallbackType(
-    None, POINTER(InterfaceDescription.InterfaceDescriptionMember), C.c_char_p, Message.MessageHandle)  # member srcPath message
+    None, POINTER(InterfaceDescription.InterfaceDescriptionMember), C.c_char_p, MessageHandle)  # member srcPath message
 
 
-MessageReceiverReplyHandlerFuncType = CallbackType(None, Message.MessageHandle, C.c_void_p)  # message context
+MessageReceiverReplyHandlerFuncType = CallbackType(None, MessageHandle, C.c_void_p)  # message context

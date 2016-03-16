@@ -14,7 +14,7 @@
 
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject
+from . import *
 # Wrapper for file Session.h
 
 
@@ -27,13 +27,6 @@ ALLJOYN_PROXIMITY_ANY = 0xFF  # Accept any proximity options
 ALLJOYN_PROXIMITY_PHYSICAL = 0x01  # Limit the session to the same physical device
 ALLJOYN_PROXIMITY_NETWORK = 0x02  # Limit the session to network proximity
 
-# Typedefs
-# struct _alljoyn_sessionopts_handle * alljoyn_sessionopts
-# uint16 alljoyn_sessionport
-# int alljoyn_sessionid
-
-class SessionOptsHandle(C.c_void_p): 
-    pass
 
 class SessionOpts(AllJoynObject):
 

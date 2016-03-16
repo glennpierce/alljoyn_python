@@ -18,7 +18,8 @@ import types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject, MsgArg
+from . import *
+import MsgArg
 # Wrapper for file AboutListener.h
 
 # Typedefs
@@ -26,8 +27,6 @@ from . import AllJoynMeta, AllJoynObject, MsgArg
 # void (*)(const void *, const char *, int, int, const int, const int) alljoyn_about_announced_ptr
 # struct alljoyn_aboutlistener_callback alljoyn_aboutlistener_callback
 
-class AboutListenerHandle(C.c_void_p): 
-    pass
     
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
@@ -63,7 +62,7 @@ class AboutListener(AllJoynObject):
         # Usually ctypes would handle the self magic but in this case the ptr is stuck into a structure
         # and ctypes does not then do the magic
         self.callback_structure.AboutListenerAnnounced = self._OnAboutListenerCallBack()
-   
+
         self.handle = self._Create(C.byref(self.callback_structure), context)
 
     def __del__(self):

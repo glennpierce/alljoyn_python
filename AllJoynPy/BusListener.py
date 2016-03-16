@@ -16,13 +16,10 @@
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject
+from . import *
 
 
 # Wrapper for file BusListener.h
-
-class BusListenerHandle(C.c_void_p):
-    pass
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE

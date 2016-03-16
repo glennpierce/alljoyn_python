@@ -16,10 +16,9 @@ import sys
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import *
 
 # Wrapper for file SessionListener.h
-
 
 @unique
 class SessionLostReason(Enum):
@@ -36,8 +35,6 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
-class SessionListenerHandle(C.c_void_p):
-    pass
 
 # typedef void (AJ_CALL * alljoyn_sessionlistener_sessionlost_ptr)(const
 # void* context, alljoyn_sessionid sessionId, alljoyn_sessionlostreason

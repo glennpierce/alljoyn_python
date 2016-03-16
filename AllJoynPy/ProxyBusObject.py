@@ -15,13 +15,10 @@
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject, Message, BusAttachment, InterfaceDescription, MsgArg
+from . import *
+import Message, BusAttachment, InterfaceDescription, MsgArg
 
 # Wrapper for file ProxyBusObject.h
-
-
-class ProxyBusHandle(C.c_void_p):
-    pass
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE

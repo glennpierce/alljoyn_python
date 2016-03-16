@@ -15,13 +15,8 @@
 import sys, traceback
 import ctypes as C
 from ctypes import POINTER
-
-
-class BusObjectHandle(C.c_void_p): 
-    pass
-
-from . import AllJoynMeta, AllJoynObject, InterfaceDescription, MsgArg, Message
-from MessageReceiver import MessageReceiverMethodHandlerFuncType
+from . import *
+import InterfaceDescription, MsgArg, Message, MessageReceiver
 
 # Wrapper for file BusObject.h
 
@@ -62,7 +57,7 @@ class BusObjectCallBacks(C.Structure):
 class BusObjectMethodEntry(C.Structure):
     _fields_ = [
         ("Member", POINTER(InterfaceDescription.InterfaceDescriptionMember)),
-        ("MethodHandler", MessageReceiverMethodHandlerFuncType)
+        ("MethodHandler", MessageReceiver.MessageReceiverMethodHandlerFuncType)
     ]
 
 

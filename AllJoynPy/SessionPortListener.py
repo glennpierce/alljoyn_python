@@ -18,7 +18,7 @@ import types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import *
 # Wrapper for file SessionPortListener.h
 
 if sys.platform == 'win32':
@@ -26,8 +26,6 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
-class SessionPortListenerHandle(C.c_void_p): 
-    pass
 
 SessionPortListenerAcceptSessionJoinerFuncType = CallbackType(
     C.c_int, C.c_void_p, C.c_ushort, C.c_char_p, C.c_void_p)  # context sessionPort joiner, opts

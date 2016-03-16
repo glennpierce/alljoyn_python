@@ -18,11 +18,8 @@ import types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import *
 # Wrapper for file MsgArg.h
-
-class MsgArgHandle(C.c_void_p): 
-    pass
 
 
 @unique

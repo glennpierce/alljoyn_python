@@ -15,20 +15,10 @@
 import sys
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject, InterfaceDescription, BusListener
-#from MessageReceiver import MessageReceiverSignalHandlerFuncType
+from . import *
+import InterfaceDescription, BusListener, MessageReceiver
 
 # Wrapper for file BusAttachment.h
-
-# Typedefs
-# struct _alljoyn_busattachment_handle * alljoyn_busattachment
-# void (*)(int, int, const int, void *) alljoyn_busattachment_joinsessioncb_ptr
-# void (*)(int, int, void *) alljoyn_busattachment_setlinktimeoutcb_ptr
-
-
-class BusAttachmentHandle(C.c_void_p):
-    pass
-
 
 if sys.platform == 'win32':
     CallbackType = C.WINFUNCTYPE
@@ -290,19 +280,19 @@ class BusAttachment(AllJoynObject):
                                                ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                    (u'int', C.c_int))),
 
-                 u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
-                                            (u'QStatus', C.c_uint),
-                                            ((u'alljoyn_busattachment', BusAttachmentHandle),
-                                                (u'int', C.c_int),
-                                                (u'const int', C.c_int),
-                                                (u'const char *', C.c_char_p))),
-
                  # u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
-                 #                        (u'QStatus', C.c_uint),
-                 #                        ((u'alljoyn_busattachment', BusAttachmentHandle),
-                 #                            (u'int', MessageReceiverSignalHandlerFuncType),
-                 #                            (u'const int', InterfaceDescription.InterfaceDescriptionMember),
-                 #                            (u'const char *', C.c_char_p))),
+                 #                            (u'QStatus', C.c_uint),
+                 #                            ((u'alljoyn_busattachment', BusAttachmentHandle),
+                 #                                (u'int', C.c_int),
+                 #                                (u'const int', C.c_int),
+                 #                                (u'const char *', C.c_char_p))),
+
+                 u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
+                                        (u'QStatus', C.c_uint),
+                                        ((u'alljoyn_busattachment', BusAttachmentHandle),
+                                            (u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
+                                            (u'const int', InterfaceDescription.InterfaceDescriptionMember),
+                                            (u'const char *', C.c_char_p))),
 
 
 

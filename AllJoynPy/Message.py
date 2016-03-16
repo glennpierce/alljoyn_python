@@ -16,7 +16,9 @@
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject, MsgArg, BusAttachment
+
+from . import *
+import MsgArg, BusAttachment
 # Wrapper for file Message.h
 
 
@@ -27,10 +29,6 @@ ALLJOYN_MESSAGE_FLAG_SESSIONLESS = 0x10
 ALLJOYN_MESSAGE_FLAG_GLOBAL_BROADCAST = 0x20
 ALLJOYN_MESSAGE_FLAG_COMPRESSED = ("attempted_use_of_deprecated_definition", 0x40)
 ALLJOYN_MESSAGE_FLAG_ENCRYPTED = 0x80
-
-
-class MessageHandle(C.c_void_p):
-    pass
 
 
 @unique
