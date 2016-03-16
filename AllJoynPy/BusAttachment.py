@@ -16,7 +16,9 @@ import sys
 import ctypes as C
 from ctypes import POINTER
 from . import *
-import InterfaceDescription, BusListener, MessageReceiver
+import InterfaceDescription
+import BusListener
+import MessageReceiver
 
 # Wrapper for file BusAttachment.h
 
@@ -280,22 +282,12 @@ class BusAttachment(AllJoynObject):
                                                ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                    (u'int', C.c_int))),
 
-                 # u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
-                 #                            (u'QStatus', C.c_uint),
-                 #                            ((u'alljoyn_busattachment', BusAttachmentHandle),
-                 #                                (u'int', C.c_int),
-                 #                                (u'const int', C.c_int),
-                 #                                (u'const char *', C.c_char_p))),
-
                  u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
-                                        (u'QStatus', C.c_uint),
-                                        ((u'alljoyn_busattachment', BusAttachmentHandle),
-                                            (u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
-                                            (u'const int', InterfaceDescription.InterfaceDescriptionMember),
-                                            (u'const char *', C.c_char_p))),
-
-
-
+                                            (u'QStatus', C.c_uint),
+                                            ((u'alljoyn_busattachment', BusAttachmentHandle),
+                                                (u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
+                                                (u'const int', InterfaceDescription.InterfaceDescriptionMember),
+                                                (u'const char *', C.c_char_p))),
 
                  u'RegisterSignalHandlerWithRule': (u'alljoyn_busattachment_registersignalhandlerwithrule',
                                                     (u'QStatus', C.c_uint),

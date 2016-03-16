@@ -17,7 +17,7 @@ import sys
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import *
 
 # Wrapper for file InterfaceDescription.h
 ALLJOYN_PROP_ACCESS_READ = 1  # Read Access type
@@ -65,10 +65,6 @@ class InterfaceDescriptionProperty(C.Structure):
         ("Access", C.c_ubyte),
         ("Internal_Property", C.c_void_p)
     ]
-
-
-class InterfaceDescriptionHandle(C.c_void_p):
-    pass
 
 
 class InterfaceDescription(AllJoynObject):
@@ -122,14 +118,16 @@ class InterfaceDescription(AllJoynObject):
                                                 (u'const char *', C.c_char_p),
                                                 (u'const char *', C.c_char_p),
                                                 (u'const char *', C.c_char_p))),
+
                  u'AddSignal': (u'alljoyn_interfacedescription_addsignal',
                                 (u'QStatus', C.c_uint),
                                 ((u'alljoyn_interfacedescription', InterfaceDescriptionHandle),
                                     (u'const char *', C.c_char_p),
                                     (u'const char *', C.c_char_p),
                                     (u'const char *', C.c_char_p),
-                                    (u'int', C.c_int),
+                                    (u'int', C.c_ubyte),
                                     (u'const char *', C.c_char_p))),
+                 
                  u'EQL': (u'alljoyn_interfacedescription_eql',
                           (u'int', C.c_int),
                           ((u'const alljoyn_interfacedescription', C.c_void_p),
