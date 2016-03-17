@@ -367,7 +367,9 @@ if __name__ == "__main__":
 
     # Wait for join session to complete 
     t=0
-    while t < 5.5:
+    while t < 10.0:
+        if len(aboutListener.devices) >= 3:
+            break
         time.sleep(0.1)
         t+=0.1   
 
