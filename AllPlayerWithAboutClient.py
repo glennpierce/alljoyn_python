@@ -113,14 +113,14 @@ class AllPlayer(object):
         self.device_ids = [d for d in device_ids if d != self.full_device_id]
         #device_ids = [d for d in device_ids if d != self.device_id]
 
-        proxyBusObject = ProxyBusObject.ProxyBusObject(self.bus, SERVICE_NAME, SERVICE_PATH, self.session_id)
+        #proxyBusObject = ProxyBusObject.ProxyBusObject(self.bus, SERVICE_NAME, SERVICE_PATH, self.session_id)
         #proxyBusObject.IntrospectRemoteObject()
         # u'IntrospectRemoteObject': (u'alljoyn_proxybusobject_introspectremoteobject',
         #                                      (u'QStatus', C.c_uint),
         #                                      ((u'alljoyn_proxybusobject', ProxyBusHandle),)),
 
-        iface = self.bus.GetInterface("net.allplay.ZoneManager")      
-        proxyBusObject.AddInterface(iface)
+        #iface = self.bus.GetInterface("net.allplay.ZoneManager")      
+        #proxyBusObject.AddInterface(iface)
   
         self.arg = MsgArg.MsgArg()
         size = len(self.device_ids)
@@ -133,7 +133,7 @@ class AllPlayer(object):
 
         replyMsg = Message.Message(self.bus)
         try:
-            proxyBusObject.MethodCall('net.allplay.ZoneManager', "CreateZone", self.arg, 1, replyMsg, 100000, 0)
+            self.proxyBusObject.MethodCall('net.allplay.ZoneManager', "CreateZone", self.arg, 1, replyMsg, 100000, 0)
             # callback = MessageReceiver.MessageReceiverReplyHandlerFuncType(AllPlayer.OnReplyMessageCallback)
             # proxyBusObject.MethodCallAsync('net.allplay.ZoneManager', "CreateZone", callback, self.arg, 1, None, 55000, 0)
  
@@ -378,12 +378,11 @@ if __name__ == "__main__":
     player = allplayers[0]
     print "using: ", player.device_name, "speaker", player.device_id
 
-    #player.Stop()
-    #player.CreateZone(device_id_list)
+    player.Stop()
     #print "Mute:", player.GetMuteStatus()
     #player.AdjustVolumePercent(20.0)
 
-    #player.CreateZone([p.full_device_id for p in allplayers])
+    player.CreateZone([p.full_device_id for p in allplayers])
     #player.PlayUrl()
 
     g_bus.Stop()
