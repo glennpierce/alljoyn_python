@@ -639,19 +639,18 @@ class MsgArg(AllJoynObject):
                 raise AttributeError("GetSingleCompleteValue only supports simple types and arrays of simple types")
         
 
-    
-
     @classmethod
     def _Set(cls, handle, signature, ctypes_list, argument_list):
         # expects list of args as ctypes and the arguments themselves
 
-        if len(ctypes_list) != len(argument_list):
-            raise AttributeError("Wrong number of parameters") 
+        #if len(ctypes_list) != len(argument_list):
+        #    raise AttributeError("Wrong number of parameters") 
 
         method = AllJoynObject._lib.alljoyn_msgarg_set
         method.restype = C.c_uint
         method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
         arguments = [handle, signature] + argument_list
+        print arguments
         return AllJoynObject.QStatusToException(method(*arguments))
         
     def Set(self, signature, ctypes_list, argument_list):
@@ -671,11 +670,12 @@ class MsgArg(AllJoynObject):
         size = C.c_size_t(num_args)
         method.argtypes = ([MsgArgHandle, POINTER(C.c_size_t), C.c_char_p] + ctypes_list)
         arguments = [handle, C.byref(size), signature] + argument_list
+
+        print arguments
         return AllJoynObject.QStatusToException(method(*arguments))
 
     def ArraySet(self, num_args, signature, ctypes_list, argument_list):
         return self._ArraySet(self.handle, num_args, signature, ctypes_list, argument_list)  
-
 
     @classmethod
     def _Get(cls, handle, signature, ctypes_list, argument_list):
@@ -689,19 +689,6 @@ class MsgArg(AllJoynObject):
         method.argtypes = ([MsgArgHandle, C.c_char_p] + ctypes_list)
         arguments = [handle, signature] + argument_list
         return AllJoynObject.QStatusToException(method(*arguments))
-
-
-#  *
-#  * @param arg         The alljoyn_msgarg we are reading from
-#  * @param signature   The signature for alljoyn_msgarg value
-#  * @param ...         Pointers to return the unpacked values.
-#  *
-#  * @return
-#  *      - #ER_OK if the signature matched and alljoyn_msgarg was successfully unpacked.
-#  *      - #ER_BUS_SIGNATURE_MISMATCH if the signature did not match.
-#  *      - An error status otherwise
-#  */
-# extern AJ_API QStatus AJ_CALL alljoyn_msgarg_get(alljoyn_msgarg arg, const char* signature, ...);
 
     def Get(self, signature, ctypes_list, argument_list):
         return self._Get(self.handle, signature, ctypes_list, argument_list)

@@ -10,7 +10,9 @@ import sys
 
 timeout = 10
 
-INTERFACE_NAME = "net.allplay.MediaPlayer"
+#INTERFACE_NAME = "net.allplay.MediaPlayer"
+INTERFACE_NAMES = ["net.allplay.MediaPlayer", 'net.allplay.MCU', "net.allplay.ZoneManager"]
+
 
 def signal_handler(signal, frame):
     s_interrupt = True
@@ -29,7 +31,6 @@ class MyAboutListener(AboutListener.AboutListener):
         super(MyAboutListener, self).__init__(context=context)
         self.bus_attachment = bus_attachment
         self.sessionListener = MySessionListener()
-        self.bus_attachment = bus_attachment
 
     # Print out the fields found in the AboutData. Only fields with known signatures
     # are printed out.  All others will be treated as an unknown field.
@@ -72,7 +73,7 @@ class MyAboutListener(AboutListener.AboutListener):
         aboutObjectDescription = AboutObjectDescription.AboutObjectDescription(objArg)
 
         for path in aboutObjectDescription.GetPaths():
-            print "\t", path
+            print "\t ObjectPath: ", path
             for interface in aboutObjectDescription.GetInterfaces(path):
                 print "\t\t", interface
 
@@ -84,7 +85,6 @@ class MyAboutListener(AboutListener.AboutListener):
             print iface.Introspect()
         except QStatusException, ex:
             print "Failed to introspect remote object."
-
 
 
 if __name__ == "__main__":
@@ -115,7 +115,8 @@ if __name__ == "__main__":
 
     g_bus.RegisterAboutListener(aboutListener)
 
-    g_bus.WhoImplementsInterfaces([INTERFACE_NAME])
+    #g_bus.WhoImplementsInterfaces([INTERFACE_NAME])
+    g_bus.WhoImplementsInterfaces(INTERFACE_NAMES)
 
     s_interrupt = False
     t = 0

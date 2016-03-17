@@ -18,7 +18,8 @@ from ctypes import POINTER
 from enum import Enum, unique
 
 from . import *
-import MsgArg, BusAttachment
+import MsgArg
+import BusAttachment
 # Wrapper for file Message.h
 
 
@@ -52,7 +53,7 @@ class Message(AllJoynObject):
                                   (u'int', C.c_int),
                                   ((u'alljoyn_message', MessageHandle),
                                       (u'char *', C.c_char_p),
-                                      (u'int', C.c_int))),
+                                      (u'size_t', C.c_size_t))),
 
                  u'Destroy': (u'alljoyn_message_destroy',
                               (u'void', None),
@@ -72,84 +73,108 @@ class Message(AllJoynObject):
                               ((u'alljoyn_message', MessageHandle),
                                   (u'size_t *', POINTER(C.c_size_t)),
                                   (u'int *', POINTER(MsgArgHandle)))),
+
                  u'GetAuthMechanism': (u'alljoyn_message_getauthmechanism',
                                        (u'const char *', C.c_char_p),
                                        ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetCallSerial': (u'alljoyn_message_getcallserial',
                                     (u'int', C.c_int),
                                     ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetDestination': (u'alljoyn_message_getdestination',
                                      (u'const char *', C.c_char_p),
                                      ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetErrorName': (u'alljoyn_message_geterrorname',
                                    (u'const char *', C.c_char_p),
                                    ((u'alljoyn_message', MessageHandle),
                                        (u'char *', C.c_char_p),
-                                       (u'int *', POINTER(C.c_int)))),
+                                       (u'size_t *', POINTER(C.c_size_t)))),
+
                  u'GetFlags': (u'alljoyn_message_getflags',
                                (u'int', C.c_int),
                                ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetInterface': (u'alljoyn_message_getinterface',
                                    (u'const char *', C.c_char_p),
                                    ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetMemberName': (u'alljoyn_message_getmembername',
                                     (u'const char *', C.c_char_p),
                                     ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetObjectPath': (u'alljoyn_message_getobjectpath',
                                     (u'const char *', C.c_char_p),
                                     ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetReceiveEndPointName': (u'alljoyn_message_getreceiveendpointname',
                                              (u'const char *', C.c_char_p),
                                              ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetReplySerial': (u'alljoyn_message_getreplyserial',
                                      (u'int', C.c_int),
                                      ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetSender': (u'alljoyn_message_getsender',
                                 (u'const char *', C.c_char_p),
                                 ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetSessionId': (u'alljoyn_message_getsessionid',
                                    (u'int', C.c_int),
                                    ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetSignature': (u'alljoyn_message_getsignature',
                                    (u'const char *', C.c_char_p),
                                    ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetTimesTamp': (u'alljoyn_message_gettimestamp',
                                    (u'int', C.c_int),
                                    ((u'alljoyn_message', MessageHandle),)),
+
                  u'GetType': (u'alljoyn_message_gettype',
                               (u'alljoyn_messagetype', C.c_void_p),
                               ((u'alljoyn_message', MessageHandle),)),
+
                  u'IsBroadcastSignal': (u'alljoyn_message_isbroadcastsignal',
                                         (u'int', C.c_int),
                                         ((u'alljoyn_message', MessageHandle),)),
+
                  u'IsEncrypted': (u'alljoyn_message_isencrypted',
                                   (u'int', C.c_int),
                                   ((u'alljoyn_message', MessageHandle),)),
+
                  u'IsExpired': (u'alljoyn_message_isexpired',
                                 (u'int', C.c_int),
                                 ((u'alljoyn_message', MessageHandle),
                                     (u'int *', POINTER(C.c_int)))),
+
                  u'IsGlobalBroadcast': (u'alljoyn_message_isglobalbroadcast',
                                         (u'int', C.c_int),
                                         ((u'alljoyn_message', MessageHandle),)),
+
                  u'IsSessionLess': (u'alljoyn_message_issessionless',
                                     (u'int', C.c_int),
                                     ((u'alljoyn_message', MessageHandle),)),
+
                  u'IsUnreliable': (u'alljoyn_message_isunreliable',
                                    (u'int', C.c_int),
                                    ((u'alljoyn_message', MessageHandle),)),
+
                  u'ParseArgs': (u'alljoyn_message_parseargs',
                                 (u'QStatus', C.c_uint),
                                 ((u'alljoyn_message', MessageHandle),
                                     (u'const char *', C.c_char_p))),
+
                  u'SetEndianess': (u'alljoyn_message_setendianess',
                                    (u'void', None),
                                    ((u'const char', C.c_byte),)),
+
                  u'ToString': (u'alljoyn_message_tostring',
                                (u'int', C.c_int),
                                ((u'alljoyn_message', MessageHandle),
                                    (u'char *', C.c_char_p),
-                                   (u'int', C.c_int)))}
+                                   (u'size_t', C.c_size_t)))}
 
     def __init__(self, bus_attachment=None):
         if bus_attachment:
@@ -159,7 +184,7 @@ class Message(AllJoynObject):
     def __del__(self):
         # Todo Getting seg fault with Destroy
         # print "Message __del__ called"
-        #self._Destroy(self.handle)
+        # self._Destroy(self.handle)
         pass
 
     @classmethod
@@ -199,10 +224,14 @@ class Message(AllJoynObject):
         return MessageType(self._GetType(self.handle))
 
     def GetArgs(self):
+        # Hmm broken can't get back all args
         size = C.c_size_t()
+        args = MsgArgHandle()
         # Todo Assume array of size 10 . Not sure I can pass None / Null here to get size first
-        array = (MsgArgHandle * 10)()
-        self._GetArgs(self.handle, C.byref(size), C.cast(array, C.POINTER(MsgArgHandle)))
+        #array = (MsgArgHandle * 10)()
+        #
+        #self._GetArgs(self.handle, C.byref(size), C.cast(C.byref(array), C.POINTER(MsgArgHandle)))
+        self._GetArgs(self.handle, C.byref(size), C.byref(args))
         return [MsgArg.MsgArg.FromHandle(a) for a in array[:size.value]]
 
     def GetArg(self, arg_index):
@@ -241,14 +270,26 @@ class Message(AllJoynObject):
     def GetSessionId(self):
         return self._GetSessionId(self.handle)
 
-    def GetErrorName(self, errorMessage, errorMessage_size):
-        return self._GetErrorName(self.handle, errorMessage, errorMessage_size)  # char *,int *
+    def GetErrorName(self):
+        error_message = C.create_string_buffer(1024)
+        size = C.c_size_t(1024)
+        error_name = self._GetErrorName(self.handle, error_message, C.byref(size))  # char *,int *
+        return (error_name, error_message.value)
 
-    def ToString(self, str, buf):
-        return self._ToString(self.handle, str, buf)  # char *,int
+    def ToString(self):
+        buf = C.create_string_buffer(1024)
+        size = C.c_size_t(1024)
+        self._ToString(self.handle, buf, size)  # char *,int
+        return buf.value
 
-    def Description(self, str, buf):
-        return self._Description(self.handle, str, buf)  # char *,int
+    def __repr__(self):
+        return self.ToString()
+
+    def Description(self):
+        buf = C.create_string_buffer(1024)
+        size = C.c_size_t(1024)
+        self._Description(self.handle, buf, size)  # char *,int
+        return buf.value
 
     def GetTimesTamp(self):
         return self._GetTimesTamp(self.handle)

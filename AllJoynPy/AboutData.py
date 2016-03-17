@@ -38,75 +38,92 @@ class AboutData(AllJoynObject):
     _cmethods = {u'Create': (u'alljoyn_aboutdata_create',
                              (u'alljoyn_aboutdata', AboutDataHandle),
                              ((u'const char *', C.c_char_p),)),
+
                  u'CreateEmpty': (u'alljoyn_aboutdata_create_empty',
                                   (u'alljoyn_aboutdata', AboutDataHandle),
                                   ()),
+
                  u'CreateFromMsgARG': (u'alljoyn_aboutdata_createfrommsgarg',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_aboutdata', AboutDataHandle),
                                            (u'const int', C.c_int),
                                            (u'const char *', C.c_char_p))),
+
                  u'CreateFromXML': (u'alljoyn_aboutdata_createfromxml',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_aboutdata', AboutDataHandle),
                                         (u'const char *', C.c_char_p))),
+
                  u'CreateFull': (u'alljoyn_aboutdata_create_full',
                                  (u'alljoyn_aboutdata', AboutDataHandle),
                                  ((u'const void*', C.c_void_p), (u'const char *', C.c_char_p))),
+
                  u'Destroy': (u'alljoyn_aboutdata_destroy',
                               (u'void', None),
                               ((u'alljoyn_aboutdata', AboutDataHandle),)),
+
                  u'GetAJSoftwareVersion': (u'alljoyn_aboutdata_getajsoftwareversion',
                                            (u'QStatus', C.c_uint),
                                            ((u'alljoyn_aboutdata', AboutDataHandle),
                                                (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetAPPID': (u'alljoyn_aboutdata_getappid',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_aboutdata', AboutDataHandle),
                                    (u'int **', POINTER(POINTER(C.c_int))),
                                    (u'int *', POINTER(C.c_int)))),
+
                  u'GetAppName': (u'alljoyn_aboutdata_getappname',
                                  (u'QStatus', C.c_uint),
                                  ((u'alljoyn_aboutdata', AboutDataHandle),
                                      (u'char **', POINTER(C.c_char_p)),
                                      (u'const char *', C.c_char_p))),
+
                  u'GetAboutData': (u'alljoyn_aboutdata_getaboutdata',
                                    (u'QStatus', C.c_uint),
                                    ((u'alljoyn_aboutdata', AboutDataHandle),
                                        (u'alljoyn_msgarg', C.c_void_p),
                                        (u'const char *', C.c_char_p))),
+
                  u'GetAnnouncedAboutData': (u'alljoyn_aboutdata_getannouncedaboutdata',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_aboutdata', AboutDataHandle),
                                                 (u'alljoyn_msgarg', C.c_void_p))),
+
                  u'GetDateOfManufacture': (u'alljoyn_aboutdata_getdateofmanufacture',
                                            (u'QStatus', C.c_uint),
                                            ((u'alljoyn_aboutdata', AboutDataHandle),
                                                (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetDefaultLanguage': (u'alljoyn_aboutdata_getdefaultlanguage',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
                                              (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetDescription': (u'alljoyn_aboutdata_getdescription',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_aboutdata', AboutDataHandle),
                                          (u'char **', POINTER(C.c_char_p)),
                                          (u'const char *', C.c_char_p))),
+
                  u'GetDeviceId': (u'alljoyn_aboutdata_getdeviceid',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_aboutdata', AboutDataHandle),
                                       (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetDeviceName': (u'alljoyn_aboutdata_getdevicename',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_aboutdata', AboutDataHandle),
                                         (u'char **', POINTER(C.c_char_p)),
                                         (u'const char *', C.c_char_p))),
 
+
                  u'GetField': (u'alljoyn_aboutdata_getfield',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_aboutdata', AboutDataHandle), (u'const char *', C.c_char_p),
                                    (u'alljoyn_msgarg*', POINTER(MsgArg.MsgArgHandle)),
                                    (u'const char *', C.c_char_p))),
+
 
                  u'GetFieldSignature': (u'alljoyn_aboutdata_getfieldsignature',
                                         (u'const char *', C.c_char_p),
@@ -121,107 +138,131 @@ class AboutData(AllJoynObject):
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
                                           (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetManufacturer': (u'alljoyn_aboutdata_getmanufacturer',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_aboutdata', AboutDataHandle),
                                           (u'char **', POINTER(C.c_char_p)),
                                           (u'const char *', C.c_char_p))),
+
                  u'GetModelNumber': (u'alljoyn_aboutdata_getmodelnumber',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_aboutdata', AboutDataHandle),
                                          (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetSoftwareVersion': (u'alljoyn_aboutdata_getsoftwareversion',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
                                              (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetSupportURL': (u'alljoyn_aboutdata_getsupporturl',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_aboutdata', AboutDataHandle),
                                         (u'char **', POINTER(C.c_char_p)))),
+
                  u'GetSupportedLanguages': (u'alljoyn_aboutdata_getsupportedlanguages',
                                             (u'int', C.c_int),
                                             ((u'alljoyn_aboutdata', AboutDataHandle),
                                                 (u'const char **', POINTER(C.c_char_p)),
                                                 (u'int', C.c_int))),
+
                  u'IsFieldAnnounced': (u'alljoyn_aboutdata_isfieldannounced',
                                        (u'int', C.c_int),
                                        ((u'alljoyn_aboutdata', AboutDataHandle),
                                            (u'const char *', C.c_char_p))),
+
                  u'IsFieldLocalized': (u'alljoyn_aboutdata_isfieldlocalized',
                                        (u'int', C.c_int),
                                        ((u'alljoyn_aboutdata', AboutDataHandle),
                                            (u'const char *', C.c_char_p))),
+
                  u'IsFieldRequired': (u'alljoyn_aboutdata_isfieldrequired',
                                       (u'int', C.c_int),
                                       ((u'alljoyn_aboutdata', AboutDataHandle),
                                           (u'const char *', C.c_char_p))),
+
                  u'IsValid': (u'alljoyn_aboutdata_isvalid',
                               (u'int', C.c_int),
                               ((u'alljoyn_aboutdata', AboutDataHandle),
                                   (u'const char *', C.c_char_p))),
+
                  u'SetAppId': (u'alljoyn_aboutdata_setappid',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_aboutdata', AboutDataHandle),
                                    (u'const int *', POINTER(C.c_ubyte)),
                                    (u'const int', C.c_int))),
+
                  u'SetAppIdFromString': (u'alljoyn_aboutdata_setappid_fromstring',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
                                              (u'const char *', C.c_char_p))),
+
                  u'SetAppName': (u'alljoyn_aboutdata_setappname',
                                  (u'QStatus', C.c_uint),
                                  ((u'alljoyn_aboutdata', AboutDataHandle),
                                      (u'const char *', C.c_char_p),
                                      (u'const char *', C.c_char_p))),
+
                  u'SetDateOfManufacture': (u'alljoyn_aboutdata_setdateofmanufacture',
                                            (u'QStatus', C.c_uint),
                                            ((u'alljoyn_aboutdata', AboutDataHandle),
                                                (u'const char *', C.c_char_p))),
+
                  u'SetDefaultLanguage': (u'alljoyn_aboutdata_setdefaultlanguage',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
                                              (u'const char *', C.c_char_p))),
+
                  u'SetDescription': (u'alljoyn_aboutdata_setdescription',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_aboutdata', AboutDataHandle),
                                          (u'const char *', C.c_char_p),
                                          (u'const char *', C.c_char_p))),
+
                  u'SetDeviceId': (u'alljoyn_aboutdata_setdeviceid',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_aboutdata', AboutDataHandle),
                                       (u'const char *', C.c_char_p))),
+
                  u'SetDeviceName': (u'alljoyn_aboutdata_setdevicename',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_aboutdata', AboutDataHandle),
                                         (u'const char *', C.c_char_p),
                                         (u'const char *', C.c_char_p))),
+
                  u'SetField': (u'alljoyn_aboutdata_setfield',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_aboutdata', AboutDataHandle),
                                    (u'const char *', C.c_char_p),
                                    (u'alljoyn_msgarg', C.c_void_p),
                                    (u'const char *', C.c_char_p))),
+
                  u'SetHardwareVersion': (u'alljoyn_aboutdata_sethardwareversion',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
                                              (u'const char *', C.c_char_p))),
+
                  u'SetManufacturer': (u'alljoyn_aboutdata_setmanufacturer',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_aboutdata', AboutDataHandle),
                                           (u'const char *', C.c_char_p),
                                           (u'const char *', C.c_char_p))),
+
                  u'SetModelNumber': (u'alljoyn_aboutdata_setmodelnumber',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_aboutdata', AboutDataHandle),
                                          (u'const char *', C.c_char_p))),
+
                  u'SetSoftwareVersion': (u'alljoyn_aboutdata_setsoftwareversion',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_aboutdata', AboutDataHandle),
                                              (u'const char *', C.c_char_p))),
+
                  u'SetSupportURL': (u'alljoyn_aboutdata_setsupporturl',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_aboutdata', AboutDataHandle),
                                         (u'const char *', C.c_char_p))),
+
                  u'SetSupportedLanguage': (u'alljoyn_aboutdata_setsupportedlanguage',
                                            (u'QStatus', C.c_uint),
                                            ((u'alljoyn_aboutdata', AboutDataHandle),
@@ -279,7 +320,7 @@ class AboutData(AllJoynObject):
     def SetDeviceId(self, device_id):
         return self._SetDeviceId(self.handle, device_id)  # const char *
 
-    def GetDeviceId(self, deviceId):
+    def GetDeviceId(self):
         deviceId = C.c_char_p()
         self._GetDeviceId(self.handle, C.byref(deviceId))  # char **
         return deviceId.value

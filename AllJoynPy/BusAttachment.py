@@ -42,40 +42,48 @@ class BusAttachment(AllJoynObject):
                                         (u'const char *', C.c_char_p),
                                         (u'const char *', C.c_char_p),
                                         (u'const char *', C.c_char_p))),
+
                  u'AddMatch': (u'alljoyn_busattachment_addmatch',
                                (u'QStatus', C.c_uint),
                                ((u'alljoyn_busattachment', BusAttachmentHandle),
                                    (u'const char *', C.c_char_p))),
+
                  u'AdvertiseName': (u'alljoyn_busattachment_advertisename',
                                     (u'QStatus', C.c_uint),
                                     ((u'alljoyn_busattachment', BusAttachmentHandle),
                                         (u'const char *', C.c_char_p),
                                         (u'int', C.c_int))),
+
                  u'BindSessionPort': (u'alljoyn_busattachment_bindsessionport',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busattachment', BusAttachmentHandle),
                                           (u'int *', POINTER(C.c_int)),
                                           (u'const void*', C.c_void_p),
                                           (u'void*', C.c_void_p))),
+
                  u'CancelAdvertiseName': (u'alljoyn_busattachment_canceladvertisename',
                                           (u'QStatus', C.c_uint),
                                           ((u'alljoyn_busattachment', BusAttachmentHandle),
                                               (u'const char *', C.c_char_p),
                                               (u'int', C.c_int))),
+
                  u'CancelFindAdvertisedName': (u'alljoyn_busattachment_cancelfindadvertisedname',
                                                (u'QStatus', C.c_uint),
                                                ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                    (u'const char *', C.c_char_p))),
+
                  u'CancelFindAdvertisedNameByTransport': (u'alljoyn_busattachment_cancelfindadvertisednamebytransport',
                                                           (u'QStatus', C.c_uint),
                                                           ((u'alljoyn_busattachment',
                                                             C.c_void_p),
                                                               (u'const char *', C.c_char_p),
                                                               (u'int', C.c_int))),
+
                  u'CancelWhoImplementsInterface': (u'alljoyn_busattachment_cancelwhoimplements_interface',
                                                    (u'QStatus', C.c_uint),
                                                    ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                        (u'const char *', C.c_char_p))),
+
                  u'CancelWhoImplementsInterfaces': (u'alljoyn_busattachment_cancelwhoimplements_interfaces',
                                                     (u'QStatus', C.c_uint),
                                                     ((u'alljoyn_busattachment',
@@ -83,54 +91,67 @@ class BusAttachment(AllJoynObject):
                                                         (u'const char **',
                                                          POINTER(C.c_char_p)),
                                                         (u'int', C.c_int))),
+
                  u'ClearKeys': (u'alljoyn_busattachment_clearkeys',
                                 (u'QStatus', C.c_uint),
                                 ((u'alljoyn_busattachment', BusAttachmentHandle),
                                     (u'const char *', C.c_char_p))),
+
                  u'ClearKeysTore': (u'alljoyn_busattachment_clearkeystore',
                                     (u'void', None),
                                     ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'Connect': (u'alljoyn_busattachment_connect',
                               (u'QStatus', C.c_uint),
                               ((u'alljoyn_busattachment', BusAttachmentHandle),
                                   (u'const char *', C.c_char_p))),
+
                  u'Create': (u'alljoyn_busattachment_create',
                              (u'alljoyn_busattachment', BusAttachmentHandle),
                              ((u'const char *', C.c_char_p), (u'int', C.c_int))),
+
                  u'CreateConcurrency': (u'alljoyn_busattachment_create_concurrency',
                                         (u'alljoyn_busattachment', BusAttachmentHandle),
                                         ((u'const char *', C.c_char_p),
                                             (u'int', C.c_int),
                                             (u'int', C.c_int))),
+
                  u'CreateInterface': (u'alljoyn_busattachment_createinterface',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busattachment', BusAttachmentHandle),
                                           (u'const char *', C.c_char_p),
                                           (u'int *', POINTER(InterfaceDescription.InterfaceDescriptionHandle)))),
+
                  u'CreateInterfaceSecure': (u'alljoyn_busattachment_createinterface_secure',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                 (u'const char *', C.c_char_p),
                                                 (u'int *', POINTER(C.c_int)),
                                                 (u'int', C.c_int))),
+
                  u'CreateInterfacesFromXML': (u'alljoyn_busattachment_createinterfacesfromxml',
                                               (u'QStatus', C.c_uint),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                   (u'const char *', C.c_char_p))),
+
                  u'DeleteInterface': (u'alljoyn_busattachment_deleteinterface',
                                       (u'QStatus', C.c_uint),
                                       ((u'alljoyn_busattachment', BusAttachmentHandle),
                                           (u'int', C.c_int))),
+
                  u'Destroy': (u'alljoyn_busattachment_destroy',
                               (u'void', None),
                               ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'Disconnect': (u'alljoyn_busattachment_disconnect',
                                  (u'QStatus', C.c_uint),
                                  ((u'alljoyn_busattachment', BusAttachmentHandle),
                                      (u'const char *', C.c_char_p))),
+
                  u'EnableConcurrentCallbacks': (u'alljoyn_busattachment_enableconcurrentcallbacks',
                                                 (u'void', None),
                                                 ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'EnablePeerSecurity': (u'alljoyn_busattachment_enablepeersecurity',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_busattachment', BusAttachmentHandle),
@@ -160,84 +181,100 @@ class BusAttachment(AllJoynObject):
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_busattachment', BusAttachmentHandle),
                                              (u'const char *', C.c_char_p))),
+
                  u'FindAdvertisedNameByTransport': (u'alljoyn_busattachment_findadvertisednamebytransport',
                                                     (u'QStatus', C.c_uint),
                                                     ((u'alljoyn_busattachment',
                                                       C.c_void_p),
                                                         (u'const char *', C.c_char_p),
                                                         (u'int', C.c_int))),
+
                  u'GetAllJoyNDEBUGOBJ': (u'alljoyn_busattachment_getalljoyndebugobj',
                                          (u'const int', C.c_int),
                                          ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'GetAllJoyNPROXYOBJ': (u'alljoyn_busattachment_getalljoynproxyobj',
                                          (u'const int', C.c_int),
                                          ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'GetConcurrency': (u'alljoyn_busattachment_getconcurrency',
                                      (u'int', C.c_int),
                                      ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'GetConnectSpec': (u'alljoyn_busattachment_getconnectspec',
                                      (u'const char *', C.c_char_p),
                                      ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'GetDBUSPROXYOBJ': (u'alljoyn_busattachment_getdbusproxyobj',
                                       (u'const int', C.c_int),
                                       ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'GetGlobalGUIDSTRING': (u'alljoyn_busattachment_getglobalguidstring',
                                           (u'const char *', C.c_char_p),
                                           ((u'const alljoyn_busattachment', C.c_void_p),)),
+
                  u'GetInterface': (u'alljoyn_busattachment_getinterface',
                                    (u'const void*', InterfaceDescription.InterfaceDescriptionHandle),
                                    ((u'alljoyn_busattachment', BusAttachmentHandle),
                                        (u'const char *', C.c_char_p))),
+
                  u'GetInterfaces': (u'alljoyn_busattachment_getinterfaces',
                                     (u'size_t', C.c_size_t),
                                     ((u'const alljoyn_busattachment', C.c_void_p),
                                         (u'const void *', POINTER(InterfaceDescription.InterfaceDescriptionHandle)),
                                         (u'size_t', C.c_size_t))),
+
                  u'GetKeyExpiration': (u'alljoyn_busattachment_getkeyexpiration',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_busattachment', BusAttachmentHandle),
                                            (u'const char *', C.c_char_p),
                                            (u'int *', POINTER(C.c_int)))),
+
                  u'GetPeerGUID': (u'alljoyn_busattachment_getpeerguid',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_busattachment', BusAttachmentHandle),
                                       (u'const char *', C.c_char_p),
                                       (u'char *', C.c_char_p),
                                       (u'int *', POINTER(C.c_int)))),
+
                  u'GetTimesTamp': (u'alljoyn_busattachment_gettimestamp',
                                    (u'int', C.c_int),
                                    ()),
+
                  u'GetUniqueName': (u'alljoyn_busattachment_getuniquename',
                                     (u'const char *', C.c_char_p),
                                     ((u'const alljoyn_busattachment', C.c_void_p),)),
+
                  u'IsConnected': (u'alljoyn_busattachment_isconnected',
                                   (u'int', C.c_int),
                                   ((u'const alljoyn_busattachment', C.c_void_p),)),
+
                  u'IsPeerSecurityEnabled': (u'alljoyn_busattachment_ispeersecurityenabled',
                                             (u'int', C.c_int),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'IsStarted': (u'alljoyn_busattachment_isstarted',
                                 (u'int', C.c_int),
                                 ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'IsStopping': (u'alljoyn_busattachment_isstopping',
                                  (u'int', C.c_int),
                                  ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'Join': (u'alljoyn_busattachment_join',
                            (u'QStatus', C.c_uint),
                            ((u'alljoyn_busattachment', BusAttachmentHandle),)),
 
-                 # QStatus AJ_CALL alljoyn_busattachment_joinsession(alljoyn_busattachment bus, const char* sessionHost,
-                 # alljoyn_sessionport sessionPort, alljoyn_sessionlistener listener,
-                 # alljoyn_sessionid* sessionId, alljoyn_sessionopts opts);
                  u'JoinSession': (u'alljoyn_busattachment_joinsession',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_busattachment', BusAttachmentHandle),
                                       (u'const char *', C.c_char_p),
-                                      (u'int', C.c_uint16),
-                                      (u'void *', C.c_void_p),
+                                      (u'int', C.c_uint),
+                                      (u'void *', SessionListenerHandle),
                                       (u'uint *', POINTER(C.c_uint)),
-                                      (u'int', C.c_void_p))),
-                 u'JoinSessionAsYNC': (u'alljoyn_busattachment_joinsessionasync',
+                                      (u'void*', SessionOptsHandle))),
+
+                 u'JoinSessionAsync': (u'alljoyn_busattachment_joinsessionasync',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_busattachment', BusAttachmentHandle),
                                            (u'const char *', C.c_char_p),
@@ -247,40 +284,49 @@ class BusAttachment(AllJoynObject):
                                            (u'alljoyn_busattachment_joinsessioncb_ptr',
                                             POINTER(BusAttachmentJoinSessionCBFuncType)),
                                            (u'void *', C.c_void_p))),
+
                  u'LeaveSession': (u'alljoyn_busattachment_leavesession',
                                    (u'QStatus', C.c_uint),
                                    ((u'alljoyn_busattachment', BusAttachmentHandle),
                                        (u'int', C.c_int))),
+
                  u'NameHasOwner': (u'alljoyn_busattachment_namehasowner',
                                    (u'QStatus', C.c_uint),
                                    ((u'alljoyn_busattachment', BusAttachmentHandle),
                                        (u'const char *', C.c_char_p),
                                        (u'int *', POINTER(C.c_int)))),
+
                  u'Ping': (u'alljoyn_busattachment_ping',
                            (u'QStatus', C.c_uint),
                            ((u'alljoyn_busattachment', BusAttachmentHandle),
                                (u'const char *', C.c_char_p),
                                (u'int', C.c_int))),
+
                  u'RegisterAboutListener': (u'alljoyn_busattachment_registeraboutlistener',
                                             (u'void', None),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                 (u'alljoyn_aboutlistener', C.c_void_p))),
+
                  u'RegisterBusListener': (u'alljoyn_busattachment_registerbuslistener',
                                           (u'void', None),
                                           ((u'alljoyn_busattachment', BusAttachmentHandle),
                                               (u'void*', BusListener.BusListenerHandle))),
+
                  u'RegisterBusObject': (u'alljoyn_busattachment_registerbusobject',
                                         (u'QStatus', C.c_uint),
                                         ((u'alljoyn_busattachment', BusAttachmentHandle),
                                             (u'void*', C.c_void_p))),
+
                  u'RegisterBusObjectSecure': (u'alljoyn_busattachment_registerbusobject_secure',
                                               (u'QStatus', C.c_uint),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                   (u'void*', C.c_void_p))),
+
                  u'RegisterKeysToreListener': (u'alljoyn_busattachment_registerkeystorelistener',
                                                (u'QStatus', C.c_uint),
                                                ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                    (u'int', C.c_int))),
+
 
                  u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
                                             (u'QStatus', C.c_uint),
@@ -296,53 +342,64 @@ class BusAttachment(AllJoynObject):
                                                         (u'int', C.c_int),
                                                         (u'const int', C.c_int),
                                                         (u'const char *', C.c_char_p))),
+
                  u'ReleaseName': (u'alljoyn_busattachment_releasename',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_busattachment', BusAttachmentHandle),
                                       (u'const char *', C.c_char_p))),
+
                  u'ReloadKeysTore': (u'alljoyn_busattachment_reloadkeystore',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'RemoveMatch': (u'alljoyn_busattachment_removematch',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_busattachment', BusAttachmentHandle),
                                       (u'const char *', C.c_char_p))),
+
                  u'RemoveSessionMember': (u'alljoyn_busattachment_removesessionmember',
                                           (u'QStatus', C.c_uint),
                                           ((u'alljoyn_busattachment', BusAttachmentHandle),
                                               (u'int', C.c_int),
                                               (u'const char *', C.c_char_p))),
+
                  u'RequestName': (u'alljoyn_busattachment_requestname',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_busattachment', BusAttachmentHandle),
                                       (u'const char *', C.c_char_p),
                                       (u'int', C.c_int))),
+
                  u'SecureConnection': (u'alljoyn_busattachment_secureconnection',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_busattachment', BusAttachmentHandle),
                                            (u'const char *', C.c_char_p),
                                            (u'int', C.c_int))),
-                 u'SecureConnectionAsYNC': (u'alljoyn_busattachment_secureconnectionasync',
+
+                 u'SecureConnectionAsync': (u'alljoyn_busattachment_secureconnectionasync',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                 (u'const char *', C.c_char_p),
                                                 (u'int', C.c_int))),
+
                  u'SetDaemonDebug': (u'alljoyn_busattachment_setdaemondebug',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_busattachment', BusAttachmentHandle),
                                          (u'const char *', C.c_char_p),
                                          (u'int', C.c_int))),
+
                  u'SetKeyExpiration': (u'alljoyn_busattachment_setkeyexpiration',
                                        (u'QStatus', C.c_uint),
                                        ((u'alljoyn_busattachment', BusAttachmentHandle),
                                            (u'const char *', C.c_char_p),
                                            (u'int', C.c_int))),
+
                  u'SetLinkTimeout': (u'alljoyn_busattachment_setlinktimeout',
                                      (u'QStatus', C.c_uint),
                                      ((u'alljoyn_busattachment', BusAttachmentHandle),
                                          (u'int', C.c_int),
                                          (u'int *', POINTER(C.c_int)))),
-                 u'SetLinkTimeoutAsYNC': (u'alljoyn_busattachment_setlinktimeoutasync',
+
+                 u'SetLinkTimeoutAsync': (u'alljoyn_busattachment_setlinktimeoutasync',
                                           (u'QStatus', C.c_uint),
                                           ((u'alljoyn_busattachment', BusAttachmentHandle),
                                               (u'int', C.c_int),
@@ -350,41 +407,51 @@ class BusAttachment(AllJoynObject):
                                               (u'alljoyn_busattachment_setlinktimeoutcb_ptr',
                                                POINTER(BusAttachmentSetLinkTimeoutCBFuncType)),
                                               (u'void *', C.c_void_p))),
+
                  u'SetSessionListener': (u'alljoyn_busattachment_setsessionlistener',
                                          (u'QStatus', C.c_uint),
                                          ((u'alljoyn_busattachment', BusAttachmentHandle),
                                              (u'int', C.c_int),
                                              (u'int', C.c_int))),
+
                  u'Start': (u'alljoyn_busattachment_start',
                             (u'QStatus', C.c_uint),
                             ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'Stop': (u'alljoyn_busattachment_stop',
                            (u'QStatus', C.c_uint),
                            ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'UnRegisterAboutListener': (u'alljoyn_busattachment_unregisteraboutlistener',
                                               (u'void', None),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                   (u'int', C.c_int))),
+
                  u'UnRegisterAllAboutListeners': (u'alljoyn_busattachment_unregisterallaboutlisteners',
                                                   (u'void', None),
                                                   ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'UnRegisterAllHandlers': (u'alljoyn_busattachment_unregisterallhandlers',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),)),
+
                  u'UnRegisterBusListener': (u'alljoyn_busattachment_unregisterbuslistener',
                                             (u'void', None),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                 (u'int', C.c_int))),
+
                  u'UnRegisterBusObject': (u'alljoyn_busattachment_unregisterbusobject',
                                           (u'void', None),
                                           ((u'alljoyn_busattachment', BusAttachmentHandle),
                                               (u'int', C.c_int))),
+
                  u'UnRegisterSignalHandler': (u'alljoyn_busattachment_unregistersignalhandler',
                                               (u'QStatus', C.c_uint),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                   (u'int', C.c_int),
                                                   (u'const int', C.c_int),
                                                   (u'const char *', C.c_char_p))),
+
                  u'UnRegisterSignalHandlerWithRule': (u'alljoyn_busattachment_unregistersignalhandlerwithrule',
                                                       (u'QStatus', C.c_uint),
                                                       ((u'alljoyn_busattachment',
@@ -392,14 +459,17 @@ class BusAttachment(AllJoynObject):
                                                           (u'int', C.c_int),
                                                           (u'const int', C.c_int),
                                                           (u'const char *', C.c_char_p))),
+
                  u'UnbindSessionPort': (u'alljoyn_busattachment_unbindsessionport',
                                         (u'QStatus', C.c_uint),
                                         ((u'alljoyn_busattachment', BusAttachmentHandle),
                                             (u'int', C.c_int))),
+
                  u'WhoImplementsInterface': (u'alljoyn_busattachment_whoimplements_interface',
                                              (u'QStatus', C.c_uint),
                                              ((u'alljoyn_busattachment', BusAttachmentHandle),
                                                  (u'const char *', C.c_char_p))),
+
                  u'WhoImplementsInterfaces': (u'alljoyn_busattachment_whoimplements_interfaces',
                                               (u'QStatus', C.c_uint),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
@@ -480,9 +550,9 @@ class BusAttachment(AllJoynObject):
         self._JoinSession(self.handle, sessionHost, sessionPort, listener.handle, C.byref(session_id), opts.handle)
         return session_id.value
 
-    def JoinSessionAsYNC(self, sessionHost, sessionPort, listener, opts, callback, context):
+    def JoinSessionAsync(self, sessionHost, sessionPort, listener, opts, callback, context):
         # const char *,int,int,const int,alljoyn_busattachment_joinsessioncb_ptr,void *
-        return self._JoinSessionAsYNC(self.handle, sessionHost, sessionPort, listener, opts, callback, context)
+        return self._JoinSessionAsync(self.handle, sessionHost, sessionPort, listener, opts, callback, context)
 
     def RegisterBusObject(self, obj):
         return self._RegisterBusObject(self.handle, obj.handle)  # int
@@ -612,8 +682,8 @@ class BusAttachment(AllJoynObject):
     def SecureConnection(self, name, forceAuth):
         return self._SecureConnection(self.handle, name, forceAuth)  # const char *,int
 
-    def SecureConnectionAsYNC(self, name, forceAuth):
-        return self._SecureConnectionAsYNC(self.handle, name, forceAuth)  # const char *,int
+    def SecureConnectionAsync(self, name, forceAuth):
+        return self._SecureConnectionAsync(self.handle, name, forceAuth)  # const char *,int
 
     def RemoveSessionMember(self, sessionId, memberName):
         return self._RemoveSessionMember(self.handle, sessionId, memberName)  # int,const char *
@@ -621,9 +691,9 @@ class BusAttachment(AllJoynObject):
     def SetLinkTimeout(self, sessionid, linkTimeout):
         return self._SetLinkTimeout(self.handle, sessionid, linkTimeout)  # int,int *
 
-    def SetLinkTimeoutAsYNC(self, sessionid, linkTimeout, callback, context):
+    def SetLinkTimeoutAsync(self, sessionid, linkTimeout, callback, context):
         # int,int,alljoyn_busattachment_setlinktimeoutcb_ptr,void *
-        return self._SetLinkTimeoutAsYNC(self.handle, sessionid, linkTimeout, callback, context)
+        return self._SetLinkTimeoutAsync(self.handle, sessionid, linkTimeout, callback, context)
 
     def NameHasOwner(self, name, hasOwner):
         return self._NameHasOwner(self.handle, name, hasOwner)  # const char *,int *
@@ -655,8 +725,8 @@ class BusAttachment(AllJoynObject):
         array[:] = interfaces
         return self._WhoImplementsInterfaces(self.handle, array, len(interfaces))  # const char **,int
 
-    def WhoImplementsInterface(self, implementsInterface):
-        return self._WhoImplementsInterface(self.handle, implementsInterface)  # const char *
+    def WhoImplementsInterface(self, interface):
+        return self._WhoImplementsInterface(self.handle, interface) 
 
     def CancelWhoImplementsInterfaces(self, implementsInterfaces, numberInterfaces):
         # const char **,int

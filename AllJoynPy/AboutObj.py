@@ -30,7 +30,8 @@ class AboutObject(AllJoynObject):
     __metaclass__ = AllJoynMeta
 
     _cmethods = {u'Announce': (u'alljoyn_aboutobj_announce', (u'QStatus', C.c_uint),
-                               (((u'alljoyn_aboutobj', AboutObjectHandle)), (u'int', C.c_int), (u'void*', C.c_void_p))),
+                               (((u'alljoyn_aboutobj', AboutObjectHandle)),
+                                (u'int', C.c_int), (u'void*', C.c_void_p))),
 
                  u'AnnounceUsingDataListener': (u'alljoyn_aboutobj_announce_using_datalistener',
                                                 (u'QStatus', C.c_uint),
@@ -38,11 +39,15 @@ class AboutObject(AllJoynObject):
                                                     (u'int', C.c_int),
                                                     (u'void*', C.c_void_p))),
 
-                 u'Create': (u'alljoyn_aboutobj_create', ((u'alljoyn_aboutobj', AboutObjectHandle)), ((u'void*', C.c_void_p), (u'uint', C.c_uint))),
+                 u'Create': (u'alljoyn_aboutobj_create',
+                             ((u'alljoyn_aboutobj', AboutObjectHandle)),
+                             ((u'void*', C.c_void_p), (u'uint', C.c_uint))),
 
-                 u'Destroy': (u'alljoyn_aboutobj_destroy', (u'void', None), (((u'alljoyn_aboutobj', AboutObjectHandle)),)),
+                 u'Destroy': (u'alljoyn_aboutobj_destroy', (u'void', None),
+                              (((u'alljoyn_aboutobj', AboutObjectHandle)),)),
 
-                 u'UnAnnounce': (u'alljoyn_aboutobj_unannounce', (u'QStatus', C.c_uint), (((u'alljoyn_aboutobj', AboutObjectHandle)),))
+                 u'UnAnnounce': (u'alljoyn_aboutobj_unannounce', (u'QStatus', C.c_uint),
+                                 (((u'alljoyn_aboutobj', AboutObjectHandle)),))
                  }
 
     def __init__(self, bus, isAnnounced):

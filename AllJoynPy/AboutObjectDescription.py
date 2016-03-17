@@ -39,7 +39,8 @@ class AboutObjectDescription(AllJoynObject):
                                            (u'const void*', MsgArg.MsgArgHandle))),
 
                  u'CreateFull': (u'alljoyn_aboutobjectdescription_create_full',
-                                 ((u'alljoyn_aboutobjectdescription', AboutObjectDescriptionHandle)), ((u'const void*', C.c_void_p),)),
+                                 ((u'alljoyn_aboutobjectdescription', AboutObjectDescriptionHandle)), 
+                                 ((u'const void*', C.c_void_p),)),
 
                  u'Destroy': (u'alljoyn_aboutobjectdescription_destroy', (u'void', None),
                               (((u'alljoyn_aboutobjectdescription', AboutObjectDescriptionHandle)),)),

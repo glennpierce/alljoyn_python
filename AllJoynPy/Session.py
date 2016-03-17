@@ -36,43 +36,54 @@ class SessionOpts(AllJoynObject):
                           (u'int', C.c_int),
                           ((u'const alljoyn_sessionopts', SessionOptsHandle),
                               (u'const alljoyn_sessionopts', SessionOptsHandle))),
+
                  u'Create': (u'alljoyn_sessionopts_create',
                              (u'alljoyn_sessionopts', SessionOptsHandle),
                              ((u'int', C.c_int),
                                  (u'int', C.c_int),
                                  (u'int', C.c_int),
                                  (u'int', C.c_int))),
+
                  u'Destroy': (u'alljoyn_sessionopts_destroy',
                               (u'void', None),
                               ((u'alljoyn_sessionopts', SessionOptsHandle),)),
+
                  u'GetMultiPoint': (u'alljoyn_sessionopts_get_multipoint',
                                     (u'int', C.c_int),
                                     ((u'const alljoyn_sessionopts', SessionOptsHandle),)),
+
                  u'GetProximity': (u'alljoyn_sessionopts_get_proximity',
                                    (u'int', C.c_int),
                                    ((u'const alljoyn_sessionopts', SessionOptsHandle),)),
+
                  u'GetTraffic': (u'alljoyn_sessionopts_get_traffic',
                                  (u'int', C.c_int),
                                  ((u'const alljoyn_sessionopts', SessionOptsHandle),)),
+
                  u'GetTransports': (u'alljoyn_sessionopts_get_transports',
                                     (u'int', C.c_int),
                                     ((u'const alljoyn_sessionopts', SessionOptsHandle),)),
+
                  u'IsCompatible': (u'alljoyn_sessionopts_iscompatible',
                                    (u'int', C.c_int),
                                    ((u'const alljoyn_sessionopts', SessionOptsHandle),
                                        (u'const alljoyn_sessionopts', SessionOptsHandle))),
+
                  u'SetMultiPoint': (u'alljoyn_sessionopts_set_multipoint',
                                     (u'void', None),
                                     ((u'alljoyn_sessionopts', SessionOptsHandle),
                                         (u'int', C.c_int))),
+
                  u'SetProximity': (u'alljoyn_sessionopts_set_proximity',
                                    (u'void', None),
                                    ((u'alljoyn_sessionopts', SessionOptsHandle),
                                        (u'int', C.c_int))),
+
                  u'SetTraffic': (u'alljoyn_sessionopts_set_traffic',
                                  (u'void', None),
                                  ((u'alljoyn_sessionopts', SessionOptsHandle),
                                      (u'int', C.c_int))),
+
                  u'SetTransports': (u'alljoyn_sessionopts_set_transports',
                                     (u'void', None),
                                     ((u'alljoyn_sessionopts', SessionOptsHandle),

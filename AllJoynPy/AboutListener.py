@@ -34,7 +34,7 @@ else:
     CallbackType = C.CFUNCTYPE
 
 # context busName version port objectDescriptionArg aboutDataArg
-AboutAnnouncedFuncType = CallbackType(None, C.c_void_p, C.c_char_p, C.c_int, C.c_int, MsgArg.MsgArgHandle, MsgArg.MsgArgHandle)
+AboutAnnouncedFuncType = CallbackType(None, C.c_void_p, C.c_char_p, C.c_ushort, C.c_ushort, MsgArg.MsgArgHandle, MsgArg.MsgArgHandle)
 
 
 class AboutListenerCallBack(C.Structure):
