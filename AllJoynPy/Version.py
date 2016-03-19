@@ -17,7 +17,7 @@ import sys, types
 import ctypes as C
 from ctypes import POINTER
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import *
 
 
 # Wrapper for file version.h

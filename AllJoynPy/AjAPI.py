@@ -15,7 +15,7 @@
 
 import ctypes as C
 from enum import Enum, unique
-from . import AllJoynMeta, AllJoynObject
+from . import *
 
 # Wrapper for file AjAPI.h
 

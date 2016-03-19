@@ -15,7 +15,7 @@
 
 import sys
 import ctypes as C
-from . import AllJoynMeta, AllJoynObject
+from . import *
 
 # Wrapper for file AboutObj.h
 

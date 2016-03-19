@@ -14,7 +14,8 @@
 
 import ctypes as C
 from ctypes import POINTER
-from . import AllJoynMeta, AllJoynObject, MsgArg
+from . import *
+import MsgArg
 
 # Wrapper for file AboutObjectDescription.h
 

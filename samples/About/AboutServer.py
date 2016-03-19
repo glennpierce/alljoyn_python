@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
-    QStatusException, AboutObjectDescription, Session, BusObject, \
+from AllJoynPy import *
+
+from AllJoynPy import AboutListener, MsgArg, AboutData, \
+    AboutObjectDescription, Session, BusObject, \
     TransportMask, SessionListener, AboutProxy, ProxyBusObject, MessageReceiver, \
     Message, SessionPortListener, AboutObj, AjAPI, InterfaceDescription
+
 import signal
 import time
 import sys
