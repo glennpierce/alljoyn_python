@@ -650,7 +650,6 @@ class MsgArg(AllJoynObject):
         method.restype = C.c_uint
         method.argtypes = ([C.c_void_p, C.c_char_p] + ctypes_list)
         arguments = [handle, signature] + argument_list
-        print arguments
         return AllJoynObject.QStatusToException(method(*arguments))
         
     def Set(self, signature, ctypes_list, argument_list):
@@ -671,7 +670,6 @@ class MsgArg(AllJoynObject):
         method.argtypes = ([MsgArgHandle, POINTER(C.c_size_t), C.c_char_p] + ctypes_list)
         arguments = [handle, C.byref(size), signature] + argument_list
 
-        print arguments
         return AllJoynObject.QStatusToException(method(*arguments))
 
     def ArraySet(self, num_args, signature, ctypes_list, argument_list):
