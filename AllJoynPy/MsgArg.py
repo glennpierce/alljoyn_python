@@ -759,6 +759,11 @@ class MsgArg(AllJoynObject):
         self._GetBool(self.handle, C.byref(value))
         return value.value
 
+    def GetInt32(self):
+        value = C.c_int32()
+        self._GetInt32(self.handle, C.byref(value))
+        return value.value
+
     def SetInt64(self, value):
         return self._SetInt64(self.handle, value)
 
