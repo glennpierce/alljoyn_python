@@ -17,23 +17,23 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
   );
 
   $scope.selected = []
-  $scope.uri = 'http://192.168.1.149:8000/mopidy.m3u'
+  $scope.uri = 'http://192.168.1.149:8882/static/test.mp3'
 
   $scope.run = function() {
 
-    var parameters = {'selected_devices': $scope.selected.devices,
-                      'uri': $scope.uri};
+      var parameters = {'selected_devices': $scope.selected.devices,
+                                    'uri': $scope.uri};
 
-    var json_data = JSON.stringify(parameters);
+      var json_data = JSON.stringify(parameters);
 
-    console.log(json_data);
+      console.log(json_data);
 
-    return $http({cache: false, url: '/run', method: 'post', data: json_data}).success(
+      return $http({cache: false, url: '/run', method: 'post', data: json_data}).success(
 
-      function (data, status, headers, config) {
-         
-      }
-    );
+        function (data, status, headers, config) {
+           
+        }
+      );
    };
 
    $scope.stop = function() {

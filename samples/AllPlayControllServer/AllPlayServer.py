@@ -30,7 +30,8 @@ def create_logger(foreground=False, verbose=False):
     if foreground:
         handler = logging.StreamHandler()
     else:
-        handler = RotatingFileHandler('/var/log/allplyserver.log', maxBytes=204800)
+        handler = RotatingFileHandler(
+            '/var/log/allplyserver.log', maxBytes=204800)
 
     logger.addHandler(handler)
     return logger
@@ -65,20 +66,23 @@ def get_devices():
 @bottle.route('/run', method='POST')
 def run():
     data = bottle.request.json
-    player = allplayerController.GetAllPlayer()
-    player.CreateZone(data['selected_devices'])
+    devices = data.get('selected_devices', [])
+    allplayerController.CreateZone(devices)
+    player = allplayerController.GetPlayer()
     player.PlayUrl(data['uri'])
     return json.dumps({'return': 'ok'})
 
+
 @bottle.route('/stop')
 def stop():
-    player = allplayerController.GetAllPlayer()
+    player = allplayerController.GetPlayer()
     player.Stop()
     return json.dumps({'return': 'ok'})
 
+
 @bottle.route('/pause', method='POST')
 def pause():
-    player = allplayerController.GetAllPlayer()
+    player = allplayerController.GetPlayer()
     player.Pause()
     return json.dumps({'return': 'ok'})
 
@@ -91,7 +95,8 @@ def default():
 class AllPlayServer(Daemon):
 
     def __init__(self, pidfile='/var/run/carnegopdf.pid', host="0.0.0.0", port=80, foreground=False):
-        super(AllPlayServer, self).__init__(pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+        super(AllPlayServer, self).__init__(
+            pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
         self.foreground = foreground
         self.host = host
         self.port = port
@@ -114,9 +119,11 @@ class AllPlayServer(Daemon):
 
         app = bottle.default_app()
 
-        logging.info("started webserver host: %s port: %s", self.host, self.port)
+        logging.info(
+            "started webserver host: %s port: %s", self.host, self.port)
         try:
-            bottle.run(server='cherrypy', app=app, host=self.host, port=self.port, debug=True)
+            bottle.run(
+                server='cherrypy', app=app, host=self.host, port=self.port, debug=True)
         except Exception, e:
             logging.critical("bottle: %s", e)
             sys.exit(1)
@@ -137,13 +144,17 @@ if __name__ == "__main__":
     parser = OptionParser(usage=usage)
     parser.add_option("-f", "--foreground", dest="foreground",
                       action="store_true", default=False, help="Run in foreground")
-    parser.add_option("-v", "--verbose", dest="verbose", action="store_true", default=False, help="Verbose logging")
-    parser.add_option("-p", "--port", dest="port", default=8882, help="Port to run on")
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      action="store_true", default=False, help="Verbose logging")
+    parser.add_option(
+        "-p", "--port", dest="port", default=8882, help="Port to run on")
     (options, args) = parser.parse_args()
 
-    logger = create_logger(foreground=options.foreground, verbose=options.verbose)
+    logger = create_logger(
+        foreground=options.foreground, verbose=options.verbose)
 
-    server = AllPlayServer('/var/run/allplayserver.pid', port=options.port, foreground=options.foreground)
+    server = AllPlayServer(
+        '/var/run/allplayserver.pid', port=options.port, foreground=options.foreground)
 
     if len(args) != 1:
         print usage
