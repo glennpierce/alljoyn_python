@@ -28,6 +28,7 @@ class AllPlayer(object):
         self.session_id = session_id
         self.device_name = device_name
         self.device_id = device_id
+        self.paused = False
 
         self.proxyBusObject = ProxyBusObject.ProxyBusObject(
             self.bus, self.bus_name, SERVICE_PATH, self.session_id)
@@ -61,7 +62,7 @@ class AllPlayer(object):
     def OnReplyMessageCallback(message, context):
         print Message.Message.FromHandle(message)
 
-    def GetMuteStatus(self):
+    def GetMute(self):
         param = MsgArg.MsgArg()
         self.proxyBusObject.GetProperty(
             "org.alljoyn.Control.Volume", "Mute", param)
@@ -70,8 +71,21 @@ class AllPlayer(object):
     def SetMute(self):
         param = MsgArg.MsgArg()
         param.SetBool(True)
-        self.proxyBusObject.GetProperty(
+        self.proxyBusObject.SetProperty(
             "org.alljoyn.Control.Volume", "Mute", param)
+
+    def GetVolume(self):
+        param = MsgArg.MsgArg()
+        self.proxyBusObject.GetProperty(
+            "org.alljoyn.Control.Volume", "Volume", param)
+        return param.GetInt16()
+
+    def SetVolume(self, volume):
+        param = MsgArg.MsgArg()
+        param.SetInt16(volume)
+        self.proxyBusObject.SetProperty(
+            "org.alljoyn.Control.Volume", "Volume", param)
+        logging.info("setting volume for device %s (%s) to %s", self.device_name, self.device_id, volume)
 
     def CallGetCurrentItemUrl(self):
         replyMsg = Message.Message(self.bus)
@@ -89,23 +103,31 @@ class AllPlayer(object):
 
     def Next(self):
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Next", None, 0, 0)
+            'net.allplay.MediaPlayer', "Next", None, 0, 0)
 
     def Pause(self):
+        self.paused = True
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Pause", None, 0, 0)
+            'net.allplay.MediaPlayer', "Pause", None, 0, 0)
+        logging.info("pausing for device %s (%s)", self.device_name, self.device_id)
 
     def Play(self):
+        if self.paused:
+            self.proxyBusObject.MethodCallNoReply(
+            'net.allplay.MediaPlayer', "Resume", None, 0, 0)
+            self.paused = False
+            logging.info("resuming for device %s (%s)", self.device_name, self.device_id)
+
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Play", None, 0, 0)
+            'net.allplay.MediaPlayer', "Play", None, 0, 0)
 
     def Previous(self):
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Previous", None, 0, 0)
+            'net.allplay.MediaPlayer', "Previous", None, 0, 0)
 
     def Resume(self):
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Resume", None, 0, 0)
+            'net.allplay.MediaPlayer', "Resume", None, 0, 0)
 
     def Stop(self):
         self.proxyBusObject.MethodCallNoReply(
@@ -121,7 +143,8 @@ class AllPlayer(object):
     def PlayUrl(self, uri):
         inputs = MsgArg.MsgArg.ArrayCreate(7)
         inputs.ArraySet(7, "ssssxss",
-                        [C.c_char_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_longlong, C.c_char_p, C.c_char_p],
+                        [C.c_char_p, C.c_char_p, C.c_char_p, C.c_char_p,
+                            C.c_longlong, C.c_char_p, C.c_char_p],
                         [uri, 'Dummy', 'Dummy', 'Dummy', 200, 'Dummy', 'Dummy'])
         self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MCU', "PlayItem", inputs, 7, 0)
@@ -133,7 +156,7 @@ class AllPlayer(object):
         param.SetDouble(percent)
         self.proxyBusObject.MethodCallNoReply(
             "org.alljoyn.Control.Volume", "AdjustVolumePercent", param, 1, 0)
-
+        logging.info("adjust volume for %s (%s) to %s", self.device_name, self.device_id, percent)
 
 class MySessionListener(SessionListener.SessionListener):
     def __init__(self, callback_data=None):
@@ -195,6 +218,7 @@ class AllPlayController(object):
     def __init__(self):
         super(AllPlayController, self).__init__()
         self.alljoyn = AllJoyn()
+        self.player = None
 
         self.g_bus = BusAttachment.BusAttachment("AllPlayerApp", True)
         self.g_bus.Start()
@@ -217,14 +241,10 @@ class AllPlayController(object):
             time.sleep(0.1)
             t += 0.1
 
-        self.allplayers = []
+        self.allplayers = {}
         for p in self.aboutListener.devices.values():
             print "session_id", MyAboutListener.session_id
-            self.allplayers.append(AllPlayer(self.g_bus, p['busname'], p['session_id'], p['name'], p['id']))
-
-        self.player = self.allplayers[0]
-        print "using: ", self.player.device_name, "speaker", self.player.device_id
-        self.player.Stop()
+            self.allplayers[p['id']] = AllPlayer(self.g_bus, p['busname'], p['session_id'], p['name'], p['id'])
 
     def __del__(self):
         print "Shutting Down"
@@ -233,13 +253,32 @@ class AllPlayController(object):
 
     def CreateZone(self, device_ids):
         # Find the player with the first device _id
-        devices = [p for p in self.allplayers if p.device_id == device_ids[0]]
+        if not device_ids:
+            return
+        devices = [p for p in self.allplayers.values() if p.device_id == device_ids[0]]
         self.player = devices[0]
         print "using: ", self.player.device_name, "speaker", self.player.device_id
         self.player.CreateZone(device_ids)
 
+    def GetVolume(self, device_id):
+        player = self.allplayers[device_id]
+        return player.GetVolume()
+
+    def SetVolume(self, device_id, volume):
+        player = self.allplayers[device_id]
+        return player.SetVolume(volume)
+
+    # def SetVolume(self, device_id, volume):
+    #     player = self.allplayers[device_id]
+    #     return player.AdjustVolumePercent(volume)
+
     def GetPlayers(self):
-        return self.aboutListener.devices.values()
+        players = []
+        for p in self.allplayers.values():
+            players.append({'id': p.device_id,
+                            'name': p.device_name,
+                            'volume': p.GetVolume()})
+        return players
 
     def GetPlayer(self):
         return self.player

@@ -764,6 +764,14 @@ class MsgArg(AllJoynObject):
         self._GetInt32(self.handle, C.byref(value))
         return value.value
 
+    def SetInt16(self, value):
+        return self._SetInt16(self.handle, value)
+
+    def GetInt16(self):
+        value = C.c_short()
+        self._GetInt16(self.handle, C.byref(value))
+        return value.value
+
     def SetInt64(self, value):
         return self._SetInt64(self.handle, value)
 

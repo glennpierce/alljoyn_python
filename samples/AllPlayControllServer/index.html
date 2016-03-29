@@ -9,8 +9,10 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimal-ui" />
     <meta name="apple-mobile-web-app-status-bar-style" content="yes" />
     <link rel="stylesheet" href="/static/allplay.css"/>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angularjs-slider/2.10.4/rzslider.min.css"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angularjs-slider/2.10.4/rzslider.min.js"></script>
     <script src="/static/checklist-model.js"></script>
     <script src="/static/allplay.js"></script>
   </head>
@@ -40,12 +42,18 @@
               </div>
 
               <label ng-repeat="device in devices">
-                <input type="checkbox" checklist-model="selected.devices" checklist-value="device.id"> [[device.name]]
+                <input type="checkbox" checklist-model="selected.devices" checklist-value="device.id" checklist-change="devicesChanged()"> [[device.name]]
               </label>
 
               <div>
                 <button ng-click="stop()">Stop</button> <button ng-click="pause()">Pause</button> <button ng-click="run()">Play</button>
               </div>
+
+              <div style="display:inline-block;margin:20px;padding:10px;height:200px;width:100px;" ng-repeat="control in volumeControls">
+              <rzslider rz-slider-model="control.value" rz-slider-low="control.minValue"  rz-slider-options="control.options"></rzslider>
+              <div>[[control.name]]</div>
+              </div>
+
 
           </fieldset>
     

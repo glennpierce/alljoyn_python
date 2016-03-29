@@ -62,16 +62,30 @@ def get_devices():
     bottle.response.content_type = 'application/json'
     return json.dumps(allplayerController.GetPlayers())
 
+@bottle.route('/create_zone', method='POST')
+def create_zone():
+    data = bottle.request.json
+    devices = data.get('selected_devices', [])
+    allplayerController.CreateZone(devices)
+    return json.dumps({'return': 'ok'})
 
 @bottle.route('/run', method='POST')
 def run():
     data = bottle.request.json
-    devices = data.get('selected_devices', [])
-    allplayerController.CreateZone(devices)
     player = allplayerController.GetPlayer()
-    player.PlayUrl(data['uri'])
+    if player.paused:
+        player.Resume()
+    else:
+        player.PlayUrl(data['uri'])
     return json.dumps({'return': 'ok'})
 
+@bottle.route('/adjust_volume', method='POST')
+def adjust_volume():
+    data = bottle.request.json
+    device_id = data.get('device_id', None)
+    volume = data.get('volume')
+    allplayerController.SetVolume(device_id, volume)
+    return json.dumps({'return': 'ok'})
 
 @bottle.route('/stop')
 def stop():
@@ -80,7 +94,7 @@ def stop():
     return json.dumps({'return': 'ok'})
 
 
-@bottle.route('/pause', method='POST')
+@bottle.route('/pause')
 def pause():
     player = allplayerController.GetPlayer()
     player.Pause()
