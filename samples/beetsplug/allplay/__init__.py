@@ -24,7 +24,7 @@ from beets import ui
 from beets import util
 import beets.library
 import flask
-from flask import g
+from flask import g, jsonify
 from werkzeug.routing import BaseConverter, PathConverter
 import os
 import json
@@ -37,21 +37,6 @@ app = flask.Flask(__name__)
 #app.url_map.converters['query'] = QueryConverter
 
 
-def resource_list(name):
-    """Decorates a function to handle RESTful HTTP request for a list of
-    resources.
-    """
-    def make_responder(list_all):
-        def responder():
-            return app.response_class(
-                json_generator(list_all(), root=name),
-                mimetype='application/json'
-            )
-        responder.__name__ = b'all_%s' % name.encode('utf8')
-        return responder
-    return make_responder
-
-
 @app.before_request
 def before_request():
     g.lib = app.config['lib']
@@ -59,50 +44,55 @@ def before_request():
 
 @app.route('/get_devices', method=['GET'])
 def get_devices():
-    bottle.response.content_type = 'application/json'
-    return json.dumps(allplayerController.GetPlayers())
+    return jsonify(allplayerController.GetPlayers())
 
-@app.route('/create_zone', method='POST')
+
+@app.route('/create_zone', methods= ['POST'])
 def create_zone():
-    data = bottle.request.json
+    data = request.get_json()
     devices = data.get('selected_devices', [])
     allplayerController.CreateZone(devices)
-    return json.dumps({'return': 'ok'})
+    return jsonify({'return': 'ok'})
 
-@app.route('/run', method='POST')
+
+@app.route('/run', methods= ['POST'])
 def run():
-    data = bottle.request.json
+    data = request.get_json()
     player = allplayerController.GetPlayer()
     if player.paused:
         player.Resume()
     else:
         player.PlayUrl(data['uri'])
-    return json.dumps({'return': 'ok'})
+    return jsonify({'return': 'ok'})
 
-@app.route('/adjust_volume', method='POST')
+
+@app.route('/adjust_volume', methods=['POST'])
 def adjust_volume():
-    data = bottle.request.json
+    data = request.get_json()
     device_id = data.get('device_id', None)
     volume = data.get('volume')
     allplayerController.SetVolume(device_id, volume)
-    return json.dumps({'return': 'ok'})
+    return jsonify({'return': 'ok'})
+
 
 @app.route('/stop')
 def stop():
     player = allplayerController.GetPlayer()
     player.Stop()
-    return json.dumps({'return': 'ok'})
+    return jsonify({'return': 'ok'})
+
 
 @app.route('/pause')
 def pause():
     player = allplayerController.GetPlayer()
     player.Pause()
-    return json.dumps({'return': 'ok'})
+    return jsonify({'return': 'ok'})
+
 
 @app.route('/tracks/')
-@resource_list('items')
 def all_items():
-    return g.lib.items()
+    return jsonify(g.lib.items())
+
 
 @app.route('/item/<int:item_id>/file')
 def play_item(item_id):
