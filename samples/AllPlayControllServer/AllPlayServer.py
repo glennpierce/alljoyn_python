@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Copyright 2016, Glenn Pierce.
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+
+
 import sys
 import os
 import os.path
@@ -12,6 +26,20 @@ import bottle
 from logging.handlers import RotatingFileHandler
 
 from AllPlayController import AllPlayController
+
+"""A Web interface to beets."""
+from __future__ import division, absolute_import, print_function
+
+from beets.plugins import BeetsPlugin
+from beets import ui
+from beets import util
+import beets.library
+import flask
+from flask import g
+from werkzeug.routing import BaseConverter, PathConverter
+import os
+import json
+
 
 script_dir, script_name = os.path.split(os.path.abspath(__file__))
 bottle.TEMPLATE_PATH.append(script_dir)
@@ -37,39 +65,64 @@ def create_logger(foreground=False, verbose=False):
     return logger
 
 
-@bottle.error(404)
+app = flask.Flask(__name__)
+#app.url_map.converters['idlist'] = IdListConverter
+#app.url_map.converters['query'] = QueryConverter
+
+
+def resource_list(name):
+    """Decorates a function to handle RESTful HTTP request for a list of
+    resources.
+    """
+    def make_responder(list_all):
+        def responder():
+            return app.response_class(
+                json_generator(list_all(), root=name),
+                mimetype='application/json'
+            )
+        responder.__name__ = b'all_%s' % name.encode('utf8')
+        return responder
+    return make_responder
+
+
+@app.before_request
+def before_request():
+    g.lib = app.config['lib']
+
+
+@app.error(404)
 def error404(error):
     return 'Nothing here, sorry'
 
 
-@bottle.error(500)
+@app.error(500)
 def error500(error):
     return 'Unknown Error'
 
 
-@bottle.route('/favicon.ico')
+@app.route('/favicon.ico')
 def send_favicon():
     return bottle.static_file('favicon.ico', root=os.path.join(script_dir, 'static/'))
 
 
-@bottle.route('/static/<filepath:path>')
+@app.route('/static/<filepath:path>')
 def server_static(filepath):
     return bottle.static_file(filepath, root=os.path.join(script_dir, 'static/'))
 
 
-@bottle.route('/get_devices', method=['GET'])
+@app.route('/get_devices', method=['GET'])
 def get_devices():
     bottle.response.content_type = 'application/json'
     return json.dumps(allplayerController.GetPlayers())
 
-@bottle.route('/create_zone', method='POST')
+@app.route('/create_zone', method='POST')
 def create_zone():
     data = bottle.request.json
     devices = data.get('selected_devices', [])
     allplayerController.CreateZone(devices)
     return json.dumps({'return': 'ok'})
 
-@bottle.route('/run', method='POST')
+@app.route('/run', method='POST')
 def run():
     data = bottle.request.json
     player = allplayerController.GetPlayer()
@@ -79,7 +132,7 @@ def run():
         player.PlayUrl(data['uri'])
     return json.dumps({'return': 'ok'})
 
-@bottle.route('/adjust_volume', method='POST')
+@app.route('/adjust_volume', method='POST')
 def adjust_volume():
     data = bottle.request.json
     device_id = data.get('device_id', None)
@@ -87,98 +140,73 @@ def adjust_volume():
     allplayerController.SetVolume(device_id, volume)
     return json.dumps({'return': 'ok'})
 
-@bottle.route('/stop')
+@app.route('/stop')
 def stop():
     player = allplayerController.GetPlayer()
     player.Stop()
     return json.dumps({'return': 'ok'})
 
-
-@bottle.route('/pause')
+@app.route('/pause')
 def pause():
     player = allplayerController.GetPlayer()
     player.Pause()
     return json.dumps({'return': 'ok'})
 
+@app.route('/tracks/')
+@resource_list('items')
+def all_items():
+    return g.lib.items()
 
-@bottle.route('/', method=['GET'])
-def default():
-    return bottle.template('index', query=bottle.request['QUERY_STRING'])
-
-
-class AllPlayServer(Daemon):
-
-    def __init__(self, pidfile='/var/run/carnegopdf.pid', host="0.0.0.0", port=80, foreground=False):
-        super(AllPlayServer, self).__init__(
-            pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
-        self.foreground = foreground
-        self.host = host
-        self.port = port
-
-    def start(self):
-        logging.info("starting allplayerserver")
-        if self.foreground:
-            return self.run()
-        else:
-            super(AllPlayServer, self).start()
-
-    def shutdown(self):
-        pass
-
-    def stop(self):
-        super(AllPlayServer, self).stop()
-
-    def run(self):
-        bottle.debug(True)
-
-        app = bottle.default_app()
-
-        logging.info(
-            "started webserver host: %s port: %s", self.host, self.port)
-        try:
-            bottle.run(
-                server='cherrypy', app=app, host=self.host, port=self.port, debug=True)
-        except Exception, e:
-            logging.critical("bottle: %s", e)
-            sys.exit(1)
+@app.route('/item/<int:item_id>/file')
+def play_item(item_id):
+    item = g.lib.get_item(item_id)
+    response = flask.send_file(item.path, as_attachment=True,
+                               attachment_filename=os.path.basename(item.path))
+    response.headers['Content-Length'] = os.path.getsize(item.path)
+    return response
 
 
-if __name__ == "__main__":
+@app.route('/')
+def home():
+    return flask.render_template('index.html')
 
-    usage = '''
-            "usage: @
-            "Examples"
-            @ -d info -f -p 80 start
-            @ --debug info --foreground --port 8882 start
-            @ stop
-            '''.replace('@', sys.argv[0])
 
-    from optparse import OptionParser
+# Plugin hook.
+class AllPlayWebPlugin(BeetsPlugin):
+    def __init__(self):
+        super(AllPlayWebPlugin, self).__init__()
+        self.config.add({
+            'host': u'127.0.0.1',
+            'port': 8337,
+            'cors': '',
+        })
 
-    parser = OptionParser(usage=usage)
-    parser.add_option("-f", "--foreground", dest="foreground",
-                      action="store_true", default=False, help="Run in foreground")
-    parser.add_option("-v", "--verbose", dest="verbose",
-                      action="store_true", default=False, help="Verbose logging")
-    parser.add_option(
-        "-p", "--port", dest="port", default=8882, help="Port to run on")
-    (options, args) = parser.parse_args()
+    def commands(self):
+        cmd = ui.Subcommand('allplay', help=u'start an AllPlay Web interface')
+        cmd.parser.add_option(u'-d', u'--debug', action='store_true',
+                              default=False, help=u'debug mode')
 
-    logger = create_logger(
-        foreground=options.foreground, verbose=options.verbose)
+        def func(lib, opts, args):
+            args = ui.decargs(args)
+            if args:
+                self.config['host'] = args.pop(0)
+            if args:
+                self.config['port'] = int(args.pop(0))
 
-    server = AllPlayServer(
-        '/var/run/allplayserver.pid', port=options.port, foreground=options.foreground)
-
-    if len(args) != 1:
-        print usage
-        sys.exit(1)
-
-    try:
-        if args[0] == 'start':
-            server.start()
-        elif args[0] == 'stop':
-            server.stop()
-    except KeyboardInterrupt, e:
-        logging.info("attempting to shut down")
-        server.stop()
+            app.config['lib'] = lib
+            # Enable CORS if required.
+            if self.config['cors']:
+                self._log.info(u'Enabling CORS with origin: {0}',
+                               self.config['cors'])
+                from flask.ext.cors import CORS
+                app.config['CORS_ALLOW_HEADERS'] = "Content-Type"
+                app.config['CORS_RESOURCES'] = {
+                    r"/*": {"origins": self.config['cors'].get(str)}
+                }
+                CORS(app)
+            # Start the web application.
+            app.run(host=self.config['host'].get(unicode),
+                    port=self.config['port'].get(int),
+                    debug=opts.debug, threaded=True)
+        cmd.func = func
+        return [cmd]
