@@ -24,7 +24,7 @@ from beets import ui
 from beets import util
 import beets.library
 import flask
-from flask import g, jsonify
+from flask import g, jsonify, request
 from werkzeug.routing import BaseConverter, PathConverter
 import os
 import json
@@ -36,11 +36,9 @@ app = flask.Flask(__name__)
 #app.url_map.converters['idlist'] = IdListConverter
 #app.url_map.converters['query'] = QueryConverter
 
-
 @app.before_request
 def before_request():
     g.lib = app.config['lib']
-
 
 @app.route('/get_devices', methods=['GET'])
 def get_devices():
@@ -55,7 +53,7 @@ def create_zone():
     return jsonify({'return': 'ok'})
 
 
-@app.route('/run', methods= ['POST'])
+@app.route('/play', methods= ['POST'])
 def run():
     data = request.get_json()
     player = allplayerController.GetPlayer()
@@ -90,8 +88,21 @@ def pause():
 
 
 @app.route('/tracks/')
-def all_items():
-    return jsonify(g.lib.items())
+def tracks():
+    tracks = []
+    for item in g.lib.items():
+        tracks.append(
+                {
+                   'title': item.title,
+                   'path': item.path,
+                   'artist': item.artist,
+                   'album': item.album
+                }
+            )
+
+        #print(tracks)
+
+    return jsonify({'items': tracks})  # g.lib.items()
 
 
 @app.route('/item/<int:item_id>/file')
@@ -101,6 +112,11 @@ def play_item(item_id):
                                attachment_filename=os.path.basename(item.path))
     response.headers['Content-Length'] = os.path.getsize(item.path)
     return response
+
+
+@app.route('/track.html')
+def track():
+    return flask.render_template('track.html')
 
 
 @app.route('/')
@@ -149,3 +165,74 @@ class AllPlayWebPlugin(BeetsPlugin):
                     debug=opts.debug, threaded=True)
         cmd.func = func
         return [cmd]
+
+
+
+
+
+
+
+
+
+# {
+#       "lyrics": "",
+#       "album_id": 168,
+#       "albumstatus": "Official",
+#       "disctitle": "",
+#       "year": 2002,
+#       "month": 0,
+#       "channels": 2,
+#       "genre": "",
+#       "original_day": 0,
+#       "disc": 1,
+#       "mb_trackid": "4076fdb8-0e08-4703-bbf8-10a10a222cf2",
+#       "composer": "",
+#       "mtime": 1459259549,
+#       "albumdisambig": "",
+#       "samplerate": 44100,
+#       "albumartist_sort": "Firin' Squad, The",
+#       "id": 1954,
+#       "size": 0,
+#       "album": "The Very Best of Pure R&B: The Winter Collection",
+#       "mb_artistid": "382f1005-e9ab-4684-afd4-0bdae4ee37f2",
+#       "bitdepth": 0,
+#       "disctotal": 2,
+#       "title": "I Ain't Mad At Cha",
+#       "media": "CD",
+#       "artist_sort": "2Pac",
+#       "mb_albumid": "bab24056-7b76-43ad-a192-3b46cf20a5ee",
+#       "comments": "",
+#       "acoustid_fingerprint": "",
+#       "rg_album_gain": null,
+#       "script": "Latn",
+#       "mb_releasegroupid": "bb30dbd0-ed8e-3597-b43a-441bbe64ec78",
+#       "acoustid_id": "",
+#       "rg_album_peak": null,
+#       "albumartist_credit": "The Firin' Squad",
+#       "catalognum": "TTVCD3303",
+#       "added": 1459259546.586,
+#       "original_month": 0,
+#       "format": "MP3",
+#       "track": 15,
+#       "comp": 0,
+#       "encoder": "",
+#       "initial_key": null,
+#       "rg_track_gain": null,
+#       "bitrate": 128000,
+#       "day": 0,
+#       "original_year": 2002,
+#       "tracktotal": 40,
+#       "language": "eng",
+#       "artist": "2Pac",
+#       "asin": "B00007E7GL",
+#       "mb_albumartistid": "b93784a2-7a97-45e3-b93a-be3d57e0448a",
+#       "bpm": 0,
+#       "label": "Telstar TV",
+#       "length": 258.489625,
+#       "albumartist": "The Firin' Squad",
+#       "albumtype": "compilation",
+#       "artist_credit": "2Pac",
+#       "country": "GB",
+#       "rg_track_peak": null,
+#       "grouping": ""
+#     },

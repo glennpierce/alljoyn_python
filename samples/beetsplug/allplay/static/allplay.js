@@ -6,28 +6,37 @@ var app = angular.module('AllPlayApp', ['checklist-model', 'rzModule'], function
 });
 
 
+app.directive("track", function() {
+    return {
+      restrict: 'E',
+        templateUrl: '/track.html',
+        replace: true,
+        scope: {itemObject: "="}
+    }
+});
+
 app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '$interval', 
                                    function($rootScope, $scope, $http, $timeout, $interval) {
 
-  $scope.volumeControls = [];
+  $scope.devices = [];
 
   $http({ cache: true, url: '/get_devices', method: 'GET'}).success(
 
       function (data, status, headers, config) {
-         $scope.devices = data['devices'];
+        var devices = data['devices'];
 
-         for (i = 0; i < $scope.devices.length; i++) { 
-          $scope.volumeControls.push({
-            device_id: $scope.devices[i].id,
-            name: $scope.devices[i].name,
+         for (i = 0; i < devices.length; i++) { 
+          $scope.devices.push({
+            device_id: devices[i].id,
+            name: devices[i].name,
             minValue: 0,
             maxValue: 100,
-            value: $scope.devices[i].volume,
+            value: devices[i].volume,
             options: {
-              id: $scope.devices[i].id,
+              id: devices[i].id,
               floor: 0,
               ceil: 100,
-              vertical: true,
+              vertical: false,
               showTicksValues: false,
               onChange: function(id, value) {
                   
@@ -45,6 +54,13 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       }
   );
 
+  $http({ cache: true, url: '/tracks', method: 'GET'}).success(
+
+      function (data, status, headers, config) {
+         $scope.items = data['items'];
+      }
+  );
+
   $scope.selected = [];
   $scope.uri = 'http://192.168.1.149:8882/static/test.mp3';
 
@@ -54,12 +70,12 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       $http({cache: false, url: '/create_zone', method: 'post', data: json_data});
   };
 
-  $scope.run = function() {
+  $scope.play = function() {
 
       var parameters = {'selected_devices': $scope.selected.devices,
                                     'uri': $scope.uri};
       var json_data = JSON.stringify(parameters);
-      return $http({cache: false, url: '/run', method: 'post', data: json_data});
+      return $http({cache: false, url: '/play', method: 'post', data: json_data});
    };
 
    $scope.stop = function() {
@@ -70,5 +86,12 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
    $scope.pause = function() {
       return $http({cache: false, url: '/pause', method: 'get'});
    };
+
+   $scope.track_select = function(path) {
+      var parameters = {'uri': path};
+      var json_data = JSON.stringify(parameters);
+      return $http({cache: false, url: '/play', method: 'post', data: json_data});
+   };
+
 
 }]);

@@ -8,59 +8,90 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimal-ui" />
     <meta name="apple-mobile-web-app-status-bar-style" content="yes" />
+
+    <link href="{{ url_for('static', filename='simple-sidebar.css') }}" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />
+
     <link rel="stylesheet" href="{{ url_for('static', filename='allplay.css') }}"/>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angularjs-slider/2.10.4/rzslider.min.css"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angularjs-slider/2.10.4/rzslider.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='checklist-model.js') }}"></script>
     <script src="{{ url_for('static', filename='allplay.js') }}"></script>
+
   </head>
 
-  <body ng-app="AllPlayApp">
+  <body ng-app="AllPlayApp" ng-controller="MainController">
 
-      <!-- Navbars -->
+ <div id="wrapper">
 
-      <div id="header">
-        <div class="navbar-brand navbar-brand-center" ui-yield-to="title">
-          AllPlay Speaker Control
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                        AllPlay Speakers
+                    </a>
+                </li>
+
+                <li style="display:inline-block;margin:20px;padding:10px;height:50px;width:150px;" ng-repeat="device in devices">
+               <rzslider rz-slider-model="device.value" rz-slider-low="device.minValue"  rz-slider-options="device.options"></rzslider>
+              <input type="checkbox" checklist-model="selected.devices" checklist-value="device.device_id" checklist-change="devicesChanged()">  [[device.name]]
+              </li>
+
+                
+            </ul>
         </div>
-      </div>
+        <!-- /#sidebar-wrapper -->
 
      <div class="app">
 
-      <!-- App Body -->
+      <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
       <div class="app-body">
-        <div class="app-content" ng-controller="MainController">
+        <div class="app-content" >
 
         <form method="post">
 
           <fieldset>
    
-              <div>
+              <div class="col-xs-12 col-md-8" style="padding:5px;">
               <input ng-model="uri" type="text" size="50" />
               </div>
 
-              <label ng-repeat="device in devices">
-                <input type="checkbox" checklist-model="selected.devices" checklist-value="device.id" checklist-change="devicesChanged()"> [[device.name]]
-              </label>
-
-              <div>
-                <button ng-click="stop()">Stop</button> <button ng-click="pause()">Pause</button> <button ng-click="run()">Play</button>
+              <div class="col-xs-12 col-md-4" style="padding:5px;">
+                <button ng-click="stop()">Stop</button> <button ng-click="pause()">Pause</button> <button ng-click="play()">Play</button>
               </div>
 
-              <div style="display:inline-block;margin:20px;padding:10px;height:200px;width:100px;" ng-repeat="control in volumeControls">
-              <rzslider rz-slider-model="control.value" rz-slider-low="control.minValue"  rz-slider-options="control.options"></rzslider>
-              <div>[[control.name]]</div>
+              <div class="col-md-12" style="padding:5px;">
+              <input ng-model="search" type="text" size="50" />
               </div>
-
 
           </fieldset>
     
         </form>
 
+         <br>
+
+         <track item-object="item" ng-repeat="item in items | filter:search" ng-click="track_select(item.path)"></track>
+        
         </div>
       </div>
+
+ </div>
+      </div>
+
 
     </div><!-- ~ .app -->
 
