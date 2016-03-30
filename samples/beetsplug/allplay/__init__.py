@@ -14,22 +14,11 @@
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 
+from __future__ import division, absolute_import, print_function
 
 import sys
 import os
 import os.path
-import logging
-import json
-from daemon import Daemon
-
-import bottle
-from logging.handlers import RotatingFileHandler
-
-from AllPlayController import AllPlayController
-
-"""A Web interface to beets."""
-from __future__ import division, absolute_import, print_function
-
 from beets.plugins import BeetsPlugin
 from beets import ui
 from beets import util
@@ -39,31 +28,9 @@ from flask import g
 from werkzeug.routing import BaseConverter, PathConverter
 import os
 import json
-
-
-script_dir, script_name = os.path.split(os.path.abspath(__file__))
-bottle.TEMPLATE_PATH.append(script_dir)
+from .AllPlayController import AllPlayController
 
 allplayerController = AllPlayController()
-
-
-def create_logger(foreground=False, verbose=False):
-    logger = logging.getLogger()
-
-    if verbose:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
-
-    if foreground:
-        handler = logging.StreamHandler()
-    else:
-        handler = RotatingFileHandler(
-            '/var/log/allplyserver.log', maxBytes=204800)
-
-    logger.addHandler(handler)
-    return logger
-
 
 app = flask.Flask(__name__)
 #app.url_map.converters['idlist'] = IdListConverter
@@ -88,26 +55,6 @@ def resource_list(name):
 @app.before_request
 def before_request():
     g.lib = app.config['lib']
-
-
-@app.error(404)
-def error404(error):
-    return 'Nothing here, sorry'
-
-
-@app.error(500)
-def error500(error):
-    return 'Unknown Error'
-
-
-@app.route('/favicon.ico')
-def send_favicon():
-    return bottle.static_file('favicon.ico', root=os.path.join(script_dir, 'static/'))
-
-
-@app.route('/static/<filepath:path>')
-def server_static(filepath):
-    return bottle.static_file(filepath, root=os.path.join(script_dir, 'static/'))
 
 
 @app.route('/get_devices', method=['GET'])
