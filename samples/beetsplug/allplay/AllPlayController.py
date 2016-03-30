@@ -3,7 +3,7 @@
 from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
     QStatusException, AboutObjectDescription, Session, \
     TransportMask, SessionListener, AboutProxy, ProxyBusObject, \
-    Message, BusListener, BusAttachment, InterfaceDescription, MessageReceiver
+    Message, BusListener, BusAttachment, InterfaceDescription, MessageReceiver, MsgArgHandle
 
 import logging
 import time
@@ -54,6 +54,7 @@ class AllPlayer(object):
         try:
             self.proxyBusObject.MethodCall(
                 'net.allplay.ZoneManager', "CreateZone", self.arg, 1, replyMsg, 100000, 0)
+
         except QStatusException:
             print replyMsg
             raise
@@ -87,7 +88,45 @@ class AllPlayer(object):
             "org.alljoyn.Control.Volume", "Volume", param)
         logging.info("setting volume for device %s (%s) to %s", self.device_name, self.device_id, volume)
 
-    def CallGetCurrentItemUrl(self):
+    def GetPlayingState(self):
+        param = MsgArg.MsgArg()
+        self.proxyBusObject.GetProperty(
+            "net.allplay.MediaPlayer", "PlayState", param)
+
+        play_state = C.c_char_p()
+        position = C.c_int64()
+        current_sample_rate = C.c_uint32()
+        audio_channels = C.c_uint32()
+        bits_per_sample = C.c_uint32()
+        index_current_item = C.c_int32()
+        index_next_item = C.c_int32()
+
+        entries = MsgArg.MsgArg()
+
+        param.Get("(sxuuuii*)", 
+                                       [C.POINTER(C.c_char_p), 
+                                        C.POINTER(C.c_int64),
+                                        C.POINTER(C.c_uint32),
+                                        C.POINTER(C.c_uint32),
+                                        C.POINTER(C.c_uint32),
+                                        C.POINTER(C.c_int32),
+                                        C.POINTER(C.c_int32),
+                                        C.POINTER(C.c_size_t),
+                                        C.POINTER(MsgArgHandle)
+                                        ],
+                [C.byref(play_state), 
+                C.byref(position),
+                C.byref(current_sample_rate),
+                C.byref(audio_channels),
+                C.byref(bits_per_sample),
+                C.byref(index_current_item),
+                C.byref(index_next_item),
+                C.byref(num),
+                C.byref(entries.handle)])
+
+        return play_state.value, position.value
+
+    def GetCurrentItemUrl(self):
         replyMsg = Message.Message(self.bus)
         self.proxyBusObject.MethodCall(
             'net.allplay.MCU', "GetCurrentItemUrl", None, 0, replyMsg, 25000, 0)
@@ -253,13 +292,37 @@ class AllPlayController(object):
         self.g_bus.Join()
 
     def CreateZone(self, device_ids):
-        # Find the player with the first device _id
+
         if not device_ids:
             return
-        devices = [p for p in self.allplayers.values() if p.device_id == device_ids[0]]
-        self.player = devices[0]
+
+        devices = []
+        state = 'stopped'
+        position = 0
+        current_url = None
+
+        # We stop the current playing before changing.
+        # However we save the current uri and position if playing.
+        if self.player:
+            state, position = self.player.GetPlayingState() 
+            current_url = self.player.GetCurrentItemUrl()
+            self.player.Stop()
+
+            # check if current player is in list. If so keep that one current
+            if self.player.device_id in device_ids:
+                devices = [p for p in self.allplayers.values() if p.device_id != self.player.device_id]
+        else:
+            # Use the first device _id as the player
+            devices = [p for p in self.allplayers.values() if p.device_id in device_ids]
+            self.player = devices.pop(0)
+        
         print "using: ", self.player.device_name, "speaker", self.player.device_id
         self.player.CreateZone(device_ids)
+ 
+        # restart playing if needed
+        if state.lower() == 'playing':
+            self.player.PlayUrl(current_url)
+            self.SetPosition(position)
 
     def GetVolume(self, device_id):
         player = self.allplayers[device_id]
@@ -283,3 +346,10 @@ class AllPlayController(object):
 
     def GetPlayer(self):
         return self.player
+
+
+
+if __name__ == "__main__":
+    controller =  AllPlayController()
+    for p in controller.allplayers.values():
+        print p.GetPlayingState()
