@@ -54,13 +54,14 @@ def create_zone():
 
 
 @app.route('/play', methods= ['POST'])
-def run():
+def play():
     data = request.get_json()
     player = allplayerController.GetPlayer()
     if player.paused:
         player.Resume()
     else:
-        player.PlayUrl(data['uri'])
+        uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
+        player.PlayUrl(uri)
     return jsonify({'return': 'ok'})
 
 
@@ -93,6 +94,7 @@ def tracks():
     for item in g.lib.items():
         tracks.append(
                 {
+                   'id': item.id,
                    'title': item.title,
                    'path': item.path,
                    'artist': item.artist,
@@ -105,11 +107,10 @@ def tracks():
     return jsonify({'items': tracks})  # g.lib.items()
 
 
-@app.route('/item/<int:item_id>/file')
-def play_item(item_id):
+@app.route('/trackfile/<int:item_id>')
+def trackfile(item_id):
     item = g.lib.get_item(item_id)
-    response = flask.send_file(item.path, as_attachment=True,
-                               attachment_filename=os.path.basename(item.path))
+    response = flask.send_file(item.path, as_attachment=False)
     response.headers['Content-Length'] = os.path.getsize(item.path)
     return response
 

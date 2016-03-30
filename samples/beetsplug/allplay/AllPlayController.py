@@ -149,6 +149,7 @@ class AllPlayer(object):
         self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MCU', "PlayItem", inputs, 7, 0)
         logging.info("playing: %s", uri)
+        print "playing: %s" % (uri,)
 
     def AdjustVolumePercent(self, percent):
         percent = min(max(0.0, percent), 100.0)

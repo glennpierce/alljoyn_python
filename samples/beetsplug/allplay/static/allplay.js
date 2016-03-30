@@ -87,8 +87,8 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       return $http({cache: false, url: '/pause', method: 'get'});
    };
 
-   $scope.track_select = function(path) {
-      var parameters = {'uri': path};
+   $scope.track_select = function(id) {
+      var parameters = {'id': id};
       var json_data = JSON.stringify(parameters);
       return $http({cache: false, url: '/play', method: 'post', data: json_data});
    };
