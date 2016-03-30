@@ -42,9 +42,9 @@ def before_request():
     g.lib = app.config['lib']
 
 
-@app.route('/get_devices', method=['GET'])
+@app.route('/get_devices', methods=['GET'])
 def get_devices():
-    return jsonify(allplayerController.GetPlayers())
+    return jsonify({'devices':allplayerController.GetPlayers()})
 
 
 @app.route('/create_zone', methods= ['POST'])
@@ -117,6 +117,8 @@ class AllPlayWebPlugin(BeetsPlugin):
             'port': 8337,
             'cors': '',
         })
+
+        #self._log
 
     def commands(self):
         cmd = ui.Subcommand('allplay', help=u'start an AllPlay Web interface')

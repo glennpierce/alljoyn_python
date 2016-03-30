@@ -14,7 +14,7 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
   $http({ cache: true, url: '/get_devices', method: 'GET'}).success(
 
       function (data, status, headers, config) {
-         $scope.devices = data;
+         $scope.devices = data['devices'];
 
          for (i = 0; i < $scope.devices.length; i++) { 
           $scope.volumeControls.push({
