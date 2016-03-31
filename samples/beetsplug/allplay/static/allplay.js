@@ -1,4 +1,6 @@
-var app = angular.module('AllPlayApp', ['checklist-model', 'rzModule'], function($interpolateProvider) {
+var app = angular.module('AllPlayApp', ['checklist-model',
+                                        'rzModule', 
+                                        'angularUtils.directives.dirPagination'], function($interpolateProvider) {
 
     // set custom delimiters for angular templates
     $interpolateProvider.startSymbol('[[');
@@ -6,19 +8,25 @@ var app = angular.module('AllPlayApp', ['checklist-model', 'rzModule'], function
 });
 
 
-app.directive("track", function() {
+app.directive("audiotrack", function() {
     return {
       restrict: 'E',
         templateUrl: '/track.html',
         replace: true,
-        scope: {itemObject: "="}
+        scope: {itemObject: "=",
+                onTrackPlay: "&",
+                onQueueAdd: "&"}
     }
 });
 
 app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '$interval', 
                                    function($rootScope, $scope, $http, $timeout, $interval) {
 
+  $scope.currentPage = 1;
+  $scope.pageSize = 10;
   $scope.devices = [];
+  $scope.selected_devices = [];
+  $scope.queue = [];
 
   $http({ cache: true, url: '/get_devices', method: 'GET'}).success(
 
@@ -26,8 +34,14 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
         var devices = data['devices'];
 
          for (i = 0; i < devices.length; i++) { 
+
+          if(devices[i].state == 'playing') {
+              $scope.selected_devices.push(devices[i].id);
+          }
+
           $scope.devices.push({
             device_id: devices[i].id,
+            state: devices[i].state,
             name: devices[i].name,
             minValue: 0,
             maxValue: 100,
@@ -61,19 +75,16 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       }
   );
 
-  $scope.selected = [];
-  $scope.uri = 'http://192.168.1.149:8882/static/test.mp3';
-
   $scope.devicesChanged = function() {
-      var parameters = {'selected_devices': $scope.selected.devices};
+      var parameters = {'selected_devices': $scope.selected_devices};
       var json_data = JSON.stringify(parameters);
       $http({cache: false, url: '/create_zone', method: 'post', data: json_data});
   };
 
   $scope.play = function() {
 
-      var parameters = {'selected_devices': $scope.selected.devices,
-                                    'uri': $scope.uri};
+      var parameters = {'selected_devices': $scope.selected_devices,
+                        'uri': $scope.uri};
       var json_data = JSON.stringify(parameters);
       return $http({cache: false, url: '/play', method: 'post', data: json_data});
    };
@@ -93,5 +104,13 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       return $http({cache: false, url: '/play', method: 'post', data: json_data});
    };
 
+   $scope.speakers = function() {
+        $("#wrapper").toggleClass("toggled");
+   };
+
+   $scope.track_add_to_queue = function(id) {
+   	$scope.queue.push(id);
+   };
 
 }]);
+

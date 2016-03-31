@@ -57,7 +57,8 @@ def create_zone():
 def play():
     data = request.get_json()
     player = allplayerController.GetPlayer()
-    if player.paused:
+    state, position = player.GetPlayingState()
+    if state == "paused":
         player.Resume()
     else:
         uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
@@ -166,13 +167,6 @@ class AllPlayWebPlugin(BeetsPlugin):
                     debug=opts.debug, threaded=True)
         cmd.func = func
         return [cmd]
-
-
-
-
-
-
-
 
 
 # {

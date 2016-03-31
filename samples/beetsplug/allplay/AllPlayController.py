@@ -46,6 +46,9 @@ class AllPlayer(object):
         size = len(self.device_ids)
 
         self.array = (C.c_char_p * size)()
+
+        print "CreateZone", self.device_ids
+
         self.array[:] = self.device_ids
         self.arg.Set(
             "as", [C.c_int, C.POINTER(C.c_char_p)], [size, self.array])
@@ -101,6 +104,7 @@ class AllPlayer(object):
         index_current_item = C.c_int32()
         index_next_item = C.c_int32()
 
+        num = C.c_size_t()
         entries = MsgArg.MsgArg()
 
         param.Get("(sxuuuii*)", 
@@ -294,6 +298,7 @@ class AllPlayController(object):
     def CreateZone(self, device_ids):
 
         if not device_ids:
+            self.player.Stop()	# Stop playing as all devices disconnected
             return
 
         devices = []
@@ -305,13 +310,16 @@ class AllPlayController(object):
         # However we save the current uri and position if playing.
         if self.player:
             state, position = self.player.GetPlayingState() 
+            print "state", state
+            print "position", position
             current_url = self.player.GetCurrentItemUrl()
             self.player.Stop()
 
             # check if current player is in list. If so keep that one current
             if self.player.device_id in device_ids:
                 devices = [p for p in self.allplayers.values() if p.device_id != self.player.device_id]
-        else:
+                
+        if not devices:
             # Use the first device _id as the player
             devices = [p for p in self.allplayers.values() if p.device_id in device_ids]
             self.player = devices.pop(0)
@@ -322,7 +330,8 @@ class AllPlayController(object):
         # restart playing if needed
         if state.lower() == 'playing':
             self.player.PlayUrl(current_url)
-            self.SetPosition(position)
+            print "resetting position", position
+            self.player.SetPosition(position)
 
     def GetVolume(self, device_id):
         player = self.allplayers[device_id]
@@ -339,8 +348,10 @@ class AllPlayController(object):
     def GetPlayers(self):
         players = []
         for p in self.allplayers.values():
+            state, position = p.GetPlayingState()
             players.append({'id': p.device_id,
                             'name': p.device_name,
+                            'state': state.lower(),
                             'volume': p.GetVolume()})
         return players
 
