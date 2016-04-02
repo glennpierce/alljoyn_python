@@ -108,6 +108,16 @@ def tracks():
     return jsonify({'items': tracks})  # g.lib.items()
 
 
+@app.route('/showtracks.html')
+def showtracks():
+    return flask.render_template('showtracks.html')
+
+
+@app.route('/showqueue.html')
+def showqueue():
+    return flask.render_template('showqueue.html')
+
+
 @app.route('/trackfile/<int:item_id>')
 def trackfile(item_id):
     item = g.lib.get_item(item_id)

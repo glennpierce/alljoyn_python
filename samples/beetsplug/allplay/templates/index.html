@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angularjs-slider/2.10.4/rzslider.min.css"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular-route.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angularjs-slider/2.10.4/rzslider.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='checklist-model.js') }}"></script>
@@ -69,50 +70,27 @@
         <form method="post">
 
           <fieldset>
-   
-              <div class="col-xs-12 col-md-8" style="padding:5px;">
-              <input ng-model="uri" type="text" size="50" />
-              </div>
-
-              <div class="col-xs-12 col-md-4" style="padding:5px;">
-                <button ng-click="queue()">Queue</button> 
+            <div class="col-xs-12 col-sm-12 col-md-8" col-lg-8" col-xl-8" style="padding:5px;">  
+ 
+              <div style="padding:5px;">
+                <button ng-click="toggle_queue()">Queue</button> 
                 <button ng-click="stop()">Stop</button>
                 <button ng-click="pause()">Pause</button>
                 <button ng-click="play()">Play</button>
               </div>
 
-              <div class="col-md-12" style="padding:5px;">
-              <input ng-model="search" type="text" size="50" />
-              </div>
+            </div>
 
           </fieldset>
     
         </form>
 
          <br>
-
-	    <div ng-if="queue.length <= 0">
-                <audiotrack item-object="item" dir-paginate="item in items | filter:search | itemsPerPage: pageSize" current-page="currentPage"
-                     on-track-play="track_select(track_id)" on-queue-add="track_add_to_queue(track_id)">
-         	</audiotrack>
-    	    </div>
-    	    <div ng-if="queue.length > 0">
-        	<audiotrack item-object="item" dir-paginate="item in queue | itemsPerPage: pageSize" current-page="currentPage"
-                     on-track-play="track_select(track_id)" on-queue-add="track_add_to_queue(track_id)">
-	         </audiotrack>
-    	    </div>
-
-         <audiotrack item-object="item" dir-paginate="item in items | filter:search | itemsPerPage: pageSize" current-page="currentPage" 
-                     on-track-play="track_select(track_id)" on-queue-add="track_add_to_queue(track_id)">
-         </audiotrack>
-       
+	    <div ng-view>
+            </div>
         </div>
 
       </div>
-
-	<div class="text-center">
-	<dir-pagination-controls></dir-pagination-controls>
-        </div>
 
       </div>
 

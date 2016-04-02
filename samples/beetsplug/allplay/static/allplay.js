@@ -1,4 +1,5 @@
-var app = angular.module('AllPlayApp', ['checklist-model',
+var app = angular.module('AllPlayApp', ['ngRoute',
+					'checklist-model',
                                         'rzModule', 
                                         'angularUtils.directives.dirPagination'], function($interpolateProvider) {
 
@@ -7,6 +8,21 @@ var app = angular.module('AllPlayApp', ['checklist-model',
     $interpolateProvider.endSymbol(']]');
 });
 
+app.config(['$routeProvider',
+  function($routeProvider) {
+    $routeProvider.
+      when('/showtracks', {
+        templateUrl: '/showtracks.html',
+        controller: 'MainController'
+      }).
+      when('/showqueue', {
+        templateUrl: '/showqueue.html',
+        controller: 'QueueController'
+      }).
+      otherwise({
+        redirectTo: '/showtracks'
+      });
+}]);
 
 app.directive("audiotrack", function() {
     return {
@@ -19,14 +35,33 @@ app.directive("audiotrack", function() {
     }
 });
 
-app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '$interval', 
-                                   function($rootScope, $scope, $http, $timeout, $interval) {
 
+app.service("QueueService", function() {
+     var self = this;
+     this.items = [];
+
+     this.length = function() {
+         return self.items.length;
+     };
+
+     this.add = function(item) {
+         return self.items.push(item);
+     };
+});
+
+app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '$interval', '$location', 'QueueService',
+                                   function($rootScope, $scope, $http, $timeout, $interval, $location, QueueService) {
+
+  $scope.currentView = 'showtracks';  
   $scope.currentPage = 1;
   $scope.pageSize = 10;
   $scope.devices = [];
   $scope.selected_devices = [];
-  $scope.queue = [];
+  $scope.queueService = QueueService;
+
+  $scope.changeView = function(view){
+  	$location.path(view); // path not hash
+  }
 
   $http({ cache: true, url: '/get_devices', method: 'GET'}).success(
 
@@ -98,19 +133,38 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       return $http({cache: false, url: '/pause', method: 'get'});
    };
 
-   $scope.track_select = function(id) {
-      var parameters = {'id': id};
+   $scope.track_select = function(item) {
+      var parameters = {'id': item.id};
       var json_data = JSON.stringify(parameters);
       return $http({cache: false, url: '/play', method: 'post', data: json_data});
+   };
+
+   $scope.toggle_queue = function() {
+        if($scope.currentView == 'showtracks') {
+            $scope.currentView = 'showqueue';
+            $scope.changeView('showqueue');
+        }
+	else {
+	    $scope.currentView = 'showtracks';
+            $scope.changeView('showtracks');
+	}
    };
 
    $scope.speakers = function() {
         $("#wrapper").toggleClass("toggled");
    };
 
-   $scope.track_add_to_queue = function(id) {
-   	$scope.queue.push(id);
+   $scope.track_add_to_queue = function(item) {
+   	$scope.queueService.add(item);
    };
 
 }]);
 
+
+app.controller('QueueController', ['$rootScope', '$scope', '$http', '$timeout', '$interval', '$location', 'QueueService',
+                                   function($rootScope, $scope, $http, $timeout, $interval, $location, QueueService) {
+
+  $scope.currentPage = 1;
+  $scope.queueService = QueueService;
+
+}]);

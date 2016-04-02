@@ -155,6 +155,21 @@ class AllPlayer(object):
         logging.info("pausing for device %s (%s)", self.device_name, self.device_id)
 
     def Play(self):
+        """
+        Start playing the item at the index
+	at the specified start position. If
+	Play() is called while the playlist
+	is playing, it will restart playback
+	from the start of the current track.
+
+        itemIndex yes i N/A in Index in the playlist of the item to play.
+
+        startPositionMsecs yes x N/A in Start position in milliseconds.
+
+        pauseStateOnly yes Indicates whether to start streaming (false) or just pause at
+        the specific position (true). This is used for transferring of playlists.
+        """
+
         if self.paused:
             self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Resume", None, 0, 0)
@@ -195,6 +210,24 @@ class AllPlayer(object):
         print "playing: %s" % (uri,)
 
     def AdjustVolumePercent(self, percent):
+        """
+	Not interested in this at this time. Left for future
+	The change has floating point values between -1.0 and 1.0 to represent volume
+	changes between -100% to 100%.
+	A positive value (respectively negative), will increase (respectively decrease) the volume
+	by the percentage of the "remaining range" towards the maximum (respectively
+	minimum) value, i.e. difference between the current volume and the maximum
+	(respectively minimum) volume.
+	For example, when the volume range is [0-100] and we want to adjust by +50%:
+
+	If the current volume is 25, the increment will be:
+	"(100-25)*50%=75*0.5=38" (once rounded) so the new volume will be 63.
+
+	Another adjustment by +50% will be "(100-63)*0.5=19" to a volume of 82.
+	If we want instead to adjust by -50%, the decrement would be "(25-0)*0.5=13" to a
+	volume of 12, and another adjustment by -50% would be "(12-0)*0.5=6" to a volume of 6.
+	"""
+
         percent = min(max(0.0, percent), 100.0)
         param = MsgArg.MsgArg()
         param.SetDouble(percent)
