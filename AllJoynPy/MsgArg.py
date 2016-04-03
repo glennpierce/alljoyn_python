@@ -137,22 +137,6 @@ class MsgArg(AllJoynObject):
                             ((u'alljoyn_msgarg', MsgArgHandle),
                              (u'alljoyn_msgarg', MsgArgHandle))),
 
-
-# /**
-#  * Obtain a single alljoyn_msgarg element from an array of alljoyn_msgarg elements
-#  * @remark This function exists for development of other language bindings and may
-#  *         be changed or removed in future updates and should not be used for reading
-#  *         values from an alljoyn_msgarg.
-#  * @see alljoyn_msgarg_set
-#  * @see alljoyn_msgarg_get.
-#  *
-#  * @param      arg      The alljoyn_msgarg that contains the array element
-#  * @param      index    The index value for the individual alljoyn_msgarg
-#  * @param[out] element  The alljoyn_msgarg located at the index
-#  */
-# extern AJ_API void AJ_CALL   alljoyn_msgarg_get_array_element(const alljoyn_msgarg arg, size_t index, alljoyn_msgarg* element);
-# /**
-
                  u'GetArrayElement': (u'alljoyn_msgarg_get_array_element',
                                       (u'void', None),
                                       ((u'const alljoyn_msgarg', MsgArgHandle),

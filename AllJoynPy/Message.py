@@ -224,15 +224,11 @@ class Message(AllJoynObject):
         return MessageType(self._GetType(self.handle))
 
     def GetArgs(self):
-        # Hmm broken can't get back all args
         size = C.c_size_t()
-        args = MsgArgHandle()
-        # Todo Assume array of size 10 . Not sure I can pass None / Null here to get size first
-        #array = (MsgArgHandle * 10)()
-        #
-        #self._GetArgs(self.handle, C.byref(size), C.cast(C.byref(array), C.POINTER(MsgArgHandle)))
-        self._GetArgs(self.handle, C.byref(size), C.byref(args))
-        return [MsgArg.MsgArg.FromHandle(a) for a in array[:size.value]]
+        arg = MsgArgHandle()
+        self._GetArgs(self.handle, C.byref(size), C.byref(arg))
+        args = MsgArg.MsgArg.FromHandle(arg)
+        return [args.ArrayElement(i) for i in range(size.value)]
 
     def GetArg(self, arg_index):
         return MsgArg.MsgArg.FromHandle(self._GetArg(self.handle, arg_index))  # int

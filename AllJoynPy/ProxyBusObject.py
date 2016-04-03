@@ -29,14 +29,16 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
-ProxyBusObjectListenerIntroSpecTCBFuncType = CallbackType(None, C.c_int, C.c_void_p, C.c_void_p)  # status obj context
+ProxyBusObjectListenerIntroSpecTCBFuncType = CallbackType(
+    None, C.c_int, C.c_void_p, C.c_void_p)  # status obj context
 ProxyBusObjectListenerGetAllPropertiesCBFuncType = CallbackType(
     None, C.c_int, C.c_void_p, C.c_int, C.c_void_p)  # status obj values context
 ProxyBusObjectListenerPropertiesChangedFuncType = CallbackType(
     None, C.c_void_p, C.c_char_p, C.c_int, C.c_int, C.c_void_p)  # obj ifaceName changed invalidated context
 ProxyBusObjectListenerGetPropertyCBFuncType = CallbackType(
     None, C.c_int, C.c_void_p, C.c_int, C.c_void_p)  # status obj value context
-ProxyBusObjectListenerSetPropertyCBFuncType = CallbackType(None, C.c_int, C.c_void_p, C.c_void_p)  # status obj context
+ProxyBusObjectListenerSetPropertyCBFuncType = CallbackType(
+    None, C.c_int, C.c_void_p, C.c_void_p)  # status obj context
 
 
 class ProxyBusObject(AllJoynObject):
@@ -51,7 +53,7 @@ class ProxyBusObject(AllJoynObject):
                  u'AddInterface': (u'alljoyn_proxybusobject_addinterface',
                                    (u'QStatus', C.c_uint),
                                    ((u'alljoyn_proxybusobject', ProxyBusHandle),
-                                       (u'const void*', InterfaceDescription.InterfaceDescriptionHandle))),
+                                       (u'const void*', InterfaceDescriptionHandle))),
 
                  u'AddInterfaceByName': (u'alljoyn_proxybusobject_addinterface_by_name',
                                          (u'QStatus', C.c_uint),
@@ -108,11 +110,16 @@ class ProxyBusObject(AllJoynObject):
                  u'GetChildren': (u'alljoyn_proxybusobject_getchildren',
                                   (u'int', C.c_int),
                                   ((u'alljoyn_proxybusobject', ProxyBusHandle),
-                                      (u'alljoyn_proxybusobject *', POINTER(C.c_void_p)),
+                                      (u'alljoyn_proxybusobject *',
+                                       POINTER(C.c_void_p)),
                                       (u'int', C.c_int))),
 
+                 # extern AJ_API const alljoyn_interfacedescription
+                 # alljoyn_proxybusobject_getinterface(alljoyn_proxybusobject
+                 # proxyObj, const char* iface);
                  u'GetInterface': (u'alljoyn_proxybusobject_getinterface',
-                                   (u'const void*', InterfaceDescription.InterfaceDescriptionHandle),
+                                   (u'const void*',
+                                    InterfaceDescriptionHandle),
                                    ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                        (u'const char *', C.c_char_p))),
 
@@ -178,11 +185,15 @@ class ProxyBusObject(AllJoynObject):
                  u'MethodCall': (u'alljoyn_proxybusobject_methodcall',
                                  (u'QStatus', C.c_uint),
                                  ((u'alljoyn_proxybusobject', ProxyBusHandle),
-                                     (u'const char *', C.c_char_p),  # iface_name
-                                     (u'const char *', C.c_char_p),  # method_name
+                                     # iface_name
+                                     (u'const char *', C.c_char_p),
+                                     # method_name
+                                     (u'const char *', C.c_char_p),
                                      (u'const void*', MsgArg.MsgArgHandle,  # args
-                                      (u'int', C.c_int),        # number arguments
-                                      (u'void*', Message.MessageHandle),   # reply_msg
+                                      # number arguments
+                                      (u'int', C.c_int),
+                                      # reply_msg
+                                      (u'void*', Message.MessageHandle),
                                       (u'int', C.c_int),    # timeout
                                       (u'int', C.c_int)))),  # flags
 
@@ -191,7 +202,8 @@ class ProxyBusObject(AllJoynObject):
                                       ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                           (u'const char *', C.c_char_p),
                                           (u'const char *', C.c_char_p),
-                                          (u'int', MessageReceiver.MessageReceiverReplyHandlerFuncType),
+                                          (u'int',
+                                           MessageReceiver.MessageReceiverReplyHandlerFuncType),
                                           (u'const void*', MsgArgHandle),
                                           (u'size_t', C.c_size_t),
                                           (u'void *', C.c_void_p),
@@ -232,7 +244,8 @@ class ProxyBusObject(AllJoynObject):
                                         ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                             (u'const char *', C.c_char_p),
                                             (u'const char *', C.c_char_p),
-                                            (u'const void*', MsgArg.MsgArgHandle),
+                                            (u'const void*',
+                                             MsgArg.MsgArgHandle),
                                             (u'int', C.c_size_t),
                                             (u'uint', C.c_uint))),
 
@@ -246,7 +259,8 @@ class ProxyBusObject(AllJoynObject):
                                                         (u'QStatus', C.c_uint),
                                                         ((u'alljoyn_proxybusobject',
                                                           C.c_void_p),
-                                                            (u'const char *', C.c_char_p),
+                                                            (u'const char *',
+                                                             C.c_char_p),
                                                             (u'const char **',
                                                              POINTER(C.c_char_p)),
                                                             (u'int', C.c_int),
@@ -295,15 +309,20 @@ class ProxyBusObject(AllJoynObject):
                                            (u'void *', C.c_void_p))),
 
                  u'UnregisterPropertiesChangedListener': (u'alljoyn_proxybusobject_unregisterpropertieschangedlistener',
-                                                          (u'QStatus', C.c_uint),
+                                                          (u'QStatus',
+                                                           C.c_uint),
                                                           ((u'alljoyn_proxybusobject', ProxyBusHandle),
-                                                              (u'const char *', C.c_char_p),
+                                                              (u'const char *',
+                                                               C.c_char_p),
                                                               (u'alljoyn_proxybusobject_listener_propertieschanged_ptr',
                                                                POINTER(ProxyBusObjectListenerPropertiesChangedFuncType))))}
 
     def __init__(self, bus_attatchment, service, path, session_id):
         super(ProxyBusObject, self).__init__()
-        self.handle = self._Create(bus_attatchment.handle, service, path, session_id)  # const char *,const char *,int
+        # const char *,const char *,int
+        self.handle = self._Create(
+            bus_attatchment.handle, service, path, session_id)
+        assert self.handle.value != None
 
     def __del__(self):
         self._Destroy(self.handle)
@@ -311,10 +330,12 @@ class ProxyBusObject(AllJoynObject):
     # Wrapper Methods
 
     def Create(self, service, path, sessionId):
-        return self._Create(self.handle, service, path, sessionId)  # const char *,const char *,int
+        # const char *,const char *,int
+        return self._Create(self.handle, service, path, sessionId)
 
     def CreateSecure(self, service, path, sessionId):
-        return self._CreateSecure(self.handle, service, path, sessionId)  # const char *,const char *,int
+        # const char *,const char *,int
+        return self._CreateSecure(self.handle, service, path, sessionId)
 
     def Destroy(self):
         return self._Destroy(self.handle)
@@ -326,13 +347,15 @@ class ProxyBusObject(AllJoynObject):
         return self._AddInterfaceByName(self.handle, name)  # const char *
 
     def GetChildren(self, children, numChildren):
-        return self._GetChildren(self.handle, children, numChildren)  # alljoyn_proxybusobject *,int
+        # alljoyn_proxybusobject *,int
+        return self._GetChildren(self.handle, children, numChildren)
 
     def GetChild(self, path):
         return self._GetChild(self.handle, path)  # const char *
 
     def AddChild(self, child):
-        return self._AddChild(self.handle, child)  # const alljoyn_proxybusobject
+        # const alljoyn_proxybusobject
+        return self._AddChild(self.handle, child)
 
     def RemoveChild(self, path):
         return self._RemoveChild(self.handle, path)  # const char *
@@ -345,24 +368,30 @@ class ProxyBusObject(AllJoynObject):
         return self._IntrospectRemoteObjectASync(self.handle, callback, context)
 
     def GetAllProperties(self, iface, values):
-        return self._GetAllProperties(self.handle, iface, values)  # const char *,int
+        # const char *,int
+        return self._GetAllProperties(self.handle, iface, values)
 
     def GetAllPropertiesAsYNC(self, iface, callback, timeout, context):
-        # const char *,alljoyn_proxybusobject_listener_getallpropertiescb_ptr,int,void *
+        # const char
+        # *,alljoyn_proxybusobject_listener_getallpropertiescb_ptr,int,void *
         return self._GetAllPropertiesAsYNC(self.handle, iface, callback, timeout, context)
 
     def SetProperty(self, iface, property, value):
-        return self._SetProperty(self.handle, iface, property, value.handle)  # const char *,const char *,int
+        # const char *,const char *,int
+        return self._SetProperty(self.handle, iface, property, value.handle)
 
     def GetProperty(self, iface, property, value):
-        return self._GetProperty(self.handle, iface, property, value.handle)  # const char *,const char *,int
+        # const char *,const char *,int
+        return self._GetProperty(self.handle, iface, property, value.handle)
 
     def GetPropertyAsync(self, iface, property, callback, timeout, context):
-        # const char *,const char *,alljoyn_proxybusobject_listener_getpropertycb_ptr,int,void *
+        # const char *,const char
+        # *,alljoyn_proxybusobject_listener_getpropertycb_ptr,int,void *
         return self._GetPropertyAsync(self.handle, iface, property, callback, timeout, context)
 
     def RegisterPropertiesChangedListener(self, iface, properties, numProperties, callback, context):
-        # const char *,const char **,int,alljoyn_proxybusobject_listener_propertieschanged_ptr,void *
+        # const char *,const char
+        # **,int,alljoyn_proxybusobject_listener_propertieschanged_ptr,void *
         return self._RegisterPropertiesChangedListener(self.handle, iface, properties, numProperties, callback, context)
 
     def UnregisterPropertiesChangedListener(self, iface, callback):
@@ -388,7 +417,8 @@ class ProxyBusObject(AllJoynObject):
         return self._MethodCallNoReply(self.handle, ifaceName, methodName, args_handle, numArgs, flags)
 
     def MethodCallMemberNoReply(self, method, args, numArgs, flags):
-        return self._MethodCallMemberNoReply(self.handle, method, args, numArgs, flags)  # const int,const int,int,int
+        # const int,const int,int,int
+        return self._MethodCallMemberNoReply(self.handle, method, args, numArgs, flags)
 
     def MethodCallAsync(self, ifaceName, methodName, replyFunc, args, numArgs, context, timeout, flags):
         args_handle = args.handle if args else None
@@ -399,7 +429,8 @@ class ProxyBusObject(AllJoynObject):
         return self._MethodCallAsyncMember(self.handle, method, replyFunc, args, numArgs, context, timeout, flags)
 
     def ParseXml(self, xml, identifier):
-        return self._ParseXml(self.handle, xml, identifier)  # const char *,const char *
+        # const char *,const char *
+        return self._ParseXml(self.handle, xml, identifier)
 
     def SecureConnection(self, forceAuth):
         return self._SecureConnection(self.handle, forceAuth)  # int
@@ -407,11 +438,27 @@ class ProxyBusObject(AllJoynObject):
     def SecureConnectionAsync(self, forceAuth):
         return self._SecureConnectionAsync(self.handle, forceAuth)  # int
 
+    # extern AJ_API const alljoyn_interfacedescription
+    # alljoyn_proxybusobject_getinterface(alljoyn_proxybusobject proxyObj, const char* iface);
+    #              u'GetInterface': (u'alljoyn_proxybusobject_getinterface',
+    #                                (u'const void*', InterfaceDescriptionHandle),
+    #                                ((u'alljoyn_proxybusobject', ProxyBusHandle),
+    #                                    (u'const char *', C.c_char_p))),
+
     def GetInterface(self, iface):
-        return InterfaceDescription.InterfaceDescription(self._GetInterface(self.handle, iface))  # const char *
+        print "before"
+        assert self.handle.value != None
+
+        handle = self._GetInterface(self.handle, iface)
+        if not handle.value:
+            raise AllJoynException("No such interface")
+
+        # const char *
+        return InterfaceDescription.InterfaceDescription(handle)
 
     def GetInterfaces(self, ifaces, numIfaces):
-        return self._GetInterfaces(self.handle, ifaces, numIfaces)  # const int *,int
+        # const int *,int
+        return self._GetInterfaces(self.handle, ifaces, numIfaces)
 
     def GetPath(self):
         return self._GetPath(self.handle)

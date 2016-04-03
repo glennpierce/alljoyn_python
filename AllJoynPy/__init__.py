@@ -20,6 +20,8 @@ from ctypes.util import find_library
 import sys
 from enum import Enum, unique
 
+class Handle(C.c_void_p):
+    pass
 
 class BusAttachmentHandle(C.c_void_p):
     pass
@@ -458,6 +460,13 @@ class QStatus(Enum):
     ER_INVALID_CERTIFICATE_USAGE = 0x913e  # The certificate extended key usage is not Alljoyn specific.
     ER_INVALID_SIGNAL_EMISSION_TYPE = 0x913f  # Attempt to send a signal with the wrong type. */
 
+
+class AllJoynException(Exception):
+
+    def __init__(self, message,):
+        # Call the base class constructor with the parameters it needs
+        super(AllJoynException, self).__init__(message)
+       
 
 class QStatusException(Exception):
 

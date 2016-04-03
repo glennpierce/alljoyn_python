@@ -34,6 +34,17 @@ class AllPlayer(object):
             self.bus, self.bus_name, SERVICE_PATH, self.session_id)
         self.proxyBusObject.IntrospectRemoteObject()
 
+        # iface = self.proxyBusObject.GetInterface('net.allplay.ZoneManager')
+        # success, zoneChangedSignal = iface.GetSignal('OnZoneChanged')
+        # self.bus.RegisterSignalHandler(MessageReceiver.MessageReceiverSignalHandlerFuncType(
+        #      AllPlayer.OnZoneChanged), zoneChangedSignal, None)
+
+        iface = self.proxyBusObject.GetInterface('net.allplay.MediaPlayer')
+        success, playStateChangedSignal = iface.GetSignal('PlayStateChanged')
+        print success
+        self.bus.RegisterSignalHandler(MessageReceiver.MessageReceiverSignalHandlerFuncType(
+            AllPlayer.OnPlayStateChanged), playStateChangedSignal, None)
+
     def __repr__(self):
         return self.device_name + " (" + self.device_id + ")"
 
@@ -66,6 +77,67 @@ class AllPlayer(object):
     def OnReplyMessageCallback(message, context):
         print Message.Message.FromHandle(message)
 
+    @staticmethod
+    def OnZoneChanged(member, srcpath, message):
+        """
+        <signal name="OnZoneChanged">
+          <arg name="zoneId" type="s" direction="out"/>
+          <arg name="timestamp" type="i" direction="out"/>
+          <arg name="slaves" type="a{si}" direction="out"/>
+        </signal>
+        """
+        print "OnZoneChanged"
+        print member, srcpath, message
+        args = Message.Message.FromHandle(message).GetArgs()
+        slaves = args[2]
+
+        # Todo Tidy up MsgArg code. Could there be a way to dynamically create
+        # types based on the dbus signature ?
+        num = C.c_uint()
+        entries = MsgArg.MsgArg()
+        slaves.Get("a{si}", [C.POINTER(C.c_uint), C.POINTER(MsgArg.MsgArgHandle)], [
+                   C.byref(num), C.byref(entries.handle)])
+
+        for i in range(num.value):
+            key = C.c_char_p()
+            value = C.c_int()
+            element = entries.ArrayElement(i)
+
+            try:
+                element.Get(
+                    "{si}", [C.POINTER(C.c_char_p), C.c_int_p], [C.byref(key), C.byref(value)])
+                print key.value, ":", value.value
+            except QStatusException as ex:
+                pass
+
+    @staticmethod
+    def OnPlayStateChanged(member, srcpath, message):
+        """
+        (sxuuuiia(ssssxsssa{ss}a{sv}v))
+        """
+        print "HERE"
+        message = Message.Message.FromHandle(message)
+        print message
+
+        # slaves = message.GetArg(2)
+
+        # Todo Tidy up MsgArg code. Could there be a way to dynamically create
+        # types based on the dbus signature ?
+        # num = C.c_uint()
+        # entries = MsgArg.MsgArg()
+
+        # slaves.Get("a{si}", [C.POINTER(C.c_uint), C.POINTER(MsgArg.MsgArgHandle)], [
+        #            C.byref(num), C.byref(entries.handle)])
+
+        # for i in range(num.value):
+        #     key = C.c_char_p()
+        #     value = C.c_int()
+        #     element = entries.ArrayElement(i)
+
+        #     element.Get(
+        #         "{si}", [C.POINTER(C.c_char_p), C.c_int_p], [C.byref(key), C.byref(value)])
+        #     print key.value, ":", value.value
+
     def GetMute(self):
         param = MsgArg.MsgArg()
         self.proxyBusObject.GetProperty(
@@ -89,7 +161,226 @@ class AllPlayer(object):
         param.SetInt16(volume)
         self.proxyBusObject.SetProperty(
             "org.alljoyn.Control.Volume", "Volume", param)
-        logging.info("setting volume for device %s (%s) to %s", self.device_name, self.device_id, volume)
+        logging.info("setting volume for device %s (%s) to %s",
+                     self.device_name, self.device_id, volume)
+
+
+
+
+ /* Array of STRING */
+    static const char*as[] = { "one", "two", "three", "four" };
+    /* Array of OBJECT_PATH */
+    static const char*ao[] = { "/org/one", "/org/two", "/org/three", "/org/four" };
+    /* Array of SIGNATURE */
+    static const char*ag[] = { "s", "sss", "as", "a(iiiiuu)" };
+
+    alljoyn_msgarg arg;
+    arg = alljoyn_msgarg_create();
+    ASSERT_TRUE(arg != NULL);
+
+    status = alljoyn_msgarg_set(arg, "as", sizeof(as) / sizeof(as[0]), as);
+    EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+
+    alljoyn_msgarg pas;
+    char*str[4];
+    size_t las;
+    status = alljoyn_msgarg_get(arg, "as", &las, &pas);
+    EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+    EXPECT_EQ(sizeof(as) / sizeof(as[0]), las);
+    ASSERT_TRUE(arg);
+    ASSERT_TRUE(pas);
+    for (size_t k = 0; k < las; k++) {
+        ASSERT_TRUE(alljoyn_msgarg_array_element(pas, k));
+        status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(pas, k), "s", &str[k]);
+        EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+        ASSERT_TRUE(str[k]);
+        EXPECT_STREQ(as[k], str[k]);
+    }
+
+
+
+423      dictEntries = alljoyn_msgarg_array_create(sizeof(keys) / sizeof(keys[0]));
+  424      values = alljoyn_msgarg_array_create(sizeof(keys) / sizeof(keys[0]));
+  425:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 0), "s", keys[0]);
+  426:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 1), "(ss)", keys[1], "bean");
+  427:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 2), "s", keys[2]);
+  428:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 3), "(ss)", keys[3], "mellow");
+
+
+    def UpdatePlayList(self, tracks):
+        number_of_tracks = len(tracks)
+
+        status = alljoyn_msgarg_set(arg, "as", sizeof(as) / sizeof(as[0]), as);
+
+
+        entries = MsgArg.MsgArg.ArrayCreate(number_of_tracks)
+
+        for track in tracks:
+
+            url = C.c_char_p(track['url'])
+            title = C.c_char_p(track['title'])
+            artist = C.c_char_p(track['artist'])
+            thumbnail_url = C.c_char_p(track['thumbnail_url'])
+            duration = C.c_int64(track['duration'])
+            media_type = C.c_char_p(track['media_type'])
+            album = C.c_char_p(track['album'])
+            genre = C.c_char_p(track['genre'])
+
+            #  a{ss}: other data
+            other_data_num = C.c_size_t()
+            other_data = MsgArg.MsgArg()
+
+            # a{sv}: medium description (codec, container, protocol,
+            medium_data_num = C.c_size_t()
+            medium_data = MsgArg.MsgArg()
+
+            user_data = MsgArg.MsgArg()
+
+            element = entries.ArrayElement(i)
+
+            print "freind", element.Signature()
+            try:
+                # (ssssxsssa{ss}a{sv}v)
+                element.Get(
+                    "(ssssxsssa{ss}a{sv}v)", [C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_int64),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_size_t),
+                                              C.POINTER(MsgArgHandle),
+                                              C.POINTER(C.c_size_t),
+                                              C.POINTER(MsgArgHandle),
+                                              C.POINTER(MsgArgHandle)],
+                    [C.byref(url),
+                     C.byref(title),
+                     C.byref(artist),
+                     C.byref(thumbnail_url),
+                     C.byref(duration),
+                     C.byref(mediaType),
+                     C.byref(album),
+                     C.byref(genre),
+                     C.byref(other_data_num),
+                     C.byref(other_data.handle),
+                     C.byref(medium_data_num),
+                     C.byref(medium_data.handle),
+                     C.byref(user_data.handle)])
+
+
+
+
+# <method name="UpdatePlaylist">
+# <arg name="playlistItems" type="a(ssssxsssa{ss}a{sv}v)" direction="in"/>
+# <!-- array of item. Item:
+# s: url
+# s: title
+# s: artist
+# s: thumbnail url
+# x: duration (ms)
+# s: mediaType
+# s: album
+# s: genre
+# a{ss}: other data (country, channel, ...)
+# a{sv}: medium description (codec, container, protocol, ...)
+# v: userData
+# -->
+# <arg name="index" type="i" direction="in"/>
+# <arg name="controllerType" type="s" direction="in"/>
+# <arg
+    def GetPlayList(self):
+        """
+        <method name="GetPlaylist">
+        <arg name="items" type="a(ssssxsssa{ss}a{sv}v)" direction="out"/>
+        <!-- see UpdatePlaylist -->
+        <arg name="controllerType" type="s" direction="out"/>
+        <arg name="playlistUserData" type="s" direction="out"/>
+        </method>
+        """
+        replyMsg = Message.Message(self.bus)
+
+        try:
+            self.proxyBusObject.MethodCall(
+                'net.allplay.MediaPlayer', "GetPlaylist", None, 0, replyMsg, 25000, 0)
+        except QStatusException:
+            return []
+
+        arg = replyMsg.GetArg(0)
+
+        num = C.c_size_t()
+        entries = MsgArg.MsgArg()
+        arg.Get("a(ssssxsssa{ss}a{sv}v)", [C.POINTER(C.c_size_t), C.POINTER(MsgArgHandle)], [
+            C.byref(num), C.byref(entries.handle)])
+
+        items = []
+
+        for i in range(num.value):
+            url = C.c_char_p()
+            title = C.c_char_p()
+            artist = C.c_char_p()
+            thumbnail_url = C.c_char_p()
+            duration = C.c_int64()
+            mediaType = C.c_char_p()
+            album = C.c_char_p()
+            genre = C.c_char_p()
+
+            #  a{ss}: other data
+            other_data_num = C.c_size_t()
+            other_data = MsgArg.MsgArg()
+
+            # a{sv}: medium description (codec, container, protocol,
+            medium_data_num = C.c_size_t()
+            medium_data = MsgArg.MsgArg()
+
+            user_data = MsgArg.MsgArg()
+
+            element = entries.ArrayElement(i)
+
+            try:
+                # (ssssxsssa{ss}a{sv}v)
+                element.Get(
+                    "(ssssxsssa{ss}a{sv}v)", [C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_int64),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_char_p),
+                                              C.POINTER(C.c_size_t),
+                                              C.POINTER(MsgArgHandle),
+                                              C.POINTER(C.c_size_t),
+                                              C.POINTER(MsgArgHandle),
+                                              C.POINTER(MsgArgHandle)],
+                    [C.byref(url),
+                     C.byref(title),
+                     C.byref(artist),
+                     C.byref(thumbnail_url),
+                     C.byref(duration),
+                     C.byref(mediaType),
+                     C.byref(album),
+                     C.byref(genre),
+                     C.byref(other_data_num),
+                     C.byref(other_data.handle),
+                     C.byref(medium_data_num),
+                     C.byref(medium_data.handle),
+                     C.byref(user_data.handle)])
+
+                items.append({'url': url.value,
+                                        'title': title.value,
+                                        'artist': artist.value,
+                                        'thumbnail_url': thumbnail_url.value,
+                                        'duration': duration.value,
+                                        'media_type': mediaType.value,
+                                        'album': album.value,
+                                        'genre': genre.value})
+
+            except QStatusException, ex:
+                print ex
+
+        return items
 
     def GetPlayingState(self):
         param = MsgArg.MsgArg()
@@ -107,26 +398,27 @@ class AllPlayer(object):
         num = C.c_size_t()
         entries = MsgArg.MsgArg()
 
-        param.Get("(sxuuuii*)", 
-                                       [C.POINTER(C.c_char_p), 
-                                        C.POINTER(C.c_int64),
-                                        C.POINTER(C.c_uint32),
-                                        C.POINTER(C.c_uint32),
-                                        C.POINTER(C.c_uint32),
-                                        C.POINTER(C.c_int32),
-                                        C.POINTER(C.c_int32),
-                                        C.POINTER(C.c_size_t),
-                                        C.POINTER(MsgArgHandle)
-                                        ],
-                [C.byref(play_state), 
-                C.byref(position),
-                C.byref(current_sample_rate),
-                C.byref(audio_channels),
-                C.byref(bits_per_sample),
-                C.byref(index_current_item),
-                C.byref(index_next_item),
-                C.byref(num),
-                C.byref(entries.handle)])
+        # (sxuuuiia(ssssxsssa{ss}a{sv}v))
+        param.Get("(sxuuuii*)",
+                  [C.POINTER(C.c_char_p),
+                   C.POINTER(C.c_int64),
+                   C.POINTER(C.c_uint32),
+                   C.POINTER(C.c_uint32),
+                   C.POINTER(C.c_uint32),
+                   C.POINTER(C.c_int32),
+                   C.POINTER(C.c_int32),
+                   C.POINTER(C.c_size_t),
+                   C.POINTER(MsgArgHandle)
+                   ],
+                  [C.byref(play_state),
+                   C.byref(position),
+                   C.byref(current_sample_rate),
+                   C.byref(audio_channels),
+                   C.byref(bits_per_sample),
+                   C.byref(index_current_item),
+                   C.byref(index_next_item),
+                   C.byref(num),
+                   C.byref(entries.handle)])
 
         return play_state.value, position.value
 
@@ -152,15 +444,16 @@ class AllPlayer(object):
         self.paused = True
         self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Pause", None, 0, 0)
-        logging.info("pausing for device %s (%s)", self.device_name, self.device_id)
+        logging.info(
+            "pausing for device %s (%s)", self.device_name, self.device_id)
 
     def Play(self):
         """
         Start playing the item at the index
-	at the specified start position. If
-	Play() is called while the playlist
-	is playing, it will restart playback
-	from the start of the current track.
+        at the specified start position. If
+        Play() is called while the playlist
+        is playing, it will restart playback
+        from the start of the current track.
 
         itemIndex yes i N/A in Index in the playlist of the item to play.
 
@@ -172,9 +465,10 @@ class AllPlayer(object):
 
         if self.paused:
             self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MediaPlayer', "Resume", None, 0, 0)
+                'net.allplay.MediaPlayer', "Resume", None, 0, 0)
             self.paused = False
-            logging.info("resuming for device %s (%s)", self.device_name, self.device_id)
+            logging.info(
+                "resuming for device %s (%s)", self.device_name, self.device_id)
 
         self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Play", None, 0, 0)
@@ -211,29 +505,31 @@ class AllPlayer(object):
 
     def AdjustVolumePercent(self, percent):
         """
-	Not interested in this at this time. Left for future
-	The change has floating point values between -1.0 and 1.0 to represent volume
-	changes between -100% to 100%.
-	A positive value (respectively negative), will increase (respectively decrease) the volume
-	by the percentage of the "remaining range" towards the maximum (respectively
-	minimum) value, i.e. difference between the current volume and the maximum
-	(respectively minimum) volume.
-	For example, when the volume range is [0-100] and we want to adjust by +50%:
+        Not interested in this at this time. Left for future
+        The change has floating point values between -1.0 and 1.0 to represent volume
+        changes between -100% to 100%.
+        A positive value (respectively negative), will increase (respectively decrease) the volume
+        by the percentage of the "remaining range" towards the maximum (respectively
+        minimum) value, i.e. difference between the current volume and the maximum
+        (respectively minimum) volume.
+        For example, when the volume range is [0-100] and we want to adjust by +50%:
 
-	If the current volume is 25, the increment will be:
-	"(100-25)*50%=75*0.5=38" (once rounded) so the new volume will be 63.
+        If the current volume is 25, the increment will be:
+        "(100-25)*50%=75*0.5=38" (once rounded) so the new volume will be 63.
 
-	Another adjustment by +50% will be "(100-63)*0.5=19" to a volume of 82.
-	If we want instead to adjust by -50%, the decrement would be "(25-0)*0.5=13" to a
-	volume of 12, and another adjustment by -50% would be "(12-0)*0.5=6" to a volume of 6.
-	"""
+        Another adjustment by +50% will be "(100-63)*0.5=19" to a volume of 82.
+        If we want instead to adjust by -50%, the decrement would be "(25-0)*0.5=13" to a
+        volume of 12, and another adjustment by -50% would be "(12-0)*0.5=6" to a volume of 6.
+        """
 
         percent = min(max(0.0, percent), 100.0)
         param = MsgArg.MsgArg()
         param.SetDouble(percent)
         self.proxyBusObject.MethodCallNoReply(
             "org.alljoyn.Control.Volume", "AdjustVolumePercent", param, 1, 0)
-        logging.info("adjust volume for %s (%s) to %s", self.device_name, self.device_id, percent)
+        logging.info(
+            "adjust volume for %s (%s) to %s", self.device_name, self.device_id, percent)
+
 
 class MySessionListener(SessionListener.SessionListener):
     def __init__(self, callback_data=None):
@@ -321,7 +617,8 @@ class AllPlayController(object):
         self.allplayers = {}
         for p in self.aboutListener.devices.values():
             print "session_id", MyAboutListener.session_id
-            self.allplayers[p['id']] = AllPlayer(self.g_bus, p['busname'], p['session_id'], p['name'], p['id'])
+            self.allplayers[p['id']] = AllPlayer(
+                self.g_bus, p['busname'], p['session_id'], p['name'], p['id'])
 
     def __del__(self):
         print "Shutting Down"
@@ -331,7 +628,7 @@ class AllPlayController(object):
     def CreateZone(self, device_ids):
 
         if not device_ids:
-            self.player.Stop()	# Stop playing as all devices disconnected
+            self.player.Stop()  # Stop playing as all devices disconnected
             return
 
         devices = []
@@ -342,7 +639,7 @@ class AllPlayController(object):
         # We stop the current playing before changing.
         # However we save the current uri and position if playing.
         if self.player:
-            state, position = self.player.GetPlayingState() 
+            state, position = self.player.GetPlayingState()
             print "state", state
             print "position", position
             current_url = self.player.GetCurrentItemUrl()
@@ -350,16 +647,18 @@ class AllPlayController(object):
 
             # check if current player is in list. If so keep that one current
             if self.player.device_id in device_ids:
-                devices = [p for p in self.allplayers.values() if p.device_id != self.player.device_id]
-                
+                devices = [
+                    p for p in self.allplayers.values() if p.device_id != self.player.device_id]
+
         if not devices:
             # Use the first device _id as the player
-            devices = [p for p in self.allplayers.values() if p.device_id in device_ids]
+            devices = [
+                p for p in self.allplayers.values() if p.device_id in device_ids]
             self.player = devices.pop(0)
-        
+
         print "using: ", self.player.device_name, "speaker", self.player.device_id
         self.player.CreateZone(device_ids)
- 
+
         # restart playing if needed
         if state.lower() == 'playing':
             self.player.PlayUrl(current_url)
@@ -392,8 +691,13 @@ class AllPlayController(object):
         return self.player
 
 
-
 if __name__ == "__main__":
-    controller =  AllPlayController()
+    controller = AllPlayController()
     for p in controller.allplayers.values():
-        print p.GetPlayingState()
+        if "kitchen" in p.device_name.lower():
+            print "Device", p.device_name
+            # print p.GetPlayingState()
+            print p.GetPlayList()
+
+    # while True:
+     #   time.sleep(0.1)
