@@ -24,7 +24,28 @@ class TestMsgArgMethods(unittest.TestCase):
         try:
             arg.Set("i", [C.c_int32], [intSet])
             arg.Get("i", [C.POINTER(C.c_int32)], [intResult])
-        except QStatusException:
+        except QStatusException as ex:
+            print str(ex)
+            assert False
+
+        self.assertEqual(intResult.value, -9999, 'wrong result')
+
+    def test_basic2(self):
+        """
+        When dealing with non complete types we need to use the array functions
+        """
+        arg = MsgArg.MsgArg()
+        param1Set = C.c_int32(10)
+        param2Set = C.c_char_p("Hello")
+        param3Set = C.c_char_p("World")
+        param4Set = C.c_int32(20)
+
+        try:
+            arg.Set("issi", [C.c_int32, C.c_char_p, C.c_char_p, C.c_int32],
+                            [param1Set, param2Set, param3Set, param4Set])
+            #arg.Get("i", [C.POINTER(C.c_int32)], [intResult])
+        except QStatusException as ex:
+            print str(ex)
             assert False
 
         self.assertEqual(intResult.value, -9999, 'wrong result')
@@ -111,6 +132,57 @@ class TestMsgArgMethods(unittest.TestCase):
             print str(ex)
             assert False
 
+  
+
+
+
+
+
+# TEST(MsgArgTest, alljoyn_msgarg_array_set_get) {
+#     QStatus status = ER_OK;
+#     alljoyn_msgarg arg;
+#     arg = alljoyn_msgarg_array_create(4);
+#     size_t numArgs = 4;
+#     status = alljoyn_msgarg_array_set(arg, &numArgs, "issi", 1, "two", "three", 4);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+
+#     int32_t argvalue1;
+#     char* argvalue2;
+#     char* argvalue3;
+#     int32_t argvalue4;
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 0), "i", &argvalue1);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_EQ(1, argvalue1);
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 1), "s", &argvalue2);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_STREQ("two", argvalue2);
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 2), "s", &argvalue3);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_STREQ("three", argvalue3);
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 3), "i", &argvalue4);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_EQ(4, argvalue4);
+
+#     int32_t out1;
+#     char* out2;
+#     char* out3;
+#     int32_t out4;
+#     status = alljoyn_msgarg_array_get(arg, 4, "issi", &out1, &out2, &out3, &out4);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_EQ(1, out1);
+#     EXPECT_STREQ("two", out2);
+#     EXPECT_STREQ("three", out3);
+#     EXPECT_EQ(4, out4);
+
+#     alljoyn_msgarg_destroy(arg);
+# }
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -183,41 +255,3 @@ if __name__ == '__main__':
 #     alljoyn_msgarg_destroy(dict);
 # }
 
-# TEST(MsgArgTest, alljoyn_msgarg_array_set_get) {
-#     QStatus status = ER_OK;
-#     alljoyn_msgarg arg;
-#     arg = alljoyn_msgarg_array_create(4);
-#     size_t numArgs = 4;
-#     status = alljoyn_msgarg_array_set(arg, &numArgs, "issi", 1, "two", "three", 4);
-#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-
-#     int32_t argvalue1;
-#     char* argvalue2;
-#     char* argvalue3;
-#     int32_t argvalue4;
-#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 0), "i", &argvalue1);
-#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-#     EXPECT_EQ(1, argvalue1);
-#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 1), "s", &argvalue2);
-#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-#     EXPECT_STREQ("two", argvalue2);
-#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 2), "s", &argvalue3);
-#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-#     EXPECT_STREQ("three", argvalue3);
-#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 3), "i", &argvalue4);
-#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-#     EXPECT_EQ(4, argvalue4);
-
-#     int32_t out1;
-#     char* out2;
-#     char* out3;
-#     int32_t out4;
-#     status = alljoyn_msgarg_array_get(arg, 4, "issi", &out1, &out2, &out3, &out4);
-#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-#     EXPECT_EQ(1, out1);
-#     EXPECT_STREQ("two", out2);
-#     EXPECT_STREQ("three", out3);
-#     EXPECT_EQ(4, out4);
-
-#     alljoyn_msgarg_destroy(arg);
-# }
