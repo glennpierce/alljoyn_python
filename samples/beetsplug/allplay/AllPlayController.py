@@ -34,16 +34,29 @@ class AllPlayer(object):
             self.bus, self.bus_name, SERVICE_PATH, self.session_id)
         self.proxyBusObject.IntrospectRemoteObject()
 
-        # iface = self.proxyBusObject.GetInterface('net.allplay.ZoneManager')
-        # success, zoneChangedSignal = iface.GetSignal('OnZoneChanged')
-        # self.bus.RegisterSignalHandler(MessageReceiver.MessageReceiverSignalHandlerFuncType(
-        #      AllPlayer.OnZoneChanged), zoneChangedSignal, None)
+        iface = self.proxyBusObject.GetInterface('net.allplay.ZoneManager')
+        success, zoneChangedSignal = iface.GetSignal('OnZoneChanged')
+        self.bus.RegisterSignalHandler(MessageReceiver.MessageReceiverSignalHandlerFuncType(
+             AllPlayer.OnZoneChanged), zoneChangedSignal, None)
 
         iface = self.proxyBusObject.GetInterface('net.allplay.MediaPlayer')
+
         success, playStateChangedSignal = iface.GetSignal('PlayStateChanged')
-        print success
-        self.bus.RegisterSignalHandler(MessageReceiver.MessageReceiverSignalHandlerFuncType(
-            AllPlayer.OnPlayStateChanged), playStateChangedSignal, None)
+        self.playStateChangedFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(self._OnPlayStateChanged())
+        self.bus.RegisterSignalHandler(self.playStateChangedFuncPtr, playStateChangedSignal, None)
+
+        # Not present. Think it may be internal
+        # success, endOfPlaybackSignal = iface.GetSignal('EndOfPlayback')
+        # self.endOfPlaybackFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(self._OnEndOfPlayback())
+        # self.bus.RegisterSignalHandler(self.endOfPlaybackFuncPtr, endOfPlaybackSignal, None)
+
+        # success, loopModeChangedSignal = iface.GetSignal('LoopModeChanged')
+        # self.loopModeChangedFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(AllPlayer.OnLoopModeChanged)
+        # self.bus.RegisterSignalHandler(self.loopModeChangedFuncPtr, loopModeChangedSignal, None)
+
+        # success, shuffleModeChangedSignal = iface.GetSignal('ShuffleModeChanged')
+        # self. shuffleModeChangeFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(AllPlayer.OnShuffleModeChanged)
+        # self.bus.RegisterSignalHandler(self. shuffleModeChangeFuncPtr, shuffleModeChangedSignal, None)
 
     def __repr__(self):
         return self.device_name + " (" + self.device_id + ")"
@@ -78,6 +91,30 @@ class AllPlayer(object):
         print Message.Message.FromHandle(message)
 
     @staticmethod
+    def OnLoopModeChanged(member, srcpath, message):
+        """
+        <signal name="LoopModeChanged">
+         <arg name="loopMode" type="s" direction="out"/>
+        </signal>
+        """
+        print "pepper OnLoopModeChanged"
+        print member, srcpath, message
+        message = Message.Message.FromHandle(message)
+        print "haley", message.GetSignature()
+
+    @staticmethod
+    def OnShuffleModeChanged(member, srcpath, message):
+        """
+        <signal name="ShuffleModeChanged">
+          <arg name="shuffleMode" type="s" direction="out"/>
+        </signal>
+        """
+        print "pepper OnShuffleModeChanged"
+        print member, srcpath, message
+        message = Message.Message.FromHandle(message)
+        print "sally", message.GetSignature()
+
+    @staticmethod
     def OnZoneChanged(member, srcpath, message):
         """
         <signal name="OnZoneChanged">
@@ -108,34 +145,78 @@ class AllPlayer(object):
                     "{si}", [C.POINTER(C.c_char_p), C.c_int_p], [C.byref(key), C.byref(value)])
                 print key.value, ":", value.value
             except QStatusException as ex:
-                pass
+                print ex
 
-    @staticmethod
-    def OnPlayStateChanged(member, srcpath, message):
+
+    def _OnEndOfPlayback(self):
+        def func(member, srcpath, message):
+            self.OnEndOfPlayback(member, srcpath, message)
+        return MessageReceiver.MessageReceiverSignalHandlerFuncType(func)
+
+    def OnEndOfPlayback(self, member, srcpath, message):
+        print "EndOfPlayback", self.device_name
+
+
+
+    def _OnPlayStateChanged(self):
+        def func(member, srcpath, message):
+            self.OnPlayStateChanged(member, srcpath, message)
+        return MessageReceiver.MessageReceiverSignalHandlerFuncType(func)
+
+    def OnPlayStateChanged(self, member, srcpath, message):
         """
         (sxuuuiia(ssssxsssa{ss}a{sv}v))
         """
         message = Message.Message.FromHandle(message)
-        print message
+        arg =  message.GetArg(0)
 
-        # slaves = message.GetArg(2)
+        play_state = C.c_char_p()
+        position = C.c_int64()
+        current_sample_rate = C.c_uint32()
+        audio_channels = C.c_uint32()
+        bits_per_sample = C.c_uint32()
+        index_current_item = C.c_int32()
+        index_next_item = C.c_int32()
 
-        # Todo Tidy up MsgArg code. Could there be a way to dynamically create
-        # types based on the dbus signature ?
-        # num = C.c_uint()
-        # entries = MsgArg.MsgArg()
+        num = C.c_size_t()
+        entries = MsgArg.MsgArg()
 
-        # slaves.Get("a{si}", [C.POINTER(C.c_uint), C.POINTER(MsgArg.MsgArgHandle)], [
-        #            C.byref(num), C.byref(entries.handle)])
+        arg.Get("(sxuuuii*)",
+                  [C.POINTER(C.c_char_p),
+                   C.POINTER(C.c_int64),
+                   C.POINTER(C.c_uint32),
+                   C.POINTER(C.c_uint32),
+                   C.POINTER(C.c_uint32),
+                   C.POINTER(C.c_int32),
+                   C.POINTER(C.c_int32),
+                   C.POINTER(C.c_size_t),
+                   C.POINTER(MsgArgHandle)
+                   ],
+                  [C.byref(play_state),
+                   C.byref(position),
+                   C.byref(current_sample_rate),
+                   C.byref(audio_channels),
+                   C.byref(bits_per_sample),
+                   C.byref(index_current_item),
+                   C.byref(index_next_item),
+                   C.byref(num),
+                   C.byref(entries.handle)])
 
-        # for i in range(num.value):
-        #     key = C.c_char_p()
-        #     value = C.c_int()
-        #     element = entries.ArrayElement(i)
+        print  play_state.value
 
-        #     element.Get(
-        #         "{si}", [C.POINTER(C.c_char_p), C.c_int_p], [C.byref(key), C.byref(value)])
-        #     print key.value, ":", value.value
+    def SetLoopMode(self, value):
+        """
+        <property name="LoopMode" type="s" access="readwrite"/>
+        ONE, ALL, NONE
+        """
+        param = MsgArg.MsgArg()
+        param.SetString(value)
+        self.proxyBusObject.SetProperty("net.allplay.MediaPlayer", "LoopMode", param)
+
+    def GetLoopMode(self):
+        param = MsgArg.MsgArg()
+        self.proxyBusObject.GetProperty("net.allplay.MediaPlayer", "LoopMode", param)
+        return param.GetString()
 
     def GetMute(self):
         param = MsgArg.MsgArg()
@@ -163,7 +244,7 @@ class AllPlayer(object):
         logging.info("setting volume for device %s (%s) to %s",
                      self.device_name, self.device_id, volume)
 
-    def UpdatePlayList(self, tracks):
+    def UpdatePlaylist(self, tracks):
         number_of_tracks = len(tracks)
 
         arg = MsgArg.MsgArg()
@@ -173,59 +254,58 @@ class AllPlayer(object):
         for i, track in enumerate(tracks):
 
             url = C.c_char_p(track['url'])
-            title = C.c_char_p(track['title'])
-            artist = C.c_char_p(track['artist'])
-            thumbnail_url = C.c_char_p(track['thumbnail_url'])
-            duration = C.c_int64(track['duration'])
-            media_type = C.c_char_p(track['media_type'])
-            album = C.c_char_p(track['album'])
-            genre = C.c_char_p(track['genre'])
+            title = C.c_char_p(track.get('title', 'None'))
+            artist = C.c_char_p(track.get('artist', 'None'))
+            thumbnail_url = C.c_char_p(track.get('thumbnail_url', 'None'))
+            duration = C.c_int64(track.get('duration', 'None',))
+            media_type = C.c_char_p(track.get('media_type', 'None'))
+            album = C.c_char_p(track.get('album', 'None'))
+            genre = C.c_char_p(track.get('genre', 'None'))
 
             num = C.c_size_t(0)
             #  a{ss}: other data
             other_data  = MsgArg.MsgArg.ArrayCreate(0)
 
             # a{sv}: medium description (codec, container, protocol,
-            medium_data = = MsgArg.MsgArg.ArrayCreate(0)
+            medium_data =  MsgArg.MsgArg.ArrayCreate(0)
 
             user_data = MsgArg.MsgArg()
 
             element = entries.ArrayElement(i)
 
-            try:
-                # (ssssxsssa{ss}a{sv}v)
-                element.Set(
-                    "(ssssxsssa{ss}a{sv}v)", [C.POINTER(C.c_char_p),
-                                              C.POINTER(C.c_char_p),
-                                              C.POINTER(C.c_char_p),
-                                              C.POINTER(C.c_char_p),
-                                              C.POINTER(C.c_int64),
-                                              C.POINTER(C.c_char_p),
-                                              C.POINTER(C.c_char_p),
-                                              C.POINTER(C.c_char_p),
-                                              C.POINTER(C.c_size_t),
-                                              C.POINTER(MsgArgHandle),
-                                              C.POINTER(C.c_size_t),
-                                              C.POINTER(MsgArgHandle),
-                                              C.POINTER(MsgArgHandle)],
-                    [C.byref(url),
-                     C.byref(title),
-                     C.byref(artist),
-                     C.byref(thumbnail_url),
-                     C.byref(duration),
-                     C.byref(mediaType),
-                     C.byref(album),
-                     C.byref(genre),
-                     C.byref(num),
-                     C.byref(other_data.handle),
-                     C.byref(num),
-                     C.byref(medium_data.handle),
-                     C.byref(user_data.handle)])
+            # (ssssxsssa{ss}a{sv}v)
+            element.Set(
+                "(ssssxsssa{ss}a{sv}v)", [C.POINTER(C.c_char_p),
+                                          C.POINTER(C.c_char_p),
+                                          C.POINTER(C.c_char_p),
+                                          C.POINTER(C.c_char_p),
+                                          C.POINTER(C.c_int64),
+                                          C.POINTER(C.c_char_p),
+                                          C.POINTER(C.c_char_p),
+                                          C.POINTER(C.c_char_p),
+                                          C.POINTER(C.c_size_t),
+                                          C.POINTER(MsgArgHandle),
+                                          C.POINTER(C.c_size_t),
+                                          C.POINTER(MsgArgHandle),
+                                          C.POINTER(MsgArgHandle)],
+                [C.byref(url),
+                 C.byref(title),
+                 C.byref(artist),
+                 C.byref(thumbnail_url),
+                 C.byref(duration),
+                 C.byref(mediaType),
+                 C.byref(album),
+                 C.byref(genre),
+                 C.byref(num),
+                 C.byref(other_data.handle),
+                 C.byref(num),
+                 C.byref(medium_data.handle),
+                 C.byref(user_data.handle)])
 
-        arg.Set("a(ssssxsssa{ss}a{sv}v)", number_of_tracks, entries);
+        arg.Set("a(ssssxsssa{ss}a{sv}v)", number_of_tracks, entries)
 
 
-    def GetPlayList(self):
+    def GetPlaylist(self):
         """
         <method name="GetPlaylist">
         <arg name="items" type="a(ssssxsssa{ss}a{sv}v)" direction="out"/>
@@ -628,11 +708,27 @@ class AllPlayController(object):
 
 if __name__ == "__main__":
     controller = AllPlayController()
+
+
+
+
+    tracks = []
+    for t in range(5):
+        tmp = {'url':'url'+ str(t),
+                     'title': 'title' + str(t)
+                    }
+        tracks.append(tmp)
+
     for p in controller.allplayers.values():
         if "kitchen" in p.device_name.lower():
             print "Device", p.device_name
             # print p.GetPlayingState()
-            print p.GetPlayList()
 
-    # while True:
-     #   time.sleep(0.1)
+            #p.UpdatePlaylist(tracks)
+
+            print p.GetPlaylist()
+            print p.GetLoopMode()
+            p.SetLoopMode("One")
+
+    while True:
+        time.sleep(0.1)

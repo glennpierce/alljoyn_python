@@ -189,7 +189,7 @@ class ProxyBusObject(AllJoynObject):
                                      (u'const char *', C.c_char_p),
                                      # method_name
                                      (u'const char *', C.c_char_p),
-                                     (u'const void*', MsgArg.MsgArgHandle,  # args
+                                     (u'const void*', MsgArgHandle,  # args
                                       # number arguments
                                       (u'int', C.c_int),
                                       # reply_msg
@@ -245,7 +245,7 @@ class ProxyBusObject(AllJoynObject):
                                             (u'const char *', C.c_char_p),
                                             (u'const char *', C.c_char_p),
                                             (u'const void*',
-                                             MsgArg.MsgArgHandle),
+                                             MsgArgHandle),
                                             (u'int', C.c_size_t),
                                             (u'uint', C.c_uint))),
 
@@ -288,14 +288,14 @@ class ProxyBusObject(AllJoynObject):
                                   ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                       (u'const char *', C.c_char_p),
                                       (u'const char *', C.c_char_p),
-                                      (u'void*', MsgArg.MsgArgHandle))),
+                                      (u'void*', MsgArgHandle))),
 
                  u'GetProperty': (u'alljoyn_proxybusobject_getproperty',
                                   (u'QStatus', C.c_uint),
                                   ((u'alljoyn_proxybusobject', ProxyBusHandle),
                                       (u'const char *', C.c_char_p),
                                       (u'const char *', C.c_char_p),
-                                      (u'void*', MsgArg.MsgArgHandle))),
+                                      (u'void*', MsgArgHandle))),
 
                  u'SetPropertyAsync': (u'alljoyn_proxybusobject_setpropertyasync',
                                        (u'QStatus', C.c_uint),
@@ -446,7 +446,6 @@ class ProxyBusObject(AllJoynObject):
     #                                    (u'const char *', C.c_char_p))),
 
     def GetInterface(self, iface):
-        print "before"
         assert self.handle.value != None
 
         handle = self._GetInterface(self.handle, iface)

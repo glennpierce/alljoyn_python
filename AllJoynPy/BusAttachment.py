@@ -27,7 +27,8 @@ if sys.platform == 'win32':
 else:
     CallbackType = C.CFUNCTYPE
 
-BusAttachmentSetLinkTimeoutCBFuncType = CallbackType(None, C.c_int, C.c_int, C.c_void_p)  # status timeout context
+BusAttachmentSetLinkTimeoutCBFuncType = CallbackType(
+    None, C.c_int, C.c_int, C.c_void_p)  # status timeout context
 BusAttachmentJoinSessionCBFuncType = CallbackType(
     None, C.c_int, C.c_int, C.c_int, C.c_void_p)  # status sessionId opts context
 
@@ -73,10 +74,12 @@ class BusAttachment(AllJoynObject):
                                                    (u'const char *', C.c_char_p))),
 
                  u'CancelFindAdvertisedNameByTransport': (u'alljoyn_busattachment_cancelfindadvertisednamebytransport',
-                                                          (u'QStatus', C.c_uint),
+                                                          (u'QStatus',
+                                                           C.c_uint),
                                                           ((u'alljoyn_busattachment',
                                                             C.c_void_p),
-                                                              (u'const char *', C.c_char_p),
+                                                              (u'const char *',
+                                                               C.c_char_p),
                                                               (u'int', C.c_int))),
 
                  u'CancelWhoImplementsInterface': (u'alljoyn_busattachment_cancelwhoimplements_interface',
@@ -111,7 +114,8 @@ class BusAttachment(AllJoynObject):
                              ((u'const char *', C.c_char_p), (u'int', C.c_int))),
 
                  u'CreateConcurrency': (u'alljoyn_busattachment_create_concurrency',
-                                        (u'alljoyn_busattachment', BusAttachmentHandle),
+                                        (u'alljoyn_busattachment',
+                                         BusAttachmentHandle),
                                         ((u'const char *', C.c_char_p),
                                             (u'int', C.c_int),
                                             (u'int', C.c_int))),
@@ -186,7 +190,8 @@ class BusAttachment(AllJoynObject):
                                                     (u'QStatus', C.c_uint),
                                                     ((u'alljoyn_busattachment',
                                                       C.c_void_p),
-                                                        (u'const char *', C.c_char_p),
+                                                        (u'const char *',
+                                                         C.c_char_p),
                                                         (u'int', C.c_int))),
 
                  u'GetAllJoyNDEBUGOBJ': (u'alljoyn_busattachment_getalljoyndebugobj',
@@ -214,14 +219,16 @@ class BusAttachment(AllJoynObject):
                                           ((u'const alljoyn_busattachment', C.c_void_p),)),
 
                  u'GetInterface': (u'alljoyn_busattachment_getinterface',
-                                   (u'const void*', InterfaceDescription.InterfaceDescriptionHandle),
+                                   (u'const void*',
+                                    InterfaceDescription.InterfaceDescriptionHandle),
                                    ((u'alljoyn_busattachment', BusAttachmentHandle),
                                        (u'const char *', C.c_char_p))),
 
                  u'GetInterfaces': (u'alljoyn_busattachment_getinterfaces',
                                     (u'size_t', C.c_size_t),
                                     ((u'const alljoyn_busattachment', C.c_void_p),
-                                        (u'const void *', POINTER(InterfaceDescription.InterfaceDescriptionHandle)),
+                                        (u'const void *',
+                                         POINTER(InterfaceDescription.InterfaceDescriptionHandle)),
                                         (u'size_t', C.c_size_t))),
 
                  u'GetKeyExpiration': (u'alljoyn_busattachment_getkeyexpiration',
@@ -331,16 +338,19 @@ class BusAttachment(AllJoynObject):
                  u'RegisterSignalHandler': (u'alljoyn_busattachment_registersignalhandler',
                                             (u'QStatus', C.c_uint),
                                             ((u'alljoyn_busattachment', BusAttachmentHandle),
-                                                (u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
-                                                (u'const int', InterfaceDescription.InterfaceDescriptionMember),
+                                                (
+                                                    u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
+                                                (u'const int',
+                                                 InterfaceDescription.InterfaceDescriptionMember),
                                                 (u'const char *', C.c_char_p))),
 
                  u'RegisterSignalHandlerWithRule': (u'alljoyn_busattachment_registersignalhandlerwithrule',
                                                     (u'QStatus', C.c_uint),
-                                                    ((u'alljoyn_busattachment',
-                                                      C.c_void_p),
-                                                        (u'int', C.c_int),
-                                                        (u'const int', C.c_int),
+                                                    ((u'alljoyn_busattachment', BusAttachmentHandle),
+                                                     (
+                                                         u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
+                                                        (
+                                                            u'const int', InterfaceDescription.InterfaceDescriptionMember),
                                                         (u'const char *', C.c_char_p))),
 
                  u'ReleaseName': (u'alljoyn_busattachment_releasename',
@@ -447,18 +457,17 @@ class BusAttachment(AllJoynObject):
 
                  u'UnRegisterSignalHandler': (u'alljoyn_busattachment_unregistersignalhandler',
                                               (u'QStatus', C.c_uint),
-                                              ((u'alljoyn_busattachment', BusAttachmentHandle),
-                                                  (u'int', C.c_int),
-                                                  (u'const int', C.c_int),
-                                                  (u'const char *', C.c_char_p))),
+                                            ((u'alljoyn_busattachment', BusAttachmentHandle),
+                                                (u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
+                                                (u'const int', InterfaceDescription.InterfaceDescriptionMember),
+                                                (u'const char *', C.c_char_p))),
 
                  u'UnRegisterSignalHandlerWithRule': (u'alljoyn_busattachment_unregistersignalhandlerwithrule',
-                                                      (u'QStatus', C.c_uint),
-                                                      ((u'alljoyn_busattachment',
-                                                        C.c_void_p),
-                                                          (u'int', C.c_int),
-                                                          (u'const int', C.c_int),
-                                                          (u'const char *', C.c_char_p))),
+                                                    (u'QStatus', C.c_uint),
+                                            ((u'alljoyn_busattachment', BusAttachmentHandle),
+                                                (u'int', MessageReceiver.MessageReceiverSignalHandlerFuncType),
+                                                (u'const int', InterfaceDescription.InterfaceDescriptionMember),
+                                                (u'const char *', C.c_char_p))),
 
                  u'UnbindSessionPort': (u'alljoyn_busattachment_unbindsessionport',
                                         (u'QStatus', C.c_uint),
@@ -473,7 +482,8 @@ class BusAttachment(AllJoynObject):
                  u'WhoImplementsInterfaces': (u'alljoyn_busattachment_whoimplements_interfaces',
                                               (u'QStatus', C.c_uint),
                                               ((u'alljoyn_busattachment', BusAttachmentHandle),
-                                                  (u'const char **', POINTER(C.c_char_p)),
+                                                  (u'const char **',
+                                                   POINTER(C.c_char_p)),
                                                   (u'int', C.c_int)))}
 
     def __init__(self, application_name, allow_remote_mesages=True):
@@ -486,7 +496,8 @@ class BusAttachment(AllJoynObject):
     # Wrapper Methods
 
     def CreateConcurrency(self, allowRemoteMessages, concurrency):
-        return self._CreateConcurrency(self.handle, allowRemoteMessages, concurrency)  # int,int
+        # int,int
+        return self._CreateConcurrency(self.handle, allowRemoteMessages, concurrency)
 
     def Start(self):
         return self._Start(self.handle)
@@ -508,11 +519,13 @@ class BusAttachment(AllJoynObject):
 
     def CreateInterface(self, name):
         iface = InterfaceDescription.InterfaceDescriptionHandle()
-        self._CreateInterface(self.handle, name, C.byref(iface))  # const char *,int *
+        # const char *,int *
+        self._CreateInterface(self.handle, name, C.byref(iface))
         return InterfaceDescription.InterfaceDescription(iface)
 
     def CreateInterfaceSecure(self, name, iface, secPolicy):
-        return self._CreateInterfaceSecure(self.handle, name, iface, secPolicy)  # const char *,int *,int
+        # const char *,int *,int
+        return self._CreateInterfaceSecure(self.handle, name, iface, secPolicy)
 
     def Connect(self, connectSpec):
         return self._Connect(self.handle, connectSpec)  # const char *
@@ -524,34 +537,43 @@ class BusAttachment(AllJoynObject):
         return self._UnRegisterBusListener(self.handle, listener)  # int
 
     def FindAdvertisedName(self, namePrefix):
-        return self._FindAdvertisedName(self.handle, namePrefix)  # const char *
+        # const char *
+        return self._FindAdvertisedName(self.handle, namePrefix)
 
     def FindAdvertisedNameByTransport(self, namePrefix, transports):
-        return self._FindAdvertisedNameByTransport(self.handle, namePrefix, transports)  # const char *,int
+        # const char *,int
+        return self._FindAdvertisedNameByTransport(self.handle, namePrefix, transports)
 
     def CancelFindAdvertisedName(self, namePrefix):
-        return self._CancelFindAdvertisedName(self.handle, namePrefix)  # const char *
+        # const char *
+        return self._CancelFindAdvertisedName(self.handle, namePrefix)
 
     def CancelFindAdvertisedNameByTransport(self, namePrefix, transports):
-        return self._CancelFindAdvertisedNameByTransport(self.handle, namePrefix, transports)  # const char *,int
+        # const char *,int
+        return self._CancelFindAdvertisedNameByTransport(self.handle, namePrefix, transports)
 
     def AdvertiseName(self, name, transports):
-        return self._AdvertiseName(self.handle, name, transports)  # const char *,int
+        # const char *,int
+        return self._AdvertiseName(self.handle, name, transports)
 
     def CancelAdvertiseName(self, name, transports):
-        return self._CancelAdvertiseName(self.handle, name, transports)  # const char *,int
+        # const char *,int
+        return self._CancelAdvertiseName(self.handle, name, transports)
 
     def GetInterface(self, name):
-        return InterfaceDescription.InterfaceDescription(self._GetInterface(self.handle, name))  # const char *
+        # const char *
+        return InterfaceDescription.InterfaceDescription(self._GetInterface(self.handle, name))
 
     def JoinSession(self, sessionHost, sessionPort, listener, opts):
         # const char *,int,int,int *,int
         session_id = C.c_uint()
-        self._JoinSession(self.handle, sessionHost, sessionPort, listener.handle, C.byref(session_id), opts.handle)
+        self._JoinSession(self.handle, sessionHost, sessionPort,
+                          listener.handle, C.byref(session_id), opts.handle)
         return session_id.value
 
     def JoinSessionAsync(self, sessionHost, sessionPort, listener, opts, callback, context):
-        # const char *,int,int,const int,alljoyn_busattachment_joinsessioncb_ptr,void *
+        # const char *,int,int,const
+        # int,alljoyn_busattachment_joinsessioncb_ptr,void *
         return self._JoinSessionAsync(self.handle, sessionHost, sessionPort, listener, opts, callback, context)
 
     def RegisterBusObject(self, obj):
@@ -564,14 +586,17 @@ class BusAttachment(AllJoynObject):
         return self._UnRegisterBusObject(self.handle, object)  # int
 
     def RequestName(self, requestedName, flags):
-        return self._RequestName(self.handle, requestedName, flags)  # const char *,int
+        # const char *,int
+        return self._RequestName(self.handle, requestedName, flags)
 
     def ReleaseName(self, name):
         return self._ReleaseName(self.handle, name)  # const char *
 
     def BindSessionPort(self, session_port, opts, listener):
         port = C.c_int(session_port)
-        self._BindSessionPort(self.handle, C.byref(port), opts.handle, listener.handle)  # int *,const int,int
+        # int *,const int,int
+        self._BindSessionPort(
+            self.handle, C.byref(port), opts.handle, listener.handle)
         return port
 
     def UnbindSessionPort(self, session_port):
@@ -596,7 +621,8 @@ class BusAttachment(AllJoynObject):
         return self._CreateInterfacesFromXML(self.handle, xml)  # const char *
 
     def GetInterfaces(self, ifaces, numIfaces):
-        return self._GetInterfaces(self.handle, ifaces, numIfaces)  # const int *,int
+        # const int *,int
+        return self._GetInterfaces(self.handle, ifaces, numIfaces)
 
     def DeleteInterface(self, iface):
         return self._DeleteInterface(self.handle, iface)  # int
@@ -629,14 +655,16 @@ class BusAttachment(AllJoynObject):
         return self._GetGlobalGUIDSTRING(self.handle)
 
     def RegisterSignalHandler(self, signal_handler, member, srcPath):
-        return self._RegisterSignalHandler(self.handle, signal_handler, member, srcPath)  # int,const int,const char *
+        # int,const int,const char *
+        return self._RegisterSignalHandler(self.handle, signal_handler, member, srcPath)
 
     def RegisterSignalHandlerWithRule(self, signal_handler, member, matchRule):
         # int,const int,const char *
         return self._RegisterSignalHandlerWithRule(self.handle, signal_handler, member, matchRule)
 
     def UnRegisterSignalHandler(self, signal_handler, member, srcPath):
-        return self._UnRegisterSignalHandler(self.handle, signal_handler, member, srcPath)  # int,const int,const char *
+        # int,const int,const char *
+        return self._UnRegisterSignalHandler(self.handle, signal_handler, member, srcPath)
 
     def UnRegisterSignalHandlerWithRule(self, signal_handler, member, matchRule):
         # int,const int,const char *
@@ -658,10 +686,12 @@ class BusAttachment(AllJoynObject):
         return self._ClearKeys(self.handle, guid)  # const char *
 
     def SetKeyExpiration(self, guid, timeout):
-        return self._SetKeyExpiration(self.handle, guid, timeout)  # const char *,int
+        # const char *,int
+        return self._SetKeyExpiration(self.handle, guid, timeout)
 
     def GetKeyExpiration(self, guid, timeout):
-        return self._GetKeyExpiration(self.handle, guid, timeout)  # const char *,int *
+        # const char *,int *
+        return self._GetKeyExpiration(self.handle, guid, timeout)
 
     def AddLogOnEntry(self, authMechanism, userName, password):
         # const char *,const char *,const char *
@@ -674,35 +704,43 @@ class BusAttachment(AllJoynObject):
         return self._RemoveMatch(self.handle, rule)  # const char *
 
     def SetSessionListener(self, sessionId, listener):
-        return self._SetSessionListener(self.handle, sessionId, listener)  # int,int
+        # int,int
+        return self._SetSessionListener(self.handle, sessionId, listener)
 
     def LeaveSession(self, sessionId):
         return self._LeaveSession(self.handle, sessionId)  # int
 
     def SecureConnection(self, name, forceAuth):
-        return self._SecureConnection(self.handle, name, forceAuth)  # const char *,int
+        # const char *,int
+        return self._SecureConnection(self.handle, name, forceAuth)
 
     def SecureConnectionAsync(self, name, forceAuth):
-        return self._SecureConnectionAsync(self.handle, name, forceAuth)  # const char *,int
+        # const char *,int
+        return self._SecureConnectionAsync(self.handle, name, forceAuth)
 
     def RemoveSessionMember(self, sessionId, memberName):
-        return self._RemoveSessionMember(self.handle, sessionId, memberName)  # int,const char *
+        # int,const char *
+        return self._RemoveSessionMember(self.handle, sessionId, memberName)
 
     def SetLinkTimeout(self, sessionid, linkTimeout):
-        return self._SetLinkTimeout(self.handle, sessionid, linkTimeout)  # int,int *
+        # int,int *
+        return self._SetLinkTimeout(self.handle, sessionid, linkTimeout)
 
     def SetLinkTimeoutAsync(self, sessionid, linkTimeout, callback, context):
         # int,int,alljoyn_busattachment_setlinktimeoutcb_ptr,void *
         return self._SetLinkTimeoutAsync(self.handle, sessionid, linkTimeout, callback, context)
 
     def NameHasOwner(self, name, hasOwner):
-        return self._NameHasOwner(self.handle, name, hasOwner)  # const char *,int *
+        # const char *,int *
+        return self._NameHasOwner(self.handle, name, hasOwner)
 
     def GetPeerGUID(self, name, guid, guidSz):
-        return self._GetPeerGUID(self.handle, name, guid, guidSz)  # const char *,char *,int *
+        # const char *,char *,int *
+        return self._GetPeerGUID(self.handle, name, guid, guidSz)
 
     def SetDaemonDebug(self, module, level):
-        return self._SetDaemonDebug(self.handle, module, level)  # const char *,int
+        # const char *,int
+        return self._SetDaemonDebug(self.handle, module, level)
 
     def GetTimesTamp(self):
         return self._GetTimesTamp(self.handle)
@@ -711,7 +749,8 @@ class BusAttachment(AllJoynObject):
         return self._Ping(self.handle, name, timeout)  # const char *,int
 
     def RegisterAboutListener(self, aboutListener):
-        return self._RegisterAboutListener(self.handle, aboutListener.handle)  # alljoyn_aboutlistener
+        # alljoyn_aboutlistener
+        return self._RegisterAboutListener(self.handle, aboutListener.handle)
 
     def UnRegisterAboutListener(self, aboutListener):
         return self._UnRegisterAboutListener(self.handle, aboutListener)  # int
@@ -719,21 +758,24 @@ class BusAttachment(AllJoynObject):
     def UnRegisterAllAboutListeners(self):
         return self._UnRegisterAllAboutListeners(self.handle)
 
-    # def WhoImplementsInterfaces(self, implementsInterfaces, numberInterfaces):
+    # def WhoImplementsInterfaces(self, implementsInterfaces,
+    # numberInterfaces):
     def WhoImplementsInterfaces(self, interfaces):
         array = (C.c_char_p * len(interfaces))()
         array[:] = interfaces
-        return self._WhoImplementsInterfaces(self.handle, array, len(interfaces))  # const char **,int
+        # const char **,int
+        return self._WhoImplementsInterfaces(self.handle, array, len(interfaces))
 
     def WhoImplementsInterface(self, interface):
-        return self._WhoImplementsInterface(self.handle, interface) 
+        return self._WhoImplementsInterface(self.handle, interface)
 
     def CancelWhoImplementsInterfaces(self, implementsInterfaces, numberInterfaces):
         # const char **,int
         return self._CancelWhoImplementsInterfaces(self.handle, implementsInterfaces, numberInterfaces)
 
     def CancelWhoImplementsInterface(self, implementsInterface):
-        return self._CancelWhoImplementsInterface(self.handle, implementsInterface)  # const char *
+        # const char *
+        return self._CancelWhoImplementsInterface(self.handle, implementsInterface)
 
 
 BusAttachment.bind_functions_to_cls()
