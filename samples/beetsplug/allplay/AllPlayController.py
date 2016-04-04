@@ -115,7 +115,6 @@ class AllPlayer(object):
         """
         (sxuuuiia(ssssxsssa{ss}a{sv}v))
         """
-        print "HERE"
         message = Message.Message.FromHandle(message)
         print message
 
@@ -164,58 +163,14 @@ class AllPlayer(object):
         logging.info("setting volume for device %s (%s) to %s",
                      self.device_name, self.device_id, volume)
 
-
-
-
- /* Array of STRING */
-    static const char*as[] = { "one", "two", "three", "four" };
-    /* Array of OBJECT_PATH */
-    static const char*ao[] = { "/org/one", "/org/two", "/org/three", "/org/four" };
-    /* Array of SIGNATURE */
-    static const char*ag[] = { "s", "sss", "as", "a(iiiiuu)" };
-
-    alljoyn_msgarg arg;
-    arg = alljoyn_msgarg_create();
-    ASSERT_TRUE(arg != NULL);
-
-    status = alljoyn_msgarg_set(arg, "as", sizeof(as) / sizeof(as[0]), as);
-    EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-
-    alljoyn_msgarg pas;
-    char*str[4];
-    size_t las;
-    status = alljoyn_msgarg_get(arg, "as", &las, &pas);
-    EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-    EXPECT_EQ(sizeof(as) / sizeof(as[0]), las);
-    ASSERT_TRUE(arg);
-    ASSERT_TRUE(pas);
-    for (size_t k = 0; k < las; k++) {
-        ASSERT_TRUE(alljoyn_msgarg_array_element(pas, k));
-        status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(pas, k), "s", &str[k]);
-        EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-        ASSERT_TRUE(str[k]);
-        EXPECT_STREQ(as[k], str[k]);
-    }
-
-
-
-423      dictEntries = alljoyn_msgarg_array_create(sizeof(keys) / sizeof(keys[0]));
-  424      values = alljoyn_msgarg_array_create(sizeof(keys) / sizeof(keys[0]));
-  425:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 0), "s", keys[0]);
-  426:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 1), "(ss)", keys[1], "bean");
-  427:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 2), "s", keys[2]);
-  428:     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 3), "(ss)", keys[3], "mellow");
-
-
     def UpdatePlayList(self, tracks):
         number_of_tracks = len(tracks)
 
-        status = alljoyn_msgarg_set(arg, "as", sizeof(as) / sizeof(as[0]), as);
-
+        arg = MsgArg.MsgArg()
 
         entries = MsgArg.MsgArg.ArrayCreate(number_of_tracks)
 
-        for track in tracks:
+        for i, track in enumerate(tracks):
 
             url = C.c_char_p(track['url'])
             title = C.c_char_p(track['title'])
@@ -226,22 +181,20 @@ class AllPlayer(object):
             album = C.c_char_p(track['album'])
             genre = C.c_char_p(track['genre'])
 
+            num = C.c_size_t(0)
             #  a{ss}: other data
-            other_data_num = C.c_size_t()
-            other_data = MsgArg.MsgArg()
+            other_data  = MsgArg.MsgArg.ArrayCreate(0)
 
             # a{sv}: medium description (codec, container, protocol,
-            medium_data_num = C.c_size_t()
-            medium_data = MsgArg.MsgArg()
+            medium_data = = MsgArg.MsgArg.ArrayCreate(0)
 
             user_data = MsgArg.MsgArg()
 
             element = entries.ArrayElement(i)
 
-            print "freind", element.Signature()
             try:
                 # (ssssxsssa{ss}a{sv}v)
-                element.Get(
+                element.Set(
                     "(ssssxsssa{ss}a{sv}v)", [C.POINTER(C.c_char_p),
                                               C.POINTER(C.c_char_p),
                                               C.POINTER(C.c_char_p),
@@ -263,33 +216,15 @@ class AllPlayer(object):
                      C.byref(mediaType),
                      C.byref(album),
                      C.byref(genre),
-                     C.byref(other_data_num),
+                     C.byref(num),
                      C.byref(other_data.handle),
-                     C.byref(medium_data_num),
+                     C.byref(num),
                      C.byref(medium_data.handle),
                      C.byref(user_data.handle)])
 
+        arg.Set("a(ssssxsssa{ss}a{sv}v)", number_of_tracks, entries);
 
 
-
-# <method name="UpdatePlaylist">
-# <arg name="playlistItems" type="a(ssssxsssa{ss}a{sv}v)" direction="in"/>
-# <!-- array of item. Item:
-# s: url
-# s: title
-# s: artist
-# s: thumbnail url
-# x: duration (ms)
-# s: mediaType
-# s: album
-# s: genre
-# a{ss}: other data (country, channel, ...)
-# a{sv}: medium description (codec, container, protocol, ...)
-# v: userData
-# -->
-# <arg name="index" type="i" direction="in"/>
-# <arg name="controllerType" type="s" direction="in"/>
-# <arg
     def GetPlayList(self):
         """
         <method name="GetPlaylist">

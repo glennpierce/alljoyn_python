@@ -122,8 +122,7 @@ class MsgArg(AllJoynObject):
                            (u'alljoyn_msgarg', MsgArgHandle),
                            ((u'const alljoyn_msgarg', MsgArgHandle),)),
 
-                 #u'Create': (u'alljoyn_msgarg_create', (u'alljoyn_msgarg', POINTER(AlljoynMsgArg)), ()),
-                 u'Create': (u'alljoyn_msgarg_create', (u'alljoyn_msgarg', MsgArgHandle), ()),
+                 u'Create': (u'alljoyn_msgarg_create', (u'alljoyn_msgarg', MsgArgHandle), []),
 
                  u'CreateAndSet': (u'alljoyn_msgarg_create_and_set',
                                    (u'alljoyn_msgarg', MsgArgHandle),

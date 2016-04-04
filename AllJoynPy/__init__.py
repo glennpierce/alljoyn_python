@@ -558,8 +558,8 @@ class AllJoynObject(object):
                     print callable_name
                     raise
 
-            if callable_name == "EnableConcurrentCallBacks":
-                print callable_name, "cmethod.restype", cmethod.restype, "cmethod.argtypes", cmethod.argtypes
+            #if callable_name == "Create":
+            #   print callable_name, "cmethod.restype", cmethod.restype, "cmethod.argtypes", cmethod.argtypes
 
             setattr(cls, '_' + callable_name, cmethod)
 
