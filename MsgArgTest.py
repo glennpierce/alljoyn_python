@@ -30,25 +30,93 @@ class TestMsgArgMethods(unittest.TestCase):
 
         self.assertEqual(intResult.value, -9999, 'wrong result')
 
-    def test_basic2(self):
-        """
-        When dealing with non complete types we need to use the array functions
-        """
+    def test_array(self):
+        # Test (sai)
         arg = MsgArg.MsgArg()
-        param1Set = C.c_int32(10)
-        param2Set = C.c_char_p("Hello")
-        param3Set = C.c_char_p("World")
-        param4Set = C.c_int32(20)
+        stringSet = C.c_char_p("Hello")
+        stringResult = C.c_char_p()
+
+        l = [-8, -88, 888, 8888]
+        num = C.c_size_t(len(l))
+        ArrayType = C.c_int32 * len(l)
+        array = ArrayType()
+        array[:] = l
+
+        resultArray = C.POINTER(C.c_int32)()  # defines the type AND create an instance of it
+        returnNum = C.c_size_t()
 
         try:
-            arg.Set("issi", [C.c_int32, C.c_char_p, C.c_char_p, C.c_int32],
-                            [param1Set, param2Set, param3Set, param4Set])
-            #arg.Get("i", [C.POINTER(C.c_int32)], [intResult])
+            arg.Set("(sai)", [C.c_char_p, C.c_size_t, ArrayType], [stringSet, num, array])
         except QStatusException as ex:
             print str(ex)
             assert False
 
-        self.assertEqual(intResult.value, -9999, 'wrong result')
+        try:
+            arg.Get("(sai)", [C.POINTER(C.c_char_p), C.POINTER(C.c_size_t), C.POINTER(C.POINTER(C.c_int32))],
+                    [C.byref(stringResult), C.byref(returnNum), C.byref(resultArray)])
+
+            self.assertEqual(stringResult.value, "Hello", 'wrong result')
+            self.assertEqual(returnNum.value, 4, 'wrong result')
+            l2 = [resultArray[i] for i in range(4)]
+            self.assertItemsEqual(l, l2, 'wrong result')
+
+        except QStatusException as ex:
+            print str(ex)
+            assert False
+
+    def test_basic2(self):
+        # Test (sai)
+        arg = MsgArg.MsgArg()
+
+        l = [-6, -66, 666, 6666]
+        num = C.c_size_t(len(l))
+        ArrayType = C.c_int32 * len(l)
+        array = ArrayType()
+        array[:] = l
+
+        resultArray = C.POINTER(C.c_int32)()  # defines the type AND create an instance of it
+        returnNum = C.c_size_t()
+
+        try:
+            arg.Set("ai", [C.c_size_t, ArrayType], [num, array])
+        except QStatusException as ex:
+            print str(ex)
+            assert False
+
+        try:
+            arg.Get("ai", [C.POINTER(C.c_size_t), C.POINTER(C.POINTER(C.c_int32))],
+                               [C.byref(returnNum), C.byref(resultArray)])
+
+           
+            self.assertEqual(returnNum.value, 4, 'wrong result')
+            l2 = [resultArray[i] for i in range(4)]
+            self.assertItemsEqual(l, l2, 'wrong result')
+  
+        except QStatusException as ex:
+            print str(ex)
+            assert False
+
+
+
+    # def test_basic2(self):
+    #     """
+    #     When dealing with non complete types we need to use the array functions
+    #     """
+    #     arg = MsgArg.MsgArg()
+    #     param1Set = C.c_int32(10)
+    #     param2Set = C.c_char_p("Hello")
+    #     param3Set = C.c_char_p("World")
+    #     param4Set = C.c_int32(20)
+
+    #     try:
+    #         arg.Set("issi", [C.c_int32, C.c_char_p, C.c_char_p, C.c_int32],
+    #                         [param1Set, param2Set, param3Set, param4Set])
+    #         #arg.Get("i", [C.POINTER(C.c_int32)], [intResult])
+    #     except QStatusException as ex:
+    #         print str(ex)
+    #         assert False
+
+    #     self.assertEqual(intResult.value, -9999, 'wrong result')
 
 
     def test_array(self):
