@@ -30,21 +30,6 @@ class TestMsgArgMethods(unittest.TestCase):
         self.assertEqual(intResult.value, -9999, 'wrong result')
 
 
-# alljoyn_msgarg arg = alljoyn_msgarg_create();
-#         status = alljoyn_msgarg_set(arg, "ay", sizeof(ay) / sizeof(ay[0]), ay);
-#         EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-#         uint8_t* pay;
-#         size_t lay;
-#         status = alljoyn_msgarg_get(arg, "ay", &lay, &pay);
-#         EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
-#         EXPECT_EQ(sizeof(ay) / sizeof(ay[0]), lay);
-#         for (size_t i = 0; i < lay; ++i) {
-#             EXPECT_EQ(ay[i], pay[i]);
-#         }
-#         alljoyn_msgarg_destroy(arg);
-
-
-
     def test_array(self):
         # Test (sai)
         arg = MsgArg.MsgArg()
@@ -126,5 +111,113 @@ class TestMsgArgMethods(unittest.TestCase):
             print str(ex)
             assert False
 
+
+
 if __name__ == '__main__':
     unittest.main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+#     QStatus status = ER_OK;
+#     const char*keys[] = { "red", "green", "blue", "yellow" };
+#     //size_t numEntries = sizeof(keys) / sizeof(keys[0]);
+#     alljoyn_msgarg dictEntries = NULL;
+#     alljoyn_msgarg values = NULL;
+#     dictEntries = alljoyn_msgarg_array_create(sizeof(keys) / sizeof(keys[0]));
+#     values = alljoyn_msgarg_array_create(sizeof(keys) / sizeof(keys[0]));
+#     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 0), "s", keys[0]);
+#     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 1), "(ss)", keys[1], "bean");
+#     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 2), "s", keys[2]);
+#     alljoyn_msgarg_set(alljoyn_msgarg_array_element(values, 3), "(ss)", keys[3], "mellow");
+
+#     status = alljoyn_msgarg_set(alljoyn_msgarg_array_element(dictEntries, 0), "{iv}", 1, alljoyn_msgarg_array_element(values, 0));
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     status = alljoyn_msgarg_set(alljoyn_msgarg_array_element(dictEntries, 1), "{iv}", 1, alljoyn_msgarg_array_element(values, 1));
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     status = alljoyn_msgarg_set(alljoyn_msgarg_array_element(dictEntries, 2), "{iv}", 1, alljoyn_msgarg_array_element(values, 2));
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     status = alljoyn_msgarg_set(alljoyn_msgarg_array_element(dictEntries, 3), "{iv}", 1, alljoyn_msgarg_array_element(values, 3));
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+
+#     alljoyn_msgarg dict = alljoyn_msgarg_create();
+#     status = alljoyn_msgarg_set(dict, "a{iv}", sizeof(keys) / sizeof(keys[0]), dictEntries);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+
+#     alljoyn_msgarg entries;
+#     size_t num;
+#     status = alljoyn_msgarg_get(dict, "a{iv}", &num, &entries);
+#     EXPECT_EQ(num, sizeof(keys) / sizeof(keys[0]));
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     for (size_t i = 0; i < num; ++i) {
+#         char* str1;
+#         char* str2;
+#         int32_t key;
+#         status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(entries, i), "{is}", &key, &str1);
+#         if (status == ER_BUS_SIGNATURE_MISMATCH) {
+#             status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(entries, i), "{i(ss)}", &key, &str1, &str2);
+#             EXPECT_EQ(1, key);
+#             EXPECT_STREQ(keys[i], str1);
+#             if (i == 1) {
+#                 EXPECT_STREQ("bean", str2);
+#             } else if (i == 3) {
+#                 EXPECT_STREQ("mellow", str2);
+#             }
+#         } else if (status == ER_OK) {
+#             EXPECT_EQ(1, key);
+#             EXPECT_STREQ(keys[i], str1);
+#         }
+#         EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     }
+#     alljoyn_msgarg_destroy(dictEntries);
+#     alljoyn_msgarg_destroy(values);
+#     alljoyn_msgarg_destroy(dict);
+# }
+
+# TEST(MsgArgTest, alljoyn_msgarg_array_set_get) {
+#     QStatus status = ER_OK;
+#     alljoyn_msgarg arg;
+#     arg = alljoyn_msgarg_array_create(4);
+#     size_t numArgs = 4;
+#     status = alljoyn_msgarg_array_set(arg, &numArgs, "issi", 1, "two", "three", 4);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+
+#     int32_t argvalue1;
+#     char* argvalue2;
+#     char* argvalue3;
+#     int32_t argvalue4;
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 0), "i", &argvalue1);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_EQ(1, argvalue1);
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 1), "s", &argvalue2);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_STREQ("two", argvalue2);
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 2), "s", &argvalue3);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_STREQ("three", argvalue3);
+#     status = alljoyn_msgarg_get(alljoyn_msgarg_array_element(arg, 3), "i", &argvalue4);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_EQ(4, argvalue4);
+
+#     int32_t out1;
+#     char* out2;
+#     char* out3;
+#     int32_t out4;
+#     status = alljoyn_msgarg_array_get(arg, 4, "issi", &out1, &out2, &out3, &out4);
+#     EXPECT_EQ(ER_OK, status) << "  Actual Status: " << QCC_StatusText(status);
+#     EXPECT_EQ(1, out1);
+#     EXPECT_STREQ("two", out2);
+#     EXPECT_STREQ("three", out3);
+#     EXPECT_EQ(4, out4);
+
+#     alljoyn_msgarg_destroy(arg);
+# }
