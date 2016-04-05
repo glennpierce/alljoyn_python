@@ -41,14 +41,14 @@ class AllPlayer(object):
 
         iface = self.proxyBusObject.GetInterface('net.allplay.MediaPlayer')
 
-        success, playStateChangedSignal = iface.GetSignal('PlayStateChanged')
-        self.playStateChangedFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(self._OnPlayStateChanged())
-        self.bus.RegisterSignalHandler(self.playStateChangedFuncPtr, playStateChangedSignal, None)
+        # success, playStateChangedSignal = iface.GetSignal('PlayStateChanged')
+        # self.playStateChangedFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(self._OnPlayStateChanged())
+        # self.bus.RegisterSignalHandler(self.playStateChangedFuncPtr, playStateChangedSignal, None)
 
         # Not present. Think it may be internal
-        # success, endOfPlaybackSignal = iface.GetSignal('EndOfPlayback')
-        # self.endOfPlaybackFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(self._OnEndOfPlayback())
-        # self.bus.RegisterSignalHandler(self.endOfPlaybackFuncPtr, endOfPlaybackSignal, None)
+        success, endOfPlaybackSignal = iface.GetSignal('EndOfPlayback')
+        self.endOfPlaybackFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(self._OnEndOfPlayback())
+        self.bus.RegisterSignalHandler(self.endOfPlaybackFuncPtr, endOfPlaybackSignal, None)
 
         # success, loopModeChangedSignal = iface.GetSignal('LoopModeChanged')
         # self.loopModeChangedFuncPtr = MessageReceiver.MessageReceiverSignalHandlerFuncType(AllPlayer.OnLoopModeChanged)

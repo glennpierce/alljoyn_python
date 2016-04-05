@@ -698,7 +698,9 @@ class MsgArg(AllJoynObject):
     def GetString(self):
         #buf = C.create_string_buffer(100)
         buf = C.c_char_p()
-        self._GetString(self.handle, C.byref(buf))
+        #self._GetString(self.handle, C.byref(buf))
+        self._GetString(self.handle, buf)
+
         return buf.value
 
     # def GetVariant(self, v):
