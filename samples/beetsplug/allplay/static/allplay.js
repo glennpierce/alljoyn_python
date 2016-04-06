@@ -47,6 +47,10 @@ app.service("QueueService", function() {
      this.add = function(item) {
          return self.items.push(item);
      };
+
+     this.prepend = function(item) {
+         return self.items.unshift(item);
+     };
 });
 
 app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '$interval', '$location', 'QueueService',
@@ -116,13 +120,12 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       $http({cache: false, url: '/create_zone', method: 'post', data: json_data});
   };
 
-  $scope.play = function() {
+  // $scope.playqueue = function() {
 
-      var parameters = {'selected_devices': $scope.selected_devices,
-                        'uri': $scope.uri};
-      var json_data = JSON.stringify(parameters);
-      return $http({cache: false, url: '/play', method: 'post', data: json_data});
-   };
+  //     var parameters = {'queue': $scope.queueService.items};
+  //     var json_data = JSON.stringify(parameters);
+  //     return $http({cache: false, url: '/playqueue', method: 'post', data: json_data});
+  //  };
 
    $scope.stop = function() {
 
@@ -133,8 +136,19 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       return $http({cache: false, url: '/pause', method: 'get'});
    };
 
+   $scope.playqueue = function() {
+
+      $scope.queueService.add(item);
+      var parameters = {'queue': $scope.queueService.items};
+      var json_data = JSON.stringify(parameters);
+      return $http({cache: false, url: '/play', method: 'post', data: json_data});
+   };
+
    $scope.track_select = function(item) {
-      var parameters = {'id': item.id};
+      $scope.queueService.add(item);
+      var parameters = {'id': item.id,
+                        'queue': $scope.queueService.items,
+                        'position': $scope.queueService.length-1};
       var json_data = JSON.stringify(parameters);
       return $http({cache: false, url: '/play', method: 'post', data: json_data});
    };
@@ -154,9 +168,9 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
         $("#wrapper").toggleClass("toggled");
    };
 
-   $scope.track_add_to_queue = function(item) {
-   	$scope.queueService.add(item);
-   };
+   // $scope.track_add_to_queue = function(item) {
+   // 	$scope.queueService.add(item);
+   // };
 
 }]);
 
