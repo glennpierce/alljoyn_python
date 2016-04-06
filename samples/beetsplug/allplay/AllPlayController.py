@@ -97,10 +97,7 @@ class AllPlayer(object):
          <arg name="loopMode" type="s" direction="out"/>
         </signal>
         """
-        print "pepper OnLoopModeChanged"
-        print member, srcpath, message
         message = Message.Message.FromHandle(message)
-        print "haley", message.GetSignature()
 
     @staticmethod
     def OnShuffleModeChanged(member, srcpath, message):
@@ -109,10 +106,7 @@ class AllPlayer(object):
           <arg name="shuffleMode" type="s" direction="out"/>
         </signal>
         """
-        print "pepper OnShuffleModeChanged"
-        print member, srcpath, message
         message = Message.Message.FromHandle(message)
-        print "sally", message.GetSignature()
 
     @staticmethod
     def OnZoneChanged(member, srcpath, message):
@@ -607,6 +601,7 @@ class AllPlayController(object):
         super(AllPlayController, self).__init__()
         self.alljoyn = AllJoyn()
         self.player = None
+        self.queue = []
 
         self.g_bus = BusAttachment.BusAttachment("AllPlayerApp", True)
         self.g_bus.Start()
@@ -634,6 +629,9 @@ class AllPlayController(object):
             print "session_id", MyAboutListener.session_id
             self.allplayers[p['id']] = AllPlayer(
                 self.g_bus, p['busname'], p['session_id'], p['name'], p['id'])
+
+    def SetQueue(self, queue):
+        self.queue = queue
 
     def __del__(self):
         print "Shutting Down"
@@ -728,7 +726,7 @@ if __name__ == "__main__":
 
             print p.GetPlaylist()
             print p.GetLoopMode()
-            p.SetLoopMode("One")
+            p.SetLoopMode("None")
 
     while True:
         time.sleep(0.1)

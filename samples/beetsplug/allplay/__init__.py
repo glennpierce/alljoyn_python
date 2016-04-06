@@ -33,8 +33,7 @@ from .AllPlayController import AllPlayController
 allplayerController = AllPlayController()
 
 app = flask.Flask(__name__)
-#app.url_map.converters['idlist'] = IdListConverter
-#app.url_map.converters['query'] = QueryConverter
+
 
 @app.before_request
 def before_request():
@@ -56,6 +55,7 @@ def create_zone():
 @app.route('/play', methods= ['POST'])
 def play():
     data = request.get_json()
+    allplayerController.SetQueue(data['queue'])
     player = allplayerController.GetPlayer()
     state, position = player.GetPlayingState()
     if state == "paused":
@@ -64,6 +64,19 @@ def play():
         uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
         player.PlayUrl(uri)
     return jsonify({'return': 'ok'})
+
+
+# @app.route('/playqueue', methods= ['POST'])
+# def play():
+#     data = request.get_json()
+#     player = allplayerController.GetPlayer()
+#     state, position = player.GetPlayingState()
+#     if state == "paused":
+#         player.Resume()
+#     else:
+#         uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
+#         player.PlayUrl(uri)
+#     return jsonify({'return': 'ok'})
 
 
 @app.route('/adjust_volume', methods=['POST'])
@@ -102,8 +115,6 @@ def tracks():
                    'album': item.album
                 }
             )
-
-        #print(tracks)
 
     return jsonify({'items': tracks})  # g.lib.items()
 
@@ -145,8 +156,6 @@ class AllPlayWebPlugin(BeetsPlugin):
             'port': 8337,
             'cors': '',
         })
-
-        #self._log
 
     def commands(self):
         cmd = ui.Subcommand('allplay', help=u'start an AllPlay Web interface')
