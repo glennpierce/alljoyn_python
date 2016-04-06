@@ -33,8 +33,7 @@ from .AllPlayController import AllPlayController
 allplayerController = AllPlayController()
 
 app = flask.Flask(__name__)
-#app.url_map.converters['idlist'] = IdListConverter
-#app.url_map.converters['query'] = QueryConverter
+
 
 @app.before_request
 def before_request():
@@ -103,8 +102,6 @@ def tracks():
                 }
             )
 
-        #print(tracks)
-
     return jsonify({'items': tracks})  # g.lib.items()
 
 
@@ -145,8 +142,6 @@ class AllPlayWebPlugin(BeetsPlugin):
             'port': 8337,
             'cors': '',
         })
-
-        #self._log
 
     def commands(self):
         cmd = ui.Subcommand('allplay', help=u'start an AllPlay Web interface')

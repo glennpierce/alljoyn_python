@@ -728,7 +728,7 @@ if __name__ == "__main__":
 
             print p.GetPlaylist()
             print p.GetLoopMode()
-            p.SetLoopMode("One")
+            p.SetLoopMode("None")
 
     while True:
         time.sleep(0.1)
