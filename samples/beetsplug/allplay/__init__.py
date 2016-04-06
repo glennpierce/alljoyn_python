@@ -84,7 +84,11 @@ def stop():
 @app.route('/pause')
 def pause():
     player = allplayerController.GetPlayer()
-    player.Pause()
+    state, position = player.GetPlayingState()
+    if state.lower() == "paused":
+        player.Resume()
+    else:
+        player.Pause()
     return jsonify({'return': 'ok'})
 
 

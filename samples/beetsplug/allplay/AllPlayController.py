@@ -640,11 +640,6 @@ class AllPlayController(object):
         self.PlayQueue()
 
     def PlayQueue(self):
-	state, position = self.player.GetPlayingState()
-        if state.lower() == "paused":
-	    self.player.Resume()
-	    return
-
         if len(self.queue) == 0:
             return 
 
