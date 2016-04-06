@@ -148,9 +148,7 @@ class AllPlayer(object):
         return MessageReceiver.MessageReceiverSignalHandlerFuncType(func)
 
     def OnEndOfPlayback(self, member, srcpath, message):
-        print "EndOfPlayback", self.device_name
-
-
+        pass
 
     def _OnPlayStateChanged(self):
         def func(member, srcpath, message):
@@ -633,6 +631,23 @@ class AllPlayController(object):
     def SetQueue(self, queue):
         self.queue = queue
 
+    @staticmethod
+    def item_url(item_id):
+        return "http://192.168.1.5:8337/trackfile/%s" % (item_id,)
+
+    def OnEndOfPlayback(self, member, srcpath, message):
+        print "EndOfPlayback2", self.player.device_name
+        self.PlayQueue()
+
+    def PlayQueue(self):
+        if len(self.queue) == 0:
+            return 
+
+        item = self.queue.pop(0)
+        print "item popped from queue", item
+        url = AllPlayController.item_url(item['id'])
+        self.player.PlayUrl(url)
+
     def __del__(self):
         print "Shutting Down"
         self.g_bus.Stop()
@@ -670,6 +685,7 @@ class AllPlayController(object):
             self.player = devices.pop(0)
 
         print "using: ", self.player.device_name, "speaker", self.player.device_id
+        self.player.OnEndOfPlayback = self.OnEndOfPlayback
         self.player.CreateZone(device_ids)
 
         # restart playing if needed
@@ -698,6 +714,8 @@ class AllPlayController(object):
                             'name': p.device_name,
                             'state': state.lower(),
                             'volume': p.GetVolume()})
+
+        print players
         return players
 
     def GetPlayer(self):

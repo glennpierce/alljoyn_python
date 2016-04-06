@@ -61,8 +61,9 @@ def play():
     if state == "paused":
         player.Resume()
     else:
-        uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
-        player.PlayUrl(uri)
+        #uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
+        #player.PlayUrl(uri)
+        allplayerController.PlayQueue()
     return jsonify({'return': 'ok'})
 
 

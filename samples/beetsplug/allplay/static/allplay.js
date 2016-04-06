@@ -1,5 +1,6 @@
 var app = angular.module('AllPlayApp', ['ngRoute',
-					'checklist-model',
+					                              'checklist-model',
+                                        'ngCookies',
                                         'rzModule', 
                                         'angularUtils.directives.dirPagination'], function($interpolateProvider) {
 
@@ -53,15 +54,23 @@ app.service("QueueService", function() {
      };
 });
 
-app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '$interval', '$location', 'QueueService',
-                                   function($rootScope, $scope, $http, $timeout, $interval, $location, QueueService) {
+app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
+                                   '$interval', '$location', '$cookies',
+                                   'QueueService',
+                                   function($rootScope, $scope, $http, $timeout, $interval,
+                                            $location, $cookies , QueueService) {
 
   $scope.currentView = 'showtracks';  
   $scope.currentPage = 1;
   $scope.pageSize = 10;
   $scope.devices = [];
-  $scope.selected_devices = [];
   $scope.queueService = QueueService;
+
+  $scope.selected_devices = $cookies.getObject('selected_devices');
+
+  if($scope.selected_devices == undefined) {
+    $scope.selected_devices = [];
+  }
 
   $scope.changeView = function(view){
   	$location.path(view); // path not hash
@@ -118,14 +127,8 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
       var parameters = {'selected_devices': $scope.selected_devices};
       var json_data = JSON.stringify(parameters);
       $http({cache: false, url: '/create_zone', method: 'post', data: json_data});
+      $cookies.putObject('selected_devices', $scope.selected_devices);
   };
-
-  // $scope.playqueue = function() {
-
-  //     var parameters = {'queue': $scope.queueService.items};
-  //     var json_data = JSON.stringify(parameters);
-  //     return $http({cache: false, url: '/playqueue', method: 'post', data: json_data});
-  //  };
 
    $scope.stop = function() {
 
@@ -167,10 +170,6 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout', '
    $scope.speakers = function() {
         $("#wrapper").toggleClass("toggled");
    };
-
-   // $scope.track_add_to_queue = function(item) {
-   // 	$scope.queueService.add(item);
-   // };
 
 }]);
 
