@@ -147,14 +147,14 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
       return $http({cache: false, url: '/play', method: 'post', data: json_data});
    };
 
-   $scope.track_select = function(item) {
-      $scope.queueService.add(item);
-      var parameters = {'id': item.id,
-                        'queue': $scope.queueService.items,
-                        'position': $scope.queueService.length-1};
-      var json_data = JSON.stringify(parameters);
-      return $http({cache: false, url: '/play', method: 'post', data: json_data});
-   };
+   // $scope.track_select = function(item) {
+   //    $scope.queueService.add(item);
+   //    var parameters = {'id': item.id,
+   //                      'queue': $scope.queueService.items,
+   //                      'position': $scope.queueService.length-1};
+   //    var json_data = JSON.stringify(parameters);
+   //    return $http({cache: false, url: '/play', method: 'post', data: json_data});
+   // };
 
    $scope.toggle_queue = function() {
         if($scope.currentView == 'showtracks') {
@@ -169,6 +169,11 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
 
    $scope.speakers = function() {
         $("#wrapper").toggleClass("toggled");
+   };
+
+   
+   $scope.track_add_to_queue = function(item) {
+    $scope.queueService.add(item);
    };
 
 }]);

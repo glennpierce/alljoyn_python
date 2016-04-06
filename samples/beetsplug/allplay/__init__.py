@@ -61,23 +61,8 @@ def play():
     if state == "paused":
         player.Resume()
     else:
-        #uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
-        #player.PlayUrl(uri)
         allplayerController.PlayQueue()
     return jsonify({'return': 'ok'})
-
-
-# @app.route('/playqueue', methods= ['POST'])
-# def play():
-#     data = request.get_json()
-#     player = allplayerController.GetPlayer()
-#     state, position = player.GetPlayingState()
-#     if state == "paused":
-#         player.Resume()
-#     else:
-#         uri = "http://192.168.1.5:8337/trackfile/%s" % (data['id'],)
-#         player.PlayUrl(uri)
-#     return jsonify({'return': 'ok'})
 
 
 @app.route('/adjust_volume', methods=['POST'])
