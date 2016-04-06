@@ -1,0 +1,11 @@
+<div style="padding:5px;">
+	<input ng-model="search" type="text" size="50" />
+</div>
+
+<audiotrack item-object="item" dir-paginate="item in items | filter:search | itemsPerPage: pageSize" current-page="currentPage"
+	on-track-play="track_select(item)" on-queue-add="track_add_to_queue(item)">
+</audiotrack>
+
+<div class="text-center">
+        <dir-pagination-controls></dir-pagination-controls>
+</div>
