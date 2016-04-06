@@ -66,7 +66,15 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
   $scope.devices = [];
   $scope.queueService = QueueService;
 
+  $scope.devicesChanged = function() {
+      var parameters = {'selected_devices': $scope.selected_devices};
+      var json_data = JSON.stringify(parameters);
+      $http({cache: false, url: '/create_zone', method: 'post', data: json_data});
+      $cookies.putObject('selected_devices', $scope.selected_devices);
+  };
+
   $scope.selected_devices = $cookies.getObject('selected_devices');
+  $scope.devicesChanged();
 
   if($scope.selected_devices == undefined) {
     $scope.selected_devices = [];
@@ -123,29 +131,21 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
       }
   );
 
-  $scope.devicesChanged = function() {
-      var parameters = {'selected_devices': $scope.selected_devices};
-      var json_data = JSON.stringify(parameters);
-      $http({cache: false, url: '/create_zone', method: 'post', data: json_data});
-      $cookies.putObject('selected_devices', $scope.selected_devices);
+  $scope.stop = function() {
+
+   return $http({cache: false, url: '/stop', method: 'get'});
   };
 
-   $scope.stop = function() {
+  $scope.pause = function() {
+     return $http({cache: false, url: '/pause', method: 'get'});
+  };
 
-    return $http({cache: false, url: '/stop', method: 'get'});
-   };
+  $scope.play = function() {
 
-   $scope.pause = function() {
-      return $http({cache: false, url: '/pause', method: 'get'});
-   };
-
-   $scope.playqueue = function() {
-
-      $scope.queueService.add(item);
-      var parameters = {'queue': $scope.queueService.items};
-      var json_data = JSON.stringify(parameters);
-      return $http({cache: false, url: '/play', method: 'post', data: json_data});
-   };
+     var parameters = {'queue': $scope.queueService.items};
+     var json_data = JSON.stringify(parameters);
+     return $http({cache: false, url: '/play', method: 'post', data: json_data});
+  };
 
    // $scope.track_select = function(item) {
    //    $scope.queueService.add(item);
@@ -156,15 +156,15 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
    //    return $http({cache: false, url: '/play', method: 'post', data: json_data});
    // };
 
-   $scope.toggle_queue = function() {
-        if($scope.currentView == 'showtracks') {
-            $scope.currentView = 'showqueue';
-            $scope.changeView('showqueue');
-        }
-	else {
-	    $scope.currentView = 'showtracks';
-            $scope.changeView('showtracks');
-	}
+  $scope.toggle_queue = function() {
+       if($scope.currentView == 'showtracks') {
+           $scope.currentView = 'showqueue';
+           $scope.changeView('showqueue');
+       }
+       else {
+           $scope.currentView = 'showtracks';
+           $scope.changeView('showtracks');
+       }
    };
 
    $scope.speakers = function() {

@@ -28,7 +28,6 @@ class AllPlayer(object):
         self.session_id = session_id
         self.device_name = device_name
         self.device_id = device_id
-        self.paused = False
 
         self.proxyBusObject = ProxyBusObject.ProxyBusObject(
             self.bus, self.bus_name, SERVICE_PATH, self.session_id)
@@ -448,7 +447,6 @@ class AllPlayer(object):
             'net.allplay.MediaPlayer', "Next", None, 0, 0)
 
     def Pause(self):
-        self.paused = True
         self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Pause", None, 0, 0)
         logging.info(
@@ -470,12 +468,14 @@ class AllPlayer(object):
         the specific position (true). This is used for transferring of playlists.
         """
 
-        if self.paused:
+	state = self.GetPlayingState()
+
+        if state.lower() == "paused":
             self.proxyBusObject.MethodCallNoReply(
                 'net.allplay.MediaPlayer', "Resume", None, 0, 0)
-            self.paused = False
             logging.info(
                 "resuming for device %s (%s)", self.device_name, self.device_id)
+	    return
 
         self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Play", None, 0, 0)
@@ -640,6 +640,11 @@ class AllPlayController(object):
         self.PlayQueue()
 
     def PlayQueue(self):
+	state, position = self.player.GetPlayingState()
+        if state.lower() == "paused":
+	    self.player.Resume()
+	    return
+
         if len(self.queue) == 0:
             return 
 
@@ -724,9 +729,6 @@ class AllPlayController(object):
 
 if __name__ == "__main__":
     controller = AllPlayController()
-
-
-
 
     tracks = []
     for t in range(5):
