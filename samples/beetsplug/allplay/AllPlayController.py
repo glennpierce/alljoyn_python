@@ -143,10 +143,10 @@ class AllPlayer(object):
 
     def _OnEndOfPlayback(self):
         def func(member, srcpath, message):
-            self.OnEndOfPlayback(member, srcpath, message)
+            self.OnEndOfPlayback(member, srcpath, message, self.device_id)
         return MessageReceiver.MessageReceiverSignalHandlerFuncType(func)
 
-    def OnEndOfPlayback(self, member, srcpath, message):
+    def OnEndOfPlayback(self, member, srcpath, message, device_id):
         pass
 
     def _OnPlayStateChanged(self):
@@ -635,13 +635,17 @@ class AllPlayController(object):
     def item_url(item_id):
         return "http://192.168.1.5:8337/trackfile/%s" % (item_id,)
 
-    def OnEndOfPlayback(self, member, srcpath, message):
-        print "EndOfPlayback2", self.player.device_name
+    def OnEndOfPlayback(self, member, srcpath, message, device_id):
+        print "EndOfPlayback2", self.player.device_name, device_id
+
+        if self.player.device_id != device_id:
+            return 
+
         self.PlayQueue()
 
     def PlayQueue(self):
         if len(self.queue) == 0:
-            return 
+            return
 
         item = self.queue.pop(0)
         print "item popped from queue", item
