@@ -92,6 +92,22 @@ def pause():
     return jsonify({'return': 'ok'})
 
 
+@app.route('/update', methods= ['POST'])
+def update():
+    data = request.get_json()
+    item_id = data['id']
+    item = g.lib.get_item(item_id)
+    
+    item.read()
+
+    print(item)
+
+    #item.update(values)
+
+
+    return jsonify({'return': 'ok'})
+
+
 @app.route('/tracks/')
 def tracks():
     tracks = []

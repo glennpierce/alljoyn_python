@@ -62,8 +62,10 @@ app.service("MetaDataService", function() {
      var self = this;
      this.item = {};
 
-     this.updateMetaData = function() {
-         return self.item;
+     this.updateMetaData = function($http) {
+        var parameters = {'id': this.item.id};
+        var json_data = JSON.stringify(parameters);
+        return $http({cache: false, url: '/update', method: 'post', data: json_data});
      };
 
      this.setItem = function(item) {
@@ -153,8 +155,6 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
 
   $scope.stop = function() {
 
-$scope.selectedItem = {'title':'ggggggggggggggg'};
-
    return $http({cache: false, url: '/stop', method: 'get'});
   };
 
@@ -229,7 +229,7 @@ app.controller('MetaDataController', ['$rootScope', '$scope', '$http', '$timeout
   };
 
   $scope.apply_metadata = function(item) {
-       
+       MetaDataService.updateMetaData($http);
   };
-  
+
 }]);
