@@ -20,6 +20,10 @@ app.config(['$routeProvider',
         templateUrl: '/showqueue.html',
         controller: 'QueueController'
       }).
+      when('/showmetadata', {
+        templateUrl: '/showmetadata.html',
+        controller: 'MetaDataController'
+      }).
       otherwise({
         redirectTo: '/showtracks'
       });
@@ -31,7 +35,6 @@ app.directive("audiotrack", function() {
         templateUrl: '/track.html',
         replace: true,
         scope: {itemObject: "=",
-                onTrackPlay: "&",
                 onQueueAdd: "&"}
     }
 });
@@ -54,14 +57,30 @@ app.service("QueueService", function() {
      };
 });
 
+
+app.service("MetaDataService", function() {
+     var self = this;
+     this.item = {};
+
+     this.updateMetaData = function() {
+         return self.item;
+     };
+
+     this.setItem = function(item) {
+         return self.item = item;
+     };
+});
+
+
 app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
                                    '$interval', '$location', '$cookies',
-                                   'QueueService',
+                                   'QueueService', 'MetaDataService',
                                    function($rootScope, $scope, $http, $timeout, $interval,
-                                            $location, $cookies , QueueService) {
+                                            $location, $cookies , QueueService, MetaDataService) {
 
   $scope.currentView = 'showtracks';  
   $scope.currentPage = 1;
+  $scope.selectedItem = {'title':'ddd'};
   $scope.pageSize = 10;
   $scope.devices = [];
   $scope.queueService = QueueService;
@@ -74,7 +93,6 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
   };
 
   $scope.selected_devices = $cookies.getObject('selected_devices');
-  $scope.devicesChanged();
 
   if($scope.selected_devices == undefined) {
     $scope.selected_devices = [];
@@ -82,6 +100,8 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
 
   $scope.changeView = function(view){
   	$location.path(view); // path not hash
+
+    $scope.selectedItem.title = "faris";
   }
 
   $http({ cache: true, url: '/get_devices', method: 'GET'}).success(
@@ -133,6 +153,8 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
 
   $scope.stop = function() {
 
+$scope.selectedItem = {'title':'ggggggggggggggg'};
+
    return $http({cache: false, url: '/stop', method: 'get'});
   };
 
@@ -141,6 +163,8 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
   };
 
   $scope.play = function() {
+
+     $scope.devicesChanged();
 
      var parameters = {'queue': $scope.queueService.items};
      var json_data = JSON.stringify(parameters);
@@ -156,24 +180,29 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
    //    return $http({cache: false, url: '/play', method: 'post', data: json_data});
    // };
 
-  $scope.toggle_queue = function() {
-       if($scope.currentView == 'showtracks') {
-           $scope.currentView = 'showqueue';
-           $scope.changeView('showqueue');
-       }
-       else {
+   $scope.toggle_queue = function() {
+       if($scope.currentView == 'showqueue') {
            $scope.currentView = 'showtracks';
            $scope.changeView('showtracks');
+       }
+       else {
+           $scope.currentView = 'showqueue';
+           $scope.changeView('showqueue');
        }
    };
 
    $scope.speakers = function() {
         $("#wrapper").toggleClass("toggled");
    };
-
    
    $scope.track_add_to_queue = function(item) {
     $scope.queueService.add(item);
+   };
+
+   $scope.track_edit_metadata = function(item) {
+       MetaDataService.setItem(item);
+       $scope.currentView = 'showmetadata';
+       $scope.changeView('showmetadata');
    };
 
 }]);
@@ -185,4 +214,22 @@ app.controller('QueueController', ['$rootScope', '$scope', '$http', '$timeout', 
   $scope.currentPage = 1;
   $scope.queueService = QueueService;
 
+}]);
+
+
+app.controller('MetaDataController', ['$rootScope', '$scope', '$http', '$timeout', '$interval',
+                                      '$location', 'QueueService', 'MetaDataService',
+                                   function($rootScope, $scope, $http, $timeout, $interval,
+                                            $location, QueueService, MetaDataService) {
+
+  $scope.item = MetaDataService.item;
+  
+  $scope.cancel_metadata = function(item) {
+       $scope.changeView('showtracks');
+  };
+
+  $scope.apply_metadata = function(item) {
+       
+  };
+  
 }]);

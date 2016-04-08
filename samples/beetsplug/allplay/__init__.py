@@ -137,6 +137,11 @@ def home():
     return flask.render_template('index.html')
 
 
+@app.route('/showmetadata.html')
+def showmetadata():
+    return flask.render_template('showmetadata.html')
+
+
 # Plugin hook.
 class AllPlayWebPlugin(BeetsPlugin):
     def __init__(self):
