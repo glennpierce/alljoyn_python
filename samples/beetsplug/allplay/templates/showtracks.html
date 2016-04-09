@@ -5,7 +5,8 @@
 <audiotrack item-object="item"
                                dir-paginate="item in items | filter:search | itemsPerPage: pageSize" 
                                current-page="currentPage"
-	ng-click="track_edit_metadata(item)">
+                               on-metadata-edit="track_edit_metadata(item)"
+                               on-queue-add="track_add_to_queue(item)">
 </audiotrack>
 
 <div class="text-center">

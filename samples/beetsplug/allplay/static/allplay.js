@@ -35,7 +35,8 @@ app.directive("audiotrack", function() {
         templateUrl: '/track.html',
         replace: true,
         scope: {itemObject: "=",
-                onQueueAdd: "&"}
+                onQueueAdd: "&",
+                onMetadataEdit: "&"}
     }
 });
 
@@ -195,12 +196,12 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
         $("#wrapper").toggleClass("toggled");
    };
    
-   $scope.track_add_to_queue = function(item) {
-    $scope.queueService.add(item);
+   $scope.track_add_to_queue = function(track_id) {
+    $scope.queueService.add(track_id);
    };
 
-   $scope.track_edit_metadata = function(item) {
-       MetaDataService.setItem(item);
+   $scope.track_edit_metadata = function(track_item) {
+       MetaDataService.setItem(track_item);
        $scope.currentView = 'showmetadata';
        $scope.changeView('showmetadata');
    };

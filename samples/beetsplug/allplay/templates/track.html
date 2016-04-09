@@ -1,8 +1,10 @@
 <div class="list-group-item">
-    <div ng-click="onMetaDataEdit({ track_id: item })" >
+    <div>
     <h4 class="list-group-item-heading">[[itemObject.title]]</h4>
     <p class="list-group-item-text">Album [[itemObject.album]]</p>
     <p class="list-group-item-text">Artist [[itemObject.artist]]</p>
     </div>
+    <a href ng-click="onMetadataEdit({ track_item: item })">Edit Metadata</a>
+    <br>
     <a href ng-click="onQueueAdd({ track_id: item })">Add to queue</a>
 </div>
