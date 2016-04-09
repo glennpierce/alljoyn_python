@@ -63,7 +63,7 @@ app.service("MetaDataService", function() {
      this.item = {};
 
      this.updateMetaData = function($http) {
-        var parameters = {'id': this.item.id};
+        var parameters = {'item': this.item};
         var json_data = JSON.stringify(parameters);
         return $http({cache: false, url: '/update', method: 'post', data: json_data});
      };
@@ -229,6 +229,7 @@ app.controller('MetaDataController', ['$rootScope', '$scope', '$http', '$timeout
   };
 
   $scope.apply_metadata = function(item) {
+       console.log($scope.item);
        MetaDataService.updateMetaData($http);
   };
 
