@@ -36,10 +36,22 @@ app.directive("audiotrack", function() {
         replace: true,
         scope: {itemObject: "=",
                 onQueueAdd: "&",
+                onTrackPlay: "&",
                 onMetadataEdit: "&"}
     }
 });
 
+
+app.directive("queuetrack", function() {
+    return {
+      restrict: 'E',
+        templateUrl: '/queuetrack.html',
+        replace: true,
+        scope: {itemObject: "=",
+                onTrackPlay: "&",
+                onQueueRemove: "&"}
+    }
+});
 
 app.service("QueueService", function() {
      var self = this;
@@ -164,9 +176,6 @@ app.controller('MainController', ['$rootScope', '$scope', '$http', '$timeout',
   };
 
   $scope.play = function() {
-
-     $scope.devicesChanged();
-
      var parameters = {'queue': $scope.queueService.items};
      var json_data = JSON.stringify(parameters);
      return $http({cache: false, url: '/play', method: 'post', data: json_data});
@@ -214,6 +223,16 @@ app.controller('QueueController', ['$rootScope', '$scope', '$http', '$timeout', 
 
   $scope.currentPage = 1;
   $scope.queueService = QueueService;
+
+  $scope.track_play = function(track_id) {
+     var parameters = {'track_id': track_id};
+     var json_data = JSON.stringify(parameters);
+     return $http({cache: false, url: '/playtrack', method: 'post', data: json_data});
+  };
+
+  $scope.remove_from_queue = function(track_id) {
+    alert("remove");
+  };
 
 }]);
 

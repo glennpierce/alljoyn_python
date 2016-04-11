@@ -1,0 +1,8 @@
+<div class="list-group-item">
+    <div ng-click="onTrackPlay({ track_id: item })">
+    <h4 class="list-group-item-heading">[[itemObject.title]]</h4>
+    <p class="list-group-item-text">Album [[itemObject.album]]</p>
+    <p class="list-group-item-text">Artist [[itemObject.artist]]</p>
+    </div>
+    <a href ng-click="onQueueRemove({ track_id: item })">Remove from queue</a>
+</div>

@@ -652,6 +652,10 @@ class AllPlayController(object):
         url = AllPlayController.item_url(item['id'])
         self.player.PlayUrl(url)
 
+    def PlayTrack(self, item_id):
+        url = AllPlayController.item_url(item_id)
+        self.player.PlayUrl(url)
+
     def __del__(self):
         print "Shutting Down"
         self.g_bus.Stop()

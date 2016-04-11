@@ -65,6 +65,18 @@ def play():
     return jsonify({'return': 'ok'})
 
 
+@app.route('/playtrack', methods= ['POST'])
+def playtrack():
+    data = request.get_json()
+    player = allplayerController.GetPlayer()
+    state, position = player.GetPlayingState()
+    if state == "paused":
+        player.Resume()
+    else:
+        allplayerController.PlayTrack(data['track_id'])
+    return jsonify({'return': 'ok'})
+
+
 @app.route('/adjust_volume', methods=['POST'])
 def adjust_volume():
     data = request.get_json()
@@ -141,6 +153,11 @@ def trackfile(item_id):
 @app.route('/track.html')
 def track():
     return flask.render_template('track.html')
+
+
+@app.route('/queuetrack.html')
+def queuetrack():
+    return flask.render_template('queuetrack.html')
 
 
 @app.route('/')
