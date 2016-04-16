@@ -101,3 +101,10 @@ Beets plugin ::
 
     This will start a webserver you can access on port 8337
 
+
+Todo
+============
+
+Port unit tests from c bindings
+
+Add a generic Set and Get to MsgArg that automatically converts the DBus signatures to Python types
