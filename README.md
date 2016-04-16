@@ -101,4 +101,4 @@ Beets plugin ::
 
     This will start a webserver you can access on port 8337
 
-    .. image:: https://github.com/glennpierce/moped/raw/master/images/BeetsAllPlayPlugin.png?raw=true
+    .. image:: https://raw.githubusercontent.com/glennpierce/alljoyn_python/master/images/BeetsAllPlayPlugin.png?raw=true
