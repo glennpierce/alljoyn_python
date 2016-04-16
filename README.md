@@ -1,6 +1,6 @@
 Python bindings for AllJoyn
 
-
+.. image:: https://github.com/glennpierce/alljoyn_python/raw/master/images/BeetsAllPlayPlugin.png?raw=true
 
 Installation
 ============
@@ -101,4 +101,3 @@ Beets plugin ::
 
     This will start a webserver you can access on port 8337
 
-.. image:: https://github.com/glennpierce/alljoyn_python/raw/master/images/BeetsAllPlayPlugin.png?raw=true
