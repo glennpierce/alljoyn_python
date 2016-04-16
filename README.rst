@@ -26,7 +26,7 @@ Setup compile environment download AllJoyn code and compile it::
     sudo ln -s /usr/bin/g++ /usr/bin/arm-angstrom-linux-gnueabi-g++
     sudo ln -s /usr/bin/gcc /usr/bin/arm-angstrom-linux-gnueabi-gcc
     cd ~/WORKING_DIRECTORY/alljoyn/core/alljoyn
-    scons OS=linux CPU=arm WS=off OE_BASE=/usr BR=on BINDINGS=cpp CROSS_COMPILE=/usr/bin/arm-linux-gnueabihf-
+    scons OS=linux CPU=arm WS=off OE_BASE=/usr BR=on BINDINGS=c,cpp CROSS_COMPILE=/usr/bin/arm-linux-gnueabihf-
     sudo ln -sf ~/WORKING_DIRECTORY/alljoyn/core/alljoyn/build/linux/arm/debug/dist/cpp/lib/liballjoyn.so /lib/arm-linux-gnueabihf/liballjoyn.so
     cd ~/WORKING_DIRECTORY/alljoyn/core/alljoyn/build/linux/arm/debug/dist/cpp/bin
     ldd alljoyn-daemon #daemon not available in latest versions of alljoyn, use BR=on with scons for embedded daemon
