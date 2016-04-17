@@ -13,6 +13,8 @@ import ctypes as C
 
 import threading
 
+from beets import config
+
 lock = threading.Lock()
 
 SERVICE_NAME = "net.allplay.MediaPlayer"
@@ -633,7 +635,8 @@ class AllPlayController(object):
 
     @staticmethod
     def item_url(item_id):
-        return "http://192.168.1.5:8337/trackfile/%s" % (item_id,)
+        host = config['allplay']['host'].get(unicode)
+        return "http://%s:8337/trackfile/%s" % (host, item_id,)
 
     def OnEndOfPlayback(self, member, srcpath, message, device_id):
         print "EndOfPlayback2", self.player.device_name, device_id
