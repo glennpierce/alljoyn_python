@@ -254,6 +254,8 @@ def signal_handler(signal, frame):
 if __name__ == "__main__":
     alljoyn = AllJoyn()
 
+    alljoyn.RouterInit()
+
     signal.signal(signal.SIGINT, signal_handler)
 
     g_bus = BusAttachment.BusAttachment("AllPlayerApp", True) 
@@ -293,6 +295,7 @@ if __name__ == "__main__":
         #for i in range(10):
         #    allplayer.AdjustVolumePercent(10.0*i)
 
+	alljoyn.RouterShutdown()	
 
 #AdjustVolumePercent(self, percent)
 

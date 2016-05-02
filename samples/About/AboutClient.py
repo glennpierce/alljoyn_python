@@ -150,6 +150,8 @@ if __name__ == "__main__":
     # Install SIGINT handler so Ctrl + C deallocates memory properly
     alljoyn = AllJoyn()
 
+    alljoyn.RouterInit()
+
     print "AllJoyn Library version:", alljoyn.Version
     print "AllJoyn Library build info:", alljoyn.BuildInfo
 
@@ -188,3 +190,5 @@ if __name__ == "__main__":
 
     g_bus.Stop()
     g_bus.Join()
+
+    alljoyn.RouterShutdown()

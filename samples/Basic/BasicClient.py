@@ -36,6 +36,8 @@ def signal_handler(signal, frame):
 if __name__ == "__main__":
     alljoyn = AllJoyn()
 
+    alljoyn.RouterInit()
+
     signal.signal(signal.SIGINT, signal_handler)
 
     g_bus = BusAttachment.BusAttachment("BasicApp", True)
@@ -62,3 +64,5 @@ if __name__ == "__main__":
     while t < 10:
         time.sleep(0.5)
         t += 0.5
+
+    alljoyn.RouterShutdown()
