@@ -107,4 +107,6 @@ Todo
 
 Port unit tests from c bindings
 
+Port build to scons for integration into upstream alljoyn
+
 Add a generic Set and Get to MsgArg that automatically converts the DBus signatures to Python types
