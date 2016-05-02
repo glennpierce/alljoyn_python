@@ -95,6 +95,8 @@ if __name__ == "__main__":
     print "AllJoyn Library version:", alljoyn.Version
     print "AllJoyn Library build info:", alljoyn.BuildInfo
 
+    alljoyn.RouterInit()
+
     signal.signal(signal.SIGINT, signal_handler)
 
     # Create message bus
@@ -127,5 +129,15 @@ if __name__ == "__main__":
         if t >= timeout:
             break
 
+
+#    try:
+#    while True:
+#        time.sleep(10)
+#except KeyboardInterrupt:
+#    print 'interrupted!'
+
+
     g_bus.Stop()
     g_bus.Join()
+
+    alljoyn.RouterShutdown()

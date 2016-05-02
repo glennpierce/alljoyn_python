@@ -19,6 +19,8 @@ import ctypes as C
 from ctypes.util import find_library
 import sys
 from enum import Enum, unique
+import AlljoynRouter
+
 
 class Handle(C.c_void_p):
     pass
@@ -589,6 +591,12 @@ class AllJoyn(object):
     @property
     def BusAttachment(self):
         return BusAttachment
+
+    def RouterInit(self):
+        AlljoynRouter.RouterInit()
+
+    def RouterShutdown(self):
+        AlljoynRouter.RouterShutdown()
 
     def __init__(self):
         Init._Init()

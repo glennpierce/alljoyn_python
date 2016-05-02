@@ -161,6 +161,8 @@ if __name__ == "__main__":
     # Start the msg bus
     g_bus.Start()
 
+    print "Bus started"
+
     try:
         g_bus.Connect(None)
     except QStatusException as ex:
